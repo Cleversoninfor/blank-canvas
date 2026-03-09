@@ -118,11 +118,11 @@ const AdminSettings = () => {
     }
   };
   const toggleStoreStatus = async () => {
-    if (!store?.id) return;
+    if (!store) return;
     const newValue = !store.is_open;
     try {
       await updateStore.mutateAsync({
-        id: store.id,
+        ...(store.id ? { id: store.id } : {}),
         is_open: newValue
       });
       setFormData(prev => ({ ...prev, is_open: newValue }));
