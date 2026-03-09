@@ -305,6 +305,7 @@ const Index = () => {
         {/* PWA Install Prompt */}
         <InstallPrompt />
 
+        <WhatsAppFloatingButton />
         <CartButton />
         
         {modalProduct && (
