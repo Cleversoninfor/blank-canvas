@@ -13,7 +13,7 @@ export function OperationModes() {
     
     try {
       await updateStore.mutateAsync({
-        id: store.id,
+        ...(store.id ? { id: store.id } : {}),
         [mode]: value,
       });
       
