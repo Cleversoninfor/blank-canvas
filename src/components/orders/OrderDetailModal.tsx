@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { MapPin, Phone, User, CreditCard, Clock, FileDown, Users, Utensils, Printer, Navigation } from 'lucide-react';
+import { MapPin, Phone, User, CreditCard, Clock, FileDown, Users, Utensils, Printer, Navigation, MessageCircle } from 'lucide-react';
 import { useUnifiedOrderItems, UnifiedOrder } from '@/hooks/useAllOrders';
 import { useStoreConfig } from '@/hooks/useStore';
 
