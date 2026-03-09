@@ -210,31 +210,43 @@ const AdminSettings = () => {
                 </p>
               </div>
             </div>
-            <Switch checked={store?.is_open ?? true} onCheckedChange={toggleStoreStatus} disabled={updateStore.isPending} />
+            {/* Toggle só aparece fora do horário (para forçar abertura) ou sem horários configurados */}
+            {(!hasBusinessHours || !isWithinBusinessHours) && (
+              <Switch checked={store?.is_open ?? true} onCheckedChange={toggleStoreStatus} disabled={updateStore.isPending} />
+            )}
           </div>
           
           {/* Status indicator and description */}
           <div className="bg-muted/50 rounded-lg p-3 space-y-2">
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className={`text-xs font-medium ${isWithinBusinessHours ? 'text-secondary' : 'text-destructive'}`}>
-                {isWithinBusinessHours ? '● Dentro do horário de funcionamento' : '● Fora do horário de funcionamento'}
+              <span className={`text-xs font-medium ${storeStatus.isOpen ? 'text-secondary' : 'text-destructive'}`}>
+                {storeStatus.isOpen ? '● Loja aberta' : '● Loja fechada'}
               </span>
             </div>
             
-            {!isWithinBusinessHours && (
+            {hasBusinessHours && isWithinBusinessHours && (
+              <div className="flex items-start gap-2 bg-secondary/10 rounded-md p-2">
+                <Clock className="h-4 w-4 text-secondary mt-0.5 shrink-0" />
+                <p className="text-xs text-secondary">
+                  A loja está aberta automaticamente porque está dentro do horário de funcionamento.
+                </p>
+              </div>
+            )}
+            
+            {hasBusinessHours && !isWithinBusinessHours && (
               <div className="flex items-start gap-2 bg-destructive/10 rounded-md p-2">
                 <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
                 <p className="text-xs text-destructive">
-                  A loja está fechada automaticamente porque está fora do horário configurado.
+                  Fora do horário de funcionamento. Use o toggle para forçar a abertura se necessário.
                 </p>
               </div>
             )}
             
             <p className="text-xs text-muted-foreground leading-relaxed">
-              <strong>Como funciona:</strong> Fora do horário de funcionamento, a loja fecha automaticamente. 
-              Use o toggle acima para <strong>forçar a abertura</strong> mesmo fora do horário (ex: evento especial) 
-              ou para <strong>fechar manualmente</strong> durante o horário de funcionamento (ex: emergência ou feriado).
+              <strong>Como funciona:</strong> A loja abre e fecha automaticamente de acordo com os horários configurados.
+              {hasBusinessHours && !isWithinBusinessHours && ' Use o toggle acima para forçar a abertura fora do horário (ex: evento especial).'}
+              {!hasBusinessHours && ' Configure horários de funcionamento para automação.'}
             </p>
           </div>
         </div>
