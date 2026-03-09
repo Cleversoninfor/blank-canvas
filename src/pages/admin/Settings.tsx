@@ -119,17 +119,15 @@ const AdminSettings = () => {
   };
   const toggleStoreStatus = async () => {
     if (!store?.id) return;
+    const newValue = !store.is_open;
     try {
       await updateStore.mutateAsync({
         id: store.id,
-        is_open: !formData.is_open
+        is_open: newValue
       });
-      setFormData({
-        ...formData,
-        is_open: !formData.is_open
-      });
+      setFormData(prev => ({ ...prev, is_open: newValue }));
       toast({
-        title: formData.is_open ? 'Loja fechada' : 'Loja aberta'
+        title: newValue ? 'Loja aberta' : 'Loja fechada'
       });
     } catch (error) {
       toast({
@@ -204,7 +202,7 @@ const AdminSettings = () => {
                 </p>
               </div>
             </div>
-            <Switch checked={formData.is_open} onCheckedChange={toggleStoreStatus} />
+            <Switch checked={store?.is_open ?? true} onCheckedChange={toggleStoreStatus} disabled={updateStore.isPending} />
           </div>
           
           {/* Status indicator and description */}
