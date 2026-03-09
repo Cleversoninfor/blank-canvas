@@ -16,7 +16,8 @@ export function useBusinessHours() {
       const { data, error } = await supabase
         .from('business_hours')
         .select('*')
-        .order('day_of_week', { ascending: true });
+        .order('day_of_week', { ascending: true })
+        .order('open_time', { ascending: true });
       
       if (error) throw error;
       return data as BusinessHour[];
@@ -99,7 +100,6 @@ export function getDayName(day: number): string {
 function getBrazilTime(): { day: number; time: string } {
   const now = new Date();
   
-  // Format to Brazil timezone
   const brazilFormatter = new Intl.DateTimeFormat('pt-BR', {
     timeZone: 'America/Sao_Paulo',
     hour: '2-digit',
@@ -123,32 +123,28 @@ function getBrazilTime(): { day: number; time: string } {
   };
 }
 
-// Helper to check if store is currently open
+// Helper to check if store is currently open (supports multiple slots per day)
 export function isStoreCurrentlyOpen(hours: BusinessHour[]): boolean {
   const { day: currentDay, time: currentTime } = getBrazilTime();
   
-  const todayHours = hours.find(h => h.day_of_week === currentDay);
+  const todaySlots = hours.filter(h => h.day_of_week === currentDay && h.is_active);
   
-  if (!todayHours || !todayHours.is_active) return false;
+  if (todaySlots.length === 0) return false;
   
-  // Normalize time format (remove seconds if present)
-  const openTime = todayHours.open_time.slice(0, 5);
-  const closeTime = todayHours.close_time.slice(0, 5);
-  
-  // Handle midnight (00:00) as end of day - treat it as 24:00 for comparison
-  if (closeTime === '00:00') {
-    // Store is open from open_time until midnight
-    return currentTime >= openTime;
-  }
-  
-  // Handle overnight hours (e.g., 18:00 to 02:00)
-  if (closeTime < openTime) {
-    // Store spans midnight - open if current time is after open OR before close
-    return currentTime >= openTime || currentTime <= closeTime;
-  }
-  
-  // Normal hours (e.g., 08:00 to 22:00)
-  return currentTime >= openTime && currentTime <= closeTime;
+  return todaySlots.some(slot => {
+    const openTime = slot.open_time.slice(0, 5);
+    const closeTime = slot.close_time.slice(0, 5);
+    
+    if (closeTime === '00:00') {
+      return currentTime >= openTime;
+    }
+    
+    if (closeTime < openTime) {
+      return currentTime >= openTime || currentTime <= closeTime;
+    }
+    
+    return currentTime >= openTime && currentTime <= closeTime;
+  });
 }
 
 // Hook to check if store is open
