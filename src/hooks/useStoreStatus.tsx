@@ -40,21 +40,8 @@ export function useStoreStatus(): StoreStatus {
     ? isStoreCurrentlyOpen(businessHours) 
     : true; // Se não tem horários configurados, considera aberto
 
-  // isForcedOpen = true quando o toggle manual está ativado (independente do horário)
-  const isForcedOpen = store.is_open;
-
-  // Se is_open está ATIVADO -> loja ABERTA (permite forçar abertura fora do horário)
-  if (store.is_open) {
-    return {
-      isOpen: true,
-      reason: 'open',
-      message: isWithinBusinessHours ? 'Recebendo pedidos' : 'Aberta manualmente (fora do horário)',
-      isForcedOpen,
-    };
-  }
-
-  // is_open está DESATIVADO
-  if (!isWithinBusinessHours) {
+  // REGRA 1: Se fora do horário -> FECHADA (horários são prioridade)
+  if (hasBusinessHours && !isWithinBusinessHours) {
     return {
       isOpen: false,
       reason: 'hours_closed',
@@ -63,7 +50,17 @@ export function useStoreStatus(): StoreStatus {
     };
   }
 
-  // Dentro do horário mas fechada manualmente
+  // REGRA 2: Dentro do horário (ou sem horários configurados) e is_open = TRUE -> ABERTA
+  if (store.is_open) {
+    return {
+      isOpen: true,
+      reason: 'open',
+      message: 'Recebendo pedidos',
+      isForcedOpen: true,
+    };
+  }
+
+  // REGRA 3: Dentro do horário mas fechada manualmente
   return {
     isOpen: false,
     reason: 'manual_closed',
