@@ -1,0 +1,1 @@
+ALTER TABLE public.store_config ADD COLUMN menu_layout text NOT NULL DEFAULT 'list';

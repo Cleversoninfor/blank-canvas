@@ -1,0 +1,7 @@
+project_id = "wvejbkiawzzdosmnmkpp"
+
+[functions.get-vapid-key]
+verify_jwt = false
+
+[functions.send-order-notification]
+verify_jwt = false
