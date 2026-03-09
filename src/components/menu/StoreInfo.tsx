@@ -90,7 +90,7 @@ export function StoreInfo({ store }: StoreInfoProps) {
               </div>
             </div>
             <a 
-              href={`https://wa.me/55${store.phone_whatsapp.replace(/\D/g, '')}`}
+              href={`https://api.whatsapp.com/send?phone=55${store.phone_whatsapp.replace(/\D/g, '')}&text=${encodeURIComponent('Olá! Vim pelo cardápio digital.')}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm font-semibold uppercase text-primary hover:text-primary/80 transition-colors"

@@ -148,9 +148,20 @@ export function OrderDetailModal({ order, open, onOpenChange }: OrderDetailModal
                     <span className="font-medium">{order.customer_name}</span>
                   </div>
                   {order.customer_phone && (
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                      <span>{order.customer_phone}</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <span>{order.customer_phone}</span>
+                      </div>
+                      <a
+                        href={`https://api.whatsapp.com/send?phone=55${order.customer_phone.replace(/\D/g, '')}&text=${encodeURIComponent(`Olá ${order.customer_name}! Sobre seu pedido #${order.id}:`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-xs font-semibold text-green-600 hover:text-green-700 transition-colors"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                        WhatsApp
+                      </a>
                     </div>
                   )}
                 </>
