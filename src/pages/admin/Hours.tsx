@@ -1,18 +1,22 @@
 import { useState } from 'react';
-import { Loader2, Clock, Plus, Pencil, Check, X } from 'lucide-react';
+import { Loader2, Clock, Plus, Pencil, Check, X, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { useBusinessHours, useUpdateBusinessHour, useCreateBusinessHours, getDayName, BusinessHour } from '@/hooks/useBusinessHours';
+import { useBusinessHours, useUpdateBusinessHour, useCreateBusinessHours, useDeleteBusinessHour, getDayName, BusinessHour } from '@/hooks/useBusinessHours';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
 
 const AdminHours = () => {
   const { data: hours, isLoading } = useBusinessHours();
   const updateHour = useUpdateBusinessHour();
   const createHours = useCreateBusinessHours();
+  const deleteHour = useDeleteBusinessHour();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editData, setEditData] = useState({
@@ -48,7 +52,7 @@ const AdminHours = () => {
         id: hour.id,
         is_active: !hour.is_active,
       });
-      toast({ title: hour.is_active ? 'Dia desativado' : 'Dia ativado' });
+      toast({ title: hour.is_active ? 'Horário desativado' : 'Horário ativado' });
     } catch (error) {
       toast({ title: 'Erro ao atualizar', variant: 'destructive' });
     }
@@ -63,6 +67,33 @@ const AdminHours = () => {
     }
   };
 
+  const handleAddSlot = async (dayOfWeek: number) => {
+    try {
+      const { error } = await supabase
+        .from('business_hours')
+        .insert({
+          day_of_week: dayOfWeek,
+          open_time: '12:00',
+          close_time: '14:00',
+          is_active: true,
+        });
+      if (error) throw error;
+      queryClient.invalidateQueries({ queryKey: ['business-hours'] });
+      toast({ title: 'Horário adicionado!' });
+    } catch (error: any) {
+      toast({ title: 'Erro ao adicionar', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handleDeleteSlot = async (id: string) => {
+    try {
+      await deleteHour.mutateAsync(id);
+      toast({ title: 'Horário removido!' });
+    } catch (error: any) {
+      toast({ title: 'Erro ao remover', description: error.message, variant: 'destructive' });
+    }
+  };
+
   if (isLoading) {
     return (
       <AdminLayout title="Horários">
@@ -73,7 +104,6 @@ const AdminHours = () => {
     );
   }
 
-  // Show create button if no hours exist
   if (!hours || hours.length === 0) {
     return (
       <AdminLayout title="Horários de Funcionamento">
@@ -108,6 +138,12 @@ const AdminHours = () => {
     );
   }
 
+  // Group hours by day_of_week
+  const hoursByDay: Record<number, BusinessHour[]> = {};
+  for (let d = 0; d < 7; d++) {
+    hoursByDay[d] = hours.filter(h => h.day_of_week === d);
+  }
+
   return (
     <AdminLayout title="Horários de Funcionamento">
       <div className="w-full max-w-2xl">
@@ -116,110 +152,126 @@ const AdminHours = () => {
           <div className="min-w-0">
             <p className="font-medium text-foreground text-sm sm:text-base">Configure os horários de funcionamento</p>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              Defina quando sua loja está aberta para receber pedidos
+              Defina quando sua loja está aberta. Adicione múltiplos horários por dia.
             </p>
           </div>
         </div>
 
         <div className="bg-card rounded-xl shadow-card overflow-hidden">
-          {hours?.map((hour) => (
-            <div 
-              key={hour.id}
-              className={cn(
-                "flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 sm:p-4 border-b border-border last:border-0",
-                !hour.is_active && "opacity-60"
-              )}
-            >
-              {/* Mobile: First row with switch, day name, and actions */}
-              <div className="flex items-center justify-between sm:justify-start gap-3 sm:gap-4">
-                <div className="flex items-center gap-3">
-                  <Switch
-                    checked={hour.is_active}
-                    onCheckedChange={() => toggleActive(hour)}
-                  />
-                  <p className={cn(
-                    "font-medium text-sm sm:text-base w-16 sm:w-20",
-                    hour.is_active ? "text-foreground" : "text-muted-foreground"
-                  )}>
-                    {getDayName(hour.day_of_week)}
+          {[0, 1, 2, 3, 4, 5, 6].map((day) => {
+            const daySlots = hoursByDay[day] || [];
+            const hasSlots = daySlots.length > 0;
+
+            return (
+              <div key={day} className="border-b border-border last:border-0 p-3 sm:p-4">
+                {/* Day header */}
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-semibold text-foreground text-sm sm:text-base">
+                    {getDayName(day)}
                   </p>
+                  {!hasSlots && (
+                    <span className="text-xs text-muted-foreground">Sem horários</span>
+                  )}
                 </div>
 
-                {/* Actions - visible on mobile when not editing */}
-                {editingId !== hour.id && (
-                  <div className="flex items-center gap-1 sm:hidden">
-                    <Button 
-                      size="icon-sm"
-                      variant="action-icon"
-                      onClick={() => handleEdit(hour)}
+                {/* Time slots */}
+                <div className="space-y-2">
+                  {daySlots.map((hour, idx) => (
+                    <div
+                      key={hour.id}
+                      className={cn(
+                        "flex items-center gap-2 sm:gap-3 pl-2",
+                        !hour.is_active && "opacity-50"
+                      )}
                     >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
+                      <Switch
+                        checked={hour.is_active}
+                        onCheckedChange={() => toggleActive(hour)}
+                        className="shrink-0"
+                      />
+
+                      {editingId === hour.id ? (
+                        <div className="flex items-center gap-2 flex-1">
+                          <Input
+                            type="time"
+                            value={editData.open_time}
+                            onChange={(e) => setEditData({ ...editData, open_time: e.target.value })}
+                            className="w-full sm:w-28"
+                          />
+                          <span className="text-muted-foreground text-sm shrink-0">às</span>
+                          <Input
+                            type="time"
+                            value={editData.close_time}
+                            onChange={(e) => setEditData({ ...editData, close_time: e.target.value })}
+                            className="w-full sm:w-28"
+                          />
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 text-primary shrink-0"
+                            onClick={() => handleSave(hour)}
+                            disabled={updateHour.isPending}
+                          >
+                            {updateHour.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 shrink-0"
+                            onClick={() => setEditingId(null)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between flex-1">
+                          <p className={cn(
+                            "text-sm",
+                            hour.is_active ? "text-foreground" : "text-muted-foreground"
+                          )}>
+                            {hour.open_time.slice(0, 5)} às {hour.close_time.slice(0, 5)}
+                          </p>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-7 w-7"
+                              onClick={() => handleEdit(hour)}
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                            {daySlots.length > 1 && (
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-7 w-7 text-destructive hover:text-destructive"
+                                onClick={() => handleDeleteSlot(hour.id)}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Add slot button */}
+                <button
+                  onClick={() => handleAddSlot(day)}
+                  className="mt-2 flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors pl-2"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Adicionar horário
+                </button>
               </div>
-
-              {/* Time display/edit */}
-              {editingId === hour.id ? (
-                <div className="flex items-center gap-2 flex-1">
-                  <Input
-                    type="time"
-                    value={editData.open_time}
-                    onChange={(e) => setEditData({ ...editData, open_time: e.target.value })}
-                    className="w-full sm:w-28"
-                  />
-                  <span className="text-muted-foreground text-sm shrink-0">às</span>
-                  <Input
-                    type="time"
-                    value={editData.close_time}
-                    onChange={(e) => setEditData({ ...editData, close_time: e.target.value })}
-                    className="w-full sm:w-28"
-                  />
-                  <Button 
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8 text-primary shrink-0"
-                    onClick={() => handleSave(hour)}
-                    disabled={updateHour.isPending}
-                  >
-                    {updateHour.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                  </Button>
-                  <Button 
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8 shrink-0"
-                    onClick={() => setEditingId(null)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex items-center justify-between sm:justify-start gap-2 sm:gap-4 flex-1">
-                  <p className={cn(
-                    "text-sm",
-                    hour.is_active ? "text-foreground" : "text-muted-foreground"
-                  )}>
-                    {hour.open_time.slice(0, 5)} às {hour.close_time.slice(0, 5)}
-                  </p>
-                  
-                  {/* Actions - visible on desktop */}
-                  <div className="hidden sm:flex items-center gap-1">
-                    <Button 
-                      size="icon-sm"
-                      variant="action-icon"
-                      onClick={() => handleEdit(hour)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <p className="text-xs text-muted-foreground mt-4 text-center">
-          Os horários são salvos automaticamente ao clicar em salvar
+          Adicione múltiplos horários por dia (ex: almoço e jantar)
         </p>
       </div>
     </AdminLayout>

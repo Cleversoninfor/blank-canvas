@@ -33,18 +33,36 @@ export function StoreInfo({ store }: StoreInfoProps) {
     return time.slice(0, 5);
   };
 
-  const currentDay = new Date().getDay();
+  // Get Brazil current day
+  const dayFormatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Sao_Paulo',
+    weekday: 'short',
+  });
+  const dayName = dayFormatter.format(new Date());
+  const dayMap: Record<string, number> = {
+    'Sun': 0, 'Mon': 1, 'Tue': 2, 'Wed': 3, 'Thu': 4, 'Fri': 5, 'Sat': 6
+  };
+  const currentDay = dayMap[dayName] ?? new Date().getDay();
   
-  // Get today's hours for display
-  const todayHours = businessHours?.find(h => h.day_of_week === currentDay);
-  const todaySchedule = todayHours?.is_active 
-    ? `${formatTime(todayHours.open_time)} - ${formatTime(todayHours.close_time)}`
+  // Get today's active slots for display
+  const todaySlots = businessHours?.filter(h => h.day_of_week === currentDay && h.is_active) || [];
+  const todaySchedule = todaySlots.length > 0
+    ? todaySlots.map(s => `${formatTime(s.open_time)} - ${formatTime(s.close_time)}`).join(' | ')
     : null;
+
+  // Group hours by day for the modal
+  const hoursByDay: Record<number, typeof todaySlots> = {};
+  if (businessHours) {
+    for (const h of businessHours) {
+      if (!hoursByDay[h.day_of_week]) hoursByDay[h.day_of_week] = [];
+      hoursByDay[h.day_of_week].push(h);
+    }
+  }
 
   return (
     <>
       <div className="mt-4 px-4 space-y-3">
-        {/* Status - Usando status combinado (manual + horário) */}
+        {/* Status */}
         <div className="flex items-center justify-between rounded-xl bg-card p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <div className={`flex h-10 w-10 items-center justify-center rounded-full ${storeStatus.isOpen ? 'bg-secondary/20' : 'bg-destructive/20'}`}>
@@ -64,15 +82,13 @@ export function StoreInfo({ store }: StoreInfoProps) {
               )}
             </div>
           </div>
-          {!storeStatus.isForcedOpen && (
-            <button 
-              onClick={() => setHoursModalOpen(true)}
-              className="flex flex-col sm:flex-row items-center gap-0 sm:gap-1 text-xs sm:text-sm font-semibold uppercase text-primary hover:text-primary/80 transition-colors leading-tight"
-            >
-              <span>Ver</span>
-              <span>Horários</span>
-            </button>
-          )}
+          <button 
+            onClick={() => setHoursModalOpen(true)}
+            className="flex flex-col sm:flex-row items-center gap-0 sm:gap-1 text-xs sm:text-sm font-semibold uppercase text-primary hover:text-primary/80 transition-colors leading-tight"
+          >
+            <span>Ver</span>
+            <span>Horários</span>
+          </button>
         </div>
 
         {/* Phone */}
@@ -141,7 +157,7 @@ export function StoreInfo({ store }: StoreInfoProps) {
         </div>
       </div>
 
-      {/* Hours Modal */}
+      {/* Hours Modal - grouped by day with multiple slots */}
       <Dialog open={hoursModalOpen} onOpenChange={setHoursModalOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
@@ -152,32 +168,40 @@ export function StoreInfo({ store }: StoreInfoProps) {
           </DialogHeader>
           
           <div className="space-y-2 mt-4">
-            {businessHours?.map((hour) => (
-              <div 
-                key={hour.id} 
-                className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
-                  hour.day_of_week === currentDay ? 'bg-primary/10 border border-primary/20' : 'bg-muted/50'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <span className={`font-medium ${hour.day_of_week === currentDay ? 'text-primary' : 'text-foreground'}`}>
-                    {getDayName(hour.day_of_week)}
-                  </span>
-                  {hour.day_of_week === currentDay && (
-                    <Badge variant="default" className="text-xs">Hoje</Badge>
-                  )}
-                </div>
-                <div className="text-right">
-                  {hour.is_active ? (
-                    <span className="text-sm text-foreground">
-                      {formatTime(hour.open_time)} - {formatTime(hour.close_time)}
+            {[0, 1, 2, 3, 4, 5, 6].map((day) => {
+              const daySlots = hoursByDay[day] || [];
+              const activeSlots = daySlots.filter(s => s.is_active);
+              const isToday = day === currentDay;
+
+              return (
+                <div 
+                  key={day} 
+                  className={`flex items-start justify-between p-3 rounded-lg transition-colors ${
+                    isToday ? 'bg-primary/10 border border-primary/20' : 'bg-muted/50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className={`font-medium text-sm ${isToday ? 'text-primary' : 'text-foreground'}`}>
+                      {getDayName(day)}
                     </span>
-                  ) : (
-                    <span className="text-sm text-muted-foreground">Fechado</span>
-                  )}
+                    {isToday && (
+                      <Badge variant="default" className="text-xs">Hoje</Badge>
+                    )}
+                  </div>
+                  <div className="text-right space-y-0.5">
+                    {activeSlots.length > 0 ? (
+                      activeSlots.map((slot) => (
+                        <p key={slot.id} className="text-sm text-foreground">
+                          {formatTime(slot.open_time)} - {formatTime(slot.close_time)}
+                        </p>
+                      ))
+                    ) : (
+                      <span className="text-sm text-muted-foreground">Fechado</span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             {(!businessHours || businessHours.length === 0) && (
               <p className="text-center text-muted-foreground py-4">
