@@ -49,17 +49,25 @@ const AdminSettings = () => {
   });
   
   // Calculate business hours status - must be before any returns
-  const isWithinBusinessHours = hours ? isStoreCurrentlyOpen(hours) : true;
+  const hasBusinessHours = hours && hours.length > 0;
+  const isWithinBusinessHours = hours ? isStoreCurrentlyOpen(hours) : false;
   
   // Determine the effective status message
   const getStatusMessage = () => {
-    if (!isWithinBusinessHours) {
-      return 'Fora do horário de funcionamento (fecha automaticamente)';
+    if (hasBusinessHours && isWithinBusinessHours) {
+      return 'Loja aberta automaticamente (dentro do horário)';
     }
-    if (formData.is_open) {
-      return 'Recebendo pedidos (dentro do horário)';
+    if (hasBusinessHours && !isWithinBusinessHours) {
+      if (store?.is_open) {
+        return 'Loja aberta manualmente (fora do horário)';
+      }
+      return 'Fora do horário de funcionamento (fechada automaticamente)';
     }
-    return 'Loja fechada manualmente (dentro do horário)';
+    // Sem horários configurados
+    if (store?.is_open) {
+      return 'Recebendo pedidos';
+    }
+    return 'Loja fechada manualmente';
   };
   useEffect(() => {
     if (store) {
