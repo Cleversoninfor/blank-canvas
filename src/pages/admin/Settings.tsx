@@ -204,7 +204,7 @@ const AdminSettings = () => {
                 </p>
               </div>
             </div>
-            <Switch checked={formData.is_open} onCheckedChange={toggleStoreStatus} />
+            <Switch checked={store?.is_open ?? true} onCheckedChange={toggleStoreStatus} disabled={updateStore.isPending} />
           </div>
           
           {/* Status indicator and description */}
