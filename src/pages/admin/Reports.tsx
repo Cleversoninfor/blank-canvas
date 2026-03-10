@@ -259,6 +259,24 @@ const AdminReports = () => {
   return (
     <AdminLayout title="Relatórios">
       <div className="space-y-6">
+        {/* Sub-report navigation */}
+        <div className="flex flex-wrap gap-3">
+          <Button
+            variant="outline"
+            onClick={() => navigate('/admin/waiter-reports')}
+          >
+            <Users className="w-4 h-4 mr-2" />
+            Relatórios Garçons
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => navigate('/admin/driver-reports')}
+          >
+            <Truck className="w-4 h-4 mr-2" />
+            Relatórios Entregadores
+          </Button>
+        </div>
+
         {/* Date Filters */}
         <div className="bg-card rounded-xl p-4 shadow-card">
           <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
