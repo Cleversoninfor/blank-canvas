@@ -1,0 +1,1 @@
+ALTER TABLE public.store_config ADD COLUMN IF NOT EXISTS cover_url_mobile text;
