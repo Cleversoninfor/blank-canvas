@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { FileSpreadsheet, FileText, Loader2, TrendingUp, ShoppingBag, DollarSign, Calendar, Users, Truck } from 'lucide-react';
