@@ -187,9 +187,11 @@ export function HeroHeader({ store }: HeroHeaderProps) {
         {/* Hero Content - Left-aligned, positioned higher */}
         <div className="relative z-10 flex flex-col items-start text-left justify-start pt-24 md:pt-8 md:justify-center h-[calc(100%-80px)] px-6 sm:px-8 md:px-12 lg:px-16">
           {/* Slogan */}
-          <p className="text-lg sm:text-xl lg:text-2xl italic text-white/80 mb-4">
-            {heroSlogan}
-          </p>
+          {heroSlogan && (
+            <p className="text-lg sm:text-xl lg:text-2xl italic text-white/80 mb-4">
+              {heroSlogan}
+            </p>
+          )}
 
           {/* Main Title */}
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-3 drop-shadow-lg"
@@ -198,16 +200,18 @@ export function HeroHeader({ store }: HeroHeaderProps) {
           </h1>
 
           {/* Animated Subtitle */}
-          <div className="h-14 sm:h-16 lg:h-20 mb-4 overflow-hidden">
-            <p 
-              className={`text-3xl sm:text-4xl lg:text-5xl font-extrabold text-primary drop-shadow-md transition-all duration-300 ${
-                isAnimating ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
-              }`}
-              style={{ fontFamily: "'Poppins', sans-serif", textShadow: '2px 4px 8px rgba(0,0,0,0.3)' }}
-            >
-              {rotatingTexts[currentTextIndex]}
-            </p>
-          </div>
+          {rotatingTexts.length > 0 && (
+            <div className="h-14 sm:h-16 lg:h-20 mb-4 overflow-hidden">
+              <p 
+                className={`text-3xl sm:text-4xl lg:text-5xl font-extrabold text-primary drop-shadow-md transition-all duration-300 ${
+                  isAnimating ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
+                }`}
+                style={{ fontFamily: "'Poppins', sans-serif", textShadow: '2px 4px 8px rgba(0,0,0,0.3)' }}
+              >
+                {rotatingTexts[currentTextIndex]}
+              </p>
+            </div>
+          )}
 
           {/* Info Line */}
           <p className="text-white/90 mb-6 text-lg sm:text-xl font-medium">
