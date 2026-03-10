@@ -296,7 +296,7 @@ const AdminSettings = () => {
             })} onRemove={() => setFormData({
               ...formData,
               logo_url: ''
-            })} className="mt-1" />
+            })} className="mt-1" aspectRatio="1/1" />
             </div>
 
             <div>
