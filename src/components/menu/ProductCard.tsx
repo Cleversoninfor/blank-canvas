@@ -55,7 +55,7 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
         </div>
       </div>
       {product.image_url && (
-        <div className="relative w-24 sm:w-28 shrink-0 overflow-hidden rounded-xl bg-muted" style={{ aspectRatio: '1/1' }}>
+        <div className="relative w-24 sm:w-28 shrink-0 overflow-hidden rounded-[20px] bg-muted flex items-center justify-center" style={{ aspectRatio: '1/1' }}>
           <img
             src={product.image_url}
             alt={product.name}
