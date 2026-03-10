@@ -11,6 +11,7 @@ interface ImageUploadProps {
   onUpload: (url: string) => void;
   onRemove?: () => void;
   className?: string;
+  aspectRatio?: string;
 }
 
 export function ImageUpload({ 
