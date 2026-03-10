@@ -25,12 +25,12 @@ export function MenuProductCard({ product, onSelect }: MenuProductCardProps) {
     >
       {/* Image - Small with 540:280 ratio */}
       {product.image_url && (
-        <div className="relative w-24 sm:w-28 md:w-32 shrink-0 overflow-hidden rounded-[20px] bg-muted flex items-center justify-center" style={{ aspectRatio: '1/1' }}>
+        <div className="relative w-24 sm:w-28 md:w-32 shrink-0 overflow-hidden rounded-[18px]" style={{ aspectRatio: '1/1' }}>
           <img
             src={product.image_url}
             alt={product.name}
             loading="lazy"
-            className="h-full w-full object-contain transition-transform duration-200 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
           />
           {!product.is_available && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/60">
