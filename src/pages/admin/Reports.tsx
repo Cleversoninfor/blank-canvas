@@ -38,6 +38,7 @@ interface TableOrderReport {
 }
 
 const AdminReports = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [startDate, setStartDate] = useState<Date>(startOfMonth(new Date()));
   const [endDate, setEndDate] = useState<Date>(endOfMonth(new Date()));
