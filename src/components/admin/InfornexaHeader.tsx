@@ -14,7 +14,7 @@ export function InfornexaHeader() {
   return (
     <header 
       className="w-full py-2 px-4 relative z-20 bg-sidebar"
-      style={{ backgroundColor: '#23354D' }}
+      >
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-4">
