@@ -114,7 +114,7 @@ export function BrandSettings({ className }: BrandSettingsProps) {
         {/* Logo */}
         <div className="space-y-2">
           <Label className="text-xs sm:text-sm text-muted-foreground">
-            Logo do Restaurante / Ícone do App
+            Logo do Comércio / Ícone do App
             <span className="ml-2 px-2 py-0.5 bg-primary/10 text-primary rounded text-[10px] font-medium">
               512×512px (quadrada)
             </span>
