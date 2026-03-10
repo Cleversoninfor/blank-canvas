@@ -16,6 +16,8 @@ interface HeroHeaderProps {
     floating_image_size_mobile?: number | null;
     floating_image_position_mobile?: number | null;
     floating_image_vertical_position_mobile?: number | null;
+    hero_banner_enabled?: boolean | null;
+    floating_image_enabled?: boolean | null;
   };
 }
 
@@ -29,10 +31,13 @@ export function HeroHeader({ store }: HeroHeaderProps) {
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
   const imageRef = useRef<HTMLImageElement>(null);
 
+  const heroBannerEnabled = store.hero_banner_enabled ?? true;
+  const floatingImageEnabled = store.floating_image_enabled ?? true;
+
   const coverUrl = isMobile 
     ? (store.cover_url_mobile || store.cover_url || DEFAULT_COVER)
     : (store.cover_url || DEFAULT_COVER);
-  const floatingImageUrl = store.floating_image_url || defaultFloatingImg;
+  const floatingImageUrl = floatingImageEnabled ? (store.floating_image_url || defaultFloatingImg) : null;
 
   // Use appropriate settings based on device - sizes are now in pixels
   const floatingImageSize = isMobile
@@ -47,16 +52,18 @@ export function HeroHeader({ store }: HeroHeaderProps) {
     ? (store.floating_image_vertical_position_mobile ?? 0)
     : (store.floating_image_vertical_position ?? 50);
 
-  // Use texts from store config or defaults
+  // Only show texts if banner is enabled; filter out empty strings
   const rotatingTexts = useMemo(() => {
+    if (!heroBannerEnabled) return [];
     return [
-      store.hero_text_1 || 'Carne macia',
-      store.hero_text_2 || 'Suculenta',
-      store.hero_text_3 || 'Sabor Irresistível',
-    ].filter(Boolean);
-  }, [store.hero_text_1, store.hero_text_2, store.hero_text_3]);
+      store.hero_text_1,
+      store.hero_text_2,
+      store.hero_text_3,
+    ].filter((t): t is string => !!t && t.trim().length > 0);
+  }, [store.hero_text_1, store.hero_text_2, store.hero_text_3, heroBannerEnabled]);
 
-  const heroSlogan = store.hero_slogan || 'O segredo está no tempero';
+  const heroSlogan = heroBannerEnabled ? (store.hero_slogan || '') : '';
+
 
   // Rotating text animation
   useEffect(() => {
@@ -180,9 +187,11 @@ export function HeroHeader({ store }: HeroHeaderProps) {
         {/* Hero Content - Left-aligned, positioned higher */}
         <div className="relative z-10 flex flex-col items-start text-left justify-start pt-24 md:pt-8 md:justify-center h-[calc(100%-80px)] px-6 sm:px-8 md:px-12 lg:px-16">
           {/* Slogan */}
-          <p className="text-lg sm:text-xl lg:text-2xl italic text-white/80 mb-4">
-            {heroSlogan}
-          </p>
+          {heroSlogan && (
+            <p className="text-lg sm:text-xl lg:text-2xl italic text-white/80 mb-4">
+              {heroSlogan}
+            </p>
+          )}
 
           {/* Main Title */}
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-3 drop-shadow-lg"
@@ -191,16 +200,18 @@ export function HeroHeader({ store }: HeroHeaderProps) {
           </h1>
 
           {/* Animated Subtitle */}
-          <div className="h-14 sm:h-16 lg:h-20 mb-4 overflow-hidden">
-            <p 
-              className={`text-3xl sm:text-4xl lg:text-5xl font-extrabold text-primary drop-shadow-md transition-all duration-300 ${
-                isAnimating ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
-              }`}
-              style={{ fontFamily: "'Poppins', sans-serif", textShadow: '2px 4px 8px rgba(0,0,0,0.3)' }}
-            >
-              {rotatingTexts[currentTextIndex]}
-            </p>
-          </div>
+          {rotatingTexts.length > 0 && (
+            <div className="h-14 sm:h-16 lg:h-20 mb-4 overflow-hidden">
+              <p 
+                className={`text-3xl sm:text-4xl lg:text-5xl font-extrabold text-primary drop-shadow-md transition-all duration-300 ${
+                  isAnimating ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
+                }`}
+                style={{ fontFamily: "'Poppins', sans-serif", textShadow: '2px 4px 8px rgba(0,0,0,0.3)' }}
+              >
+                {rotatingTexts[currentTextIndex]}
+              </p>
+            </div>
+          )}
 
           {/* Info Line */}
           <p className="text-white/90 mb-6 text-lg sm:text-xl font-medium">
