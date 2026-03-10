@@ -52,9 +52,7 @@ const navGroups = [
       { id: 'pdv', label: 'PDV', icon: Store, path: '/admin/pdv' },
       { id: 'kitchen', label: 'Cozinha', icon: ChefHat, path: '/kitchen', external: true },
       { id: 'waiters', label: 'Garçons', icon: Users, path: '/admin/waiters' },
-      { id: 'waiter-access', label: 'Acesso Garçons', icon: Users, path: '/waiter', external: true },
       { id: 'drivers', label: 'Entregadores', icon: Truck, path: '/admin/drivers' },
-      { id: 'driver-access', label: 'Acesso Entregadores', icon: Truck, path: '/driver', external: true },
     ]
   },
   {
