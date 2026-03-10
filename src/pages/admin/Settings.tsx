@@ -27,6 +27,7 @@ const AdminSettings = () => {
   const { toast } = useToast();
   
   const [editingHourId, setEditingHourId] = useState<string | null>(null);
+  const [coverTab, setCoverTab] = useState<'desktop' | 'mobile'>('desktop');
   const [editHourData, setEditHourData] = useState({
     open_time: '',
     close_time: ''
