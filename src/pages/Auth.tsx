@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import logoInfornexa from '@/assets/logo-infornexa.png';
-import logoInfornexa from '@/assets/logo-infornexa.png';
 import { z } from 'zod';
 
 const loginSchema = z.object({
