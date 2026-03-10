@@ -11,7 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { useDrivers, useCreateDriver, useUpdateDriver, useDeleteDriver, Driver } from '@/hooks/useDrivers';
-import { Plus, Pencil, Trash2, Truck, Phone, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Truck, Phone, Loader2, ExternalLink } from 'lucide-react';
 
 export default function Drivers() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
