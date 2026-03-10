@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Pencil, Trash2, User, Phone, Loader2, DollarSign } from 'lucide-react';
+import { Plus, Pencil, Trash2, User, Phone, Loader2, DollarSign, ExternalLink } from 'lucide-react';
 
 interface Waiter {
   id: string;
