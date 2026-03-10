@@ -31,10 +31,13 @@ export function HeroHeader({ store }: HeroHeaderProps) {
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
   const imageRef = useRef<HTMLImageElement>(null);
 
+  const heroBannerEnabled = store.hero_banner_enabled ?? true;
+  const floatingImageEnabled = store.floating_image_enabled ?? true;
+
   const coverUrl = isMobile 
     ? (store.cover_url_mobile || store.cover_url || DEFAULT_COVER)
     : (store.cover_url || DEFAULT_COVER);
-  const floatingImageUrl = store.floating_image_url || defaultFloatingImg;
+  const floatingImageUrl = floatingImageEnabled ? (store.floating_image_url || defaultFloatingImg) : null;
 
   // Use appropriate settings based on device - sizes are now in pixels
   const floatingImageSize = isMobile
@@ -49,16 +52,18 @@ export function HeroHeader({ store }: HeroHeaderProps) {
     ? (store.floating_image_vertical_position_mobile ?? 0)
     : (store.floating_image_vertical_position ?? 50);
 
-  // Use texts from store config or defaults
+  // Only show texts if banner is enabled; filter out empty strings
   const rotatingTexts = useMemo(() => {
+    if (!heroBannerEnabled) return [];
     return [
-      store.hero_text_1 || 'Carne macia',
-      store.hero_text_2 || 'Suculenta',
-      store.hero_text_3 || 'Sabor Irresistível',
-    ].filter(Boolean);
-  }, [store.hero_text_1, store.hero_text_2, store.hero_text_3]);
+      store.hero_text_1,
+      store.hero_text_2,
+      store.hero_text_3,
+    ].filter((t): t is string => !!t && t.trim().length > 0);
+  }, [store.hero_text_1, store.hero_text_2, store.hero_text_3, heroBannerEnabled]);
 
-  const heroSlogan = store.hero_slogan || 'O segredo está no tempero';
+  const heroSlogan = heroBannerEnabled ? (store.hero_slogan || '') : '';
+
 
   // Rotating text animation
   useEffect(() => {
