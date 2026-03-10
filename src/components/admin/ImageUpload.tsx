@@ -112,11 +112,11 @@ export function ImageUpload({
       />
 
       {previewUrl ? (
-        <div className="relative rounded-xl overflow-hidden border border-border">
+        <div className="relative rounded-xl overflow-hidden border border-border" style={aspectRatio ? { aspectRatio } : undefined}>
           <img
             src={previewUrl}
             alt="Preview"
-            className="w-full h-40 object-cover"
+            className="w-full h-full object-contain bg-muted/30"
           />
           <Button
             type="button"
