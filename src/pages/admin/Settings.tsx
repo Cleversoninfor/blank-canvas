@@ -284,7 +284,12 @@ const AdminSettings = () => {
             </div>
 
             <div>
-              <label className="text-xs sm:text-sm text-muted-foreground">Logo</label>
+              <label className="text-xs sm:text-sm text-muted-foreground">
+                Logo
+                <span className="ml-2 px-2 py-0.5 bg-primary/10 text-primary rounded text-[10px] font-medium">
+                  512×512px (quadrada)
+                </span>
+              </label>
               <ImageUpload bucket="store-assets" currentUrl={formData.logo_url} onUpload={url => setFormData({
               ...formData,
               logo_url: url
@@ -295,7 +300,12 @@ const AdminSettings = () => {
             </div>
 
             <div>
-              <label className="text-xs sm:text-sm text-muted-foreground">Imagem de Capa</label>
+              <label className="text-xs sm:text-sm text-muted-foreground">
+                Imagem de Capa
+                <span className="ml-2 px-2 py-0.5 bg-primary/10 text-primary rounded text-[10px] font-medium">
+                  1200×400px (retangular)
+                </span>
+              </label>
               <ImageUpload bucket="store-assets" currentUrl={formData.cover_url} onUpload={url => setFormData({
               ...formData,
               cover_url: url
