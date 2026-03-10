@@ -148,17 +148,14 @@ const Auth = () => {
         <title>{titles[mode]} - Painel Admin</title>
       </Helmet>
 
-      <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#23354D' }}>
-        <InfornexaHeader />
-
-        <div className="flex-1 flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#23354D' }}>
           <div className="w-full max-w-md">
             {/* Logo */}
-            <div className="flex justify-center mb-6">
+            <div className="flex justify-center mb-8">
               <img
                 src={logoInfornexa}
                 alt="Logo do sistema"
-                className="h-20 sm:h-24 w-auto drop-shadow-lg"
+                className="h-28 sm:h-36 w-auto drop-shadow-lg"
               />
             </div>
 
