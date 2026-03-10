@@ -102,6 +102,7 @@ const AdminSettings = () => {
         pix_message: formData.pix_message || null,
         logo_url: formData.logo_url || null,
         cover_url: formData.cover_url || null,
+        cover_url_mobile: formData.cover_url_mobile || null,
         delivery_fee: parseFloat(formData.delivery_fee.replace(',', '.')) || 0,
         delivery_time_min: parseInt(formData.delivery_time_min) || 30,
         delivery_time_max: parseInt(formData.delivery_time_max) || 45,
