@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Pencil, Trash2, User, Phone, Loader2, DollarSign } from 'lucide-react';
+import { Plus, Pencil, Trash2, User, Phone, Loader2, DollarSign, ExternalLink } from 'lucide-react';
 
 interface Waiter {
   id: string;
@@ -203,21 +203,29 @@ export default function Waiters() {
     <AdminLayout title="Garçons">
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-3">
           <p className="text-muted-foreground">Gerencie a equipe de garçons</p>
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            setIsDialogOpen(open);
-            if (!open) {
-              setEditingWaiter(null);
-              setFormData({ name: '', phone: '' });
-            }
-          }}>
-            <DialogTrigger asChild>
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                <Plus className="w-4 h-4 mr-2" />
-                Novo Garçom
-              </Button>
-            </DialogTrigger>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => window.open('/waiter', '_blank')}
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Acesso Garçons
+            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+              setIsDialogOpen(open);
+              if (!open) {
+                setEditingWaiter(null);
+                setFormData({ name: '', phone: '' });
+              }
+            }}>
+              <DialogTrigger asChild>
+                <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Novo Garçom
+                </Button>
+              </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>{editingWaiter ? 'Editar Garçom' : 'Novo Garçom'}</DialogTitle>
@@ -256,7 +264,8 @@ export default function Waiters() {
                 </Button>
               </form>
             </DialogContent>
-          </Dialog>
+            </Dialog>
+          </div>
         </div>
 
         {/* Stats Cards */}

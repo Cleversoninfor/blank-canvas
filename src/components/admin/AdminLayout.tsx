@@ -52,9 +52,7 @@ const navGroups = [
       { id: 'pdv', label: 'PDV', icon: Store, path: '/admin/pdv' },
       { id: 'kitchen', label: 'Cozinha', icon: ChefHat, path: '/kitchen', external: true },
       { id: 'waiters', label: 'Garçons', icon: Users, path: '/admin/waiters' },
-      { id: 'waiter-access', label: 'Acesso Garçons', icon: Users, path: '/waiter', external: true },
       { id: 'drivers', label: 'Entregadores', icon: Truck, path: '/admin/drivers' },
-      { id: 'driver-access', label: 'Acesso Entregadores', icon: Truck, path: '/driver', external: true },
     ]
   },
   {
@@ -66,8 +64,6 @@ const navGroups = [
       { id: 'addons', label: 'Acréscimos', icon: PlusCircle, path: '/admin/addons' },
       { id: 'coupons', label: 'Cupons', icon: Ticket, path: '/admin/coupons' },
       { id: 'reports', label: 'Relatórios', icon: BarChart3, path: '/admin/reports' },
-      { id: 'driver-reports', label: 'Relatório Entregadores', icon: Truck, path: '/admin/driver-reports' },
-      { id: 'waiter-reports', label: 'Relatório Garçons', icon: Users, path: '/admin/waiter-reports' },
     ]
   },
   {

@@ -11,7 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { useDrivers, useCreateDriver, useUpdateDriver, useDeleteDriver, Driver } from '@/hooks/useDrivers';
-import { Plus, Pencil, Trash2, Truck, Phone, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Truck, Phone, Loader2, ExternalLink } from 'lucide-react';
 
 export default function Drivers() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -73,24 +73,32 @@ export default function Drivers() {
   return (
     <AdminLayout title="Entregadores">
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-3">
           <p className="text-muted-foreground">Gerencie a equipe de entregadores</p>
-          <Dialog
-            open={isDialogOpen}
-            onOpenChange={(open) => {
-              setIsDialogOpen(open);
-              if (!open) {
-                setEditingDriver(null);
-                setFormData({ name: '', phone: '', commission_percentage: '5' });
-              }
-            }}
-          >
-            <DialogTrigger asChild>
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                <Plus className="w-4 h-4 mr-2" />
-                Novo Entregador
-              </Button>
-            </DialogTrigger>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => window.open('/driver', '_blank')}
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Acesso Entregadores
+            </Button>
+            <Dialog
+              open={isDialogOpen}
+              onOpenChange={(open) => {
+                setIsDialogOpen(open);
+                if (!open) {
+                  setEditingDriver(null);
+                  setFormData({ name: '', phone: '', commission_percentage: '5' });
+                }
+              }}
+            >
+              <DialogTrigger asChild>
+                <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Novo Entregador
+                </Button>
+              </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>{editingDriver ? 'Editar Entregador' : 'Novo Entregador'}</DialogTitle>
@@ -114,7 +122,8 @@ export default function Drivers() {
                 </Button>
               </form>
             </DialogContent>
-          </Dialog>
+            </Dialog>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

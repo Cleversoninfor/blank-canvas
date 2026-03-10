@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { FileSpreadsheet, FileText, Loader2, TrendingUp, ShoppingBag, DollarSign, Calendar } from 'lucide-react';
+import { FileSpreadsheet, FileText, Loader2, TrendingUp, ShoppingBag, DollarSign, Calendar, Users, Truck } from 'lucide-react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -37,6 +38,7 @@ interface TableOrderReport {
 }
 
 const AdminReports = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [startDate, setStartDate] = useState<Date>(startOfMonth(new Date()));
   const [endDate, setEndDate] = useState<Date>(endOfMonth(new Date()));
@@ -259,6 +261,24 @@ const AdminReports = () => {
   return (
     <AdminLayout title="Relatórios">
       <div className="space-y-6">
+        {/* Sub-report navigation */}
+        <div className="flex flex-wrap gap-3">
+          <Button
+            variant="outline"
+            onClick={() => navigate('/admin/waiter-reports')}
+          >
+            <Users className="w-4 h-4 mr-2" />
+            Relatórios Garçons
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => navigate('/admin/driver-reports')}
+          >
+            <Truck className="w-4 h-4 mr-2" />
+            Relatórios Entregadores
+          </Button>
+        </div>
+
         {/* Date Filters */}
         <div className="bg-card rounded-xl p-4 shadow-card">
           <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
