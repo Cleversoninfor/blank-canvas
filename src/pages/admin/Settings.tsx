@@ -317,10 +317,10 @@ const AdminSettings = () => {
                 <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1 w-fit">
                   <button
                     type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, _coverTab: 'desktop' as any }))}
+                    onClick={() => setCoverTab('desktop')}
                     className={cn(
                       "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
-                      (!formData as any)._coverTab || (formData as any)._coverTab === 'desktop'
+                      coverTab === 'desktop'
                         ? "bg-primary text-primary-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground"
                     )}
@@ -330,10 +330,10 @@ const AdminSettings = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, _coverTab: 'mobile' as any }))}
+                    onClick={() => setCoverTab('mobile')}
                     className={cn(
                       "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
-                      (formData as any)._coverTab === 'mobile'
+                      coverTab === 'mobile'
                         ? "bg-primary text-primary-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground"
                     )}
@@ -343,7 +343,7 @@ const AdminSettings = () => {
                   </button>
                 </div>
 
-                {(!(formData as any)._coverTab || (formData as any)._coverTab === 'desktop') && (
+                {coverTab === 'desktop' && (
                   <div>
                     <span className="text-[10px] px-2 py-0.5 bg-primary/10 text-primary rounded font-medium">
                       1920×1200px (retangular)
@@ -358,7 +358,7 @@ const AdminSettings = () => {
                   </div>
                 )}
 
-                {(formData as any)._coverTab === 'mobile' && (
+                {coverTab === 'mobile' && (
                   <div>
                     <span className="text-[10px] px-2 py-0.5 bg-primary/10 text-primary rounded font-medium">
                       720×1280px (vertical)
