@@ -149,11 +149,35 @@ export function ProductModal({
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto">
           {/* Image Header with Close Button */}
-          <div className="relative w-full bg-muted flex items-center justify-center" style={{ aspectRatio: '540/280' }}>
+          <div className="relative w-full overflow-hidden" style={{ height: '300px' }}>
             {product.image_url ? (
-              <img src={product.image_url} alt={product.name} className="h-full w-full object-contain" />
+              <>
+                {/* Blurred background image */}
+                <img
+                  src={product.image_url}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-cover scale-[1.2]"
+                  style={{ filter: 'blur(30px)' }}
+                />
+                {/* Dark overlay for contrast */}
+                <div className="absolute inset-0 bg-foreground/20" />
+                {/* Main product image */}
+                <img
+                  src={product.image_url}
+                  alt={product.name}
+                  className="relative z-10 max-h-[220px] rounded-2xl object-contain"
+                  style={{ 
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                />
+              </>
             ) : (
-              <div className="h-full w-full flex items-center justify-center">
+              <div className="h-full w-full flex items-center justify-center bg-muted">
                 <span className="text-6xl">🍔</span>
               </div>
             )}
@@ -161,7 +185,7 @@ export function ProductModal({
               variant="ghost" 
               size="icon" 
               onClick={onClose} 
-              className="absolute left-3 top-3 h-9 w-9 rounded-full bg-foreground/80 text-background hover:bg-foreground"
+              className="absolute left-3 top-3 h-9 w-9 rounded-full bg-foreground/80 text-background hover:bg-foreground z-20"
             >
               <X className="h-5 w-5" />
             </Button>
