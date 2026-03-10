@@ -16,6 +16,8 @@ interface HeroHeaderProps {
     floating_image_size_mobile?: number | null;
     floating_image_position_mobile?: number | null;
     floating_image_vertical_position_mobile?: number | null;
+    hero_banner_enabled?: boolean | null;
+    floating_image_enabled?: boolean | null;
   };
 }
 
