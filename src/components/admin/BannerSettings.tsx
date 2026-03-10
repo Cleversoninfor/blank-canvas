@@ -159,25 +159,6 @@ export function BannerSettings({ className }: BannerSettingsProps) {
           O banner ocupa tela cheia no mobile (1080x1920px) e largura total no desktop (1920x1080px).
         </p>
 
-        {/* Cover Image */}
-        <div className="space-y-2">
-          <Label className="text-xs sm:text-sm text-muted-foreground">
-            Imagem de Fundo do Banner
-            <span className="ml-2 px-2 py-0.5 bg-primary/10 text-primary rounded text-[10px] font-medium">
-              1920×1080px (paisagem)
-            </span>
-          </Label>
-          <ImageUpload
-            bucket="store-assets"
-            currentUrl={formData.cover_url}
-            onUpload={(url) => setFormDataAndRef((prev) => ({ ...prev, cover_url: url }))}
-            onRemove={() => setFormDataAndRef((prev) => ({ ...prev, cover_url: '' }))}
-          />
-          <p className="text-xs text-muted-foreground">
-            <strong>Recomendado:</strong> 1920×1080 pixels (proporção 16:9). 
-            Esta imagem aparece como plano de fundo do banner principal.
-          </p>
-        </div>
 
         {/* Divider */}
         <div className="border-t pt-6">
