@@ -39,6 +39,7 @@ const AdminSettings = () => {
     pix_message: '',
     logo_url: '',
     cover_url: '',
+    cover_url_mobile: '',
     delivery_fee: '',
     delivery_time_min: '',
     delivery_time_max: '',
