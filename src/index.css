@@ -132,15 +132,15 @@
 
 @layer utilities {
   .shadow-card {
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--admin-card-shadow, 0 1px 3px rgba(0,0,0,0.1));
   }
   
   .shadow-card-hover {
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--admin-card-shadow-hover, 0 4px 12px rgba(0,0,0,0.15));
   }
   
   .shadow-float {
-    box-shadow: var(--shadow-xl);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12);
   }
 
   .scrollbar-hide {
@@ -162,6 +162,26 @@
 
   .animate-pulse-ring {
     animation: pulseRing 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Admin card styling */
+  .admin-card {
+    background: hsl(var(--admin-card));
+    border-radius: 16px;
+    box-shadow: var(--admin-card-shadow);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .admin-card:hover {
+    box-shadow: var(--admin-card-shadow-hover);
+    transform: translateY(-2px);
+  }
+
+  /* Admin table styling */
+  .admin-table thead th {
+    background: hsl(var(--admin-table-header));
+  }
+  .admin-table tbody tr:hover {
+    background: hsl(var(--admin-table-hover));
   }
 }
 
