@@ -303,7 +303,7 @@ const AdminSettings = () => {
               <label className="text-xs sm:text-sm text-muted-foreground">
                 Imagem de Capa
                 <span className="ml-2 px-2 py-0.5 bg-primary/10 text-primary rounded text-[10px] font-medium">
-                  1200×400px (retangular)
+                  1920×1200px (retangular)
                 </span>
               </label>
               <ImageUpload bucket="store-assets" currentUrl={formData.cover_url} onUpload={url => setFormData({
@@ -312,7 +312,7 @@ const AdminSettings = () => {
             })} onRemove={() => setFormData({
               ...formData,
               cover_url: ''
-            })} className="mt-1" aspectRatio="3/1" />
+            })} className="mt-1" aspectRatio="16/10" />
             </div>
           </div>
 

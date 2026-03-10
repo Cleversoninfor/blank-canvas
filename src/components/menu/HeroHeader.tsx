@@ -124,8 +124,8 @@ export function HeroHeader({ store }: HeroHeaderProps) {
       >
         {/* Background Image */}
         <div
-          className="absolute inset-0 bg-contain bg-center bg-no-repeat"
-          style={{ backgroundImage: `url('${coverUrl}')`, backgroundColor: 'black' }}
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url('${coverUrl}')` }}
         />
 
         {/* Dark Overlay with texture effect */}
