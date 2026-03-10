@@ -27,6 +27,7 @@ const AdminSettings = () => {
   const { toast } = useToast();
   
   const [editingHourId, setEditingHourId] = useState<string | null>(null);
+  const [coverTab, setCoverTab] = useState<'desktop' | 'mobile'>('desktop');
   const [editHourData, setEditHourData] = useState({
     open_time: '',
     close_time: ''
@@ -39,6 +40,7 @@ const AdminSettings = () => {
     pix_message: '',
     logo_url: '',
     cover_url: '',
+    cover_url_mobile: '',
     delivery_fee: '',
     delivery_time_min: '',
     delivery_time_max: '',
@@ -79,6 +81,7 @@ const AdminSettings = () => {
         pix_message: store.pix_message || '',
         logo_url: store.logo_url || '',
         cover_url: store.cover_url || '',
+        cover_url_mobile: store.cover_url_mobile || '',
         delivery_fee: store.delivery_fee?.toString() || '',
         delivery_time_min: store.delivery_time_min?.toString() || '30',
         delivery_time_max: store.delivery_time_max?.toString() || '45',
@@ -100,6 +103,7 @@ const AdminSettings = () => {
         pix_message: formData.pix_message || null,
         logo_url: formData.logo_url || null,
         cover_url: formData.cover_url || null,
+        cover_url_mobile: formData.cover_url_mobile || null,
         delivery_fee: parseFloat(formData.delivery_fee.replace(',', '.')) || 0,
         delivery_time_min: parseInt(formData.delivery_time_min) || 30,
         delivery_time_max: parseInt(formData.delivery_time_max) || 45,
@@ -300,19 +304,75 @@ const AdminSettings = () => {
             </div>
 
             <div>
-              <label className="text-xs sm:text-sm text-muted-foreground">
+              <label className="text-xs sm:text-sm text-muted-foreground font-medium">
                 Imagem de Capa
-                <span className="ml-2 px-2 py-0.5 bg-primary/10 text-primary rounded text-[10px] font-medium">
-                  1920×1200px (retangular)
-                </span>
               </label>
-              <ImageUpload bucket="store-assets" currentUrl={formData.cover_url} onUpload={url => setFormData({
-              ...formData,
-              cover_url: url
-            })} onRemove={() => setFormData({
-              ...formData,
-              cover_url: ''
-            })} className="mt-1" aspectRatio="16/10" />
+              
+              <p className="text-xs text-muted-foreground mt-1 mb-3">
+                Configure o posicionamento da imagem separadamente para cada dispositivo
+              </p>
+
+              {/* Desktop/Mobile Tabs */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1 w-fit">
+                  <button
+                    type="button"
+                    onClick={() => setCoverTab('desktop')}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
+                      coverTab === 'desktop'
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    Desktop
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCoverTab('mobile')}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
+                      coverTab === 'mobile'
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+                    Mobile
+                  </button>
+                </div>
+
+                {coverTab === 'desktop' && (
+                  <div>
+                    <span className="text-[10px] px-2 py-0.5 bg-primary/10 text-primary rounded font-medium">
+                      1920×1200px (retangular)
+                    </span>
+                    <ImageUpload bucket="store-assets" currentUrl={formData.cover_url} onUpload={url => setFormData({
+                      ...formData,
+                      cover_url: url
+                    })} onRemove={() => setFormData({
+                      ...formData,
+                      cover_url: ''
+                    })} className="mt-2" aspectRatio="16/10" />
+                  </div>
+                )}
+
+                {coverTab === 'mobile' && (
+                  <div>
+                    <span className="text-[10px] px-2 py-0.5 bg-primary/10 text-primary rounded font-medium">
+                      720×1280px (vertical)
+                    </span>
+                    <ImageUpload bucket="store-assets" currentUrl={formData.cover_url_mobile} onUpload={url => setFormData({
+                      ...formData,
+                      cover_url_mobile: url
+                    })} onRemove={() => setFormData({
+                      ...formData,
+                      cover_url_mobile: ''
+                    })} className="mt-2" aspectRatio="9/16" />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

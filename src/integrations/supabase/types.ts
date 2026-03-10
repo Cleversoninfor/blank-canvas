@@ -504,6 +504,7 @@ export type Database = {
           accent_color: string | null
           address: string | null
           cover_url: string | null
+          cover_url_mobile: string | null
           created_at: string
           custom_domain: string | null
           delivery_fee: number
@@ -547,6 +548,7 @@ export type Database = {
           accent_color?: string | null
           address?: string | null
           cover_url?: string | null
+          cover_url_mobile?: string | null
           created_at?: string
           custom_domain?: string | null
           delivery_fee?: number
@@ -590,6 +592,7 @@ export type Database = {
           accent_color?: string | null
           address?: string | null
           cover_url?: string | null
+          cover_url_mobile?: string | null
           created_at?: string
           custom_domain?: string | null
           delivery_fee?: number

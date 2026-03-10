@@ -29,7 +29,9 @@ export function HeroHeader({ store }: HeroHeaderProps) {
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
   const imageRef = useRef<HTMLImageElement>(null);
 
-  const coverUrl = store.cover_url || DEFAULT_COVER;
+  const coverUrl = isMobile 
+    ? (store.cover_url_mobile || store.cover_url || DEFAULT_COVER)
+    : (store.cover_url || DEFAULT_COVER);
   const floatingImageUrl = store.floating_image_url || defaultFloatingImg;
 
   // Use appropriate settings based on device - sizes are now in pixels

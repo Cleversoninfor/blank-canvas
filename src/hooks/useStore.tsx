@@ -10,6 +10,7 @@ export interface StoreConfig {
   pix_message: string | null;
   logo_url: string | null;
   cover_url: string | null;
+  cover_url_mobile: string | null;
   is_open: boolean;
   delivery_fee: number;
   delivery_fee_mode: 'fixed' | 'zones' | null;
@@ -65,6 +66,7 @@ export function useStoreConfig() {
           pix_message: null,
           logo_url: null,
           cover_url: null,
+          cover_url_mobile: null,
           is_open: true,
           delivery_fee: 5,
           delivery_fee_mode: 'fixed' as const,
