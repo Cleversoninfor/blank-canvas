@@ -66,6 +66,7 @@ export function useStoreConfig() {
           pix_message: null,
           logo_url: null,
           cover_url: null,
+          cover_url_mobile: null,
           is_open: true,
           delivery_fee: 5,
           delivery_fee_mode: 'fixed' as const,

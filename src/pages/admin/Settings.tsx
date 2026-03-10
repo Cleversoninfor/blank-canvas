@@ -303,19 +303,75 @@ const AdminSettings = () => {
             </div>
 
             <div>
-              <label className="text-xs sm:text-sm text-muted-foreground">
+              <label className="text-xs sm:text-sm text-muted-foreground font-medium">
                 Imagem de Capa
-                <span className="ml-2 px-2 py-0.5 bg-primary/10 text-primary rounded text-[10px] font-medium">
-                  1920×1200px (retangular)
-                </span>
               </label>
-              <ImageUpload bucket="store-assets" currentUrl={formData.cover_url} onUpload={url => setFormData({
-              ...formData,
-              cover_url: url
-            })} onRemove={() => setFormData({
-              ...formData,
-              cover_url: ''
-            })} className="mt-1" aspectRatio="16/10" />
+              
+              <p className="text-xs text-muted-foreground mt-1 mb-3">
+                Configure o posicionamento da imagem separadamente para cada dispositivo
+              </p>
+
+              {/* Desktop/Mobile Tabs */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1 w-fit">
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, _coverTab: 'desktop' as any }))}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
+                      (!formData as any)._coverTab || (formData as any)._coverTab === 'desktop'
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    Desktop
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, _coverTab: 'mobile' as any }))}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
+                      (formData as any)._coverTab === 'mobile'
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+                    Mobile
+                  </button>
+                </div>
+
+                {(!(formData as any)._coverTab || (formData as any)._coverTab === 'desktop') && (
+                  <div>
+                    <span className="text-[10px] px-2 py-0.5 bg-primary/10 text-primary rounded font-medium">
+                      1920×1200px (retangular)
+                    </span>
+                    <ImageUpload bucket="store-assets" currentUrl={formData.cover_url} onUpload={url => setFormData({
+                      ...formData,
+                      cover_url: url
+                    })} onRemove={() => setFormData({
+                      ...formData,
+                      cover_url: ''
+                    })} className="mt-2" aspectRatio="16/10" />
+                  </div>
+                )}
+
+                {(formData as any)._coverTab === 'mobile' && (
+                  <div>
+                    <span className="text-[10px] px-2 py-0.5 bg-primary/10 text-primary rounded font-medium">
+                      720×1280px (vertical)
+                    </span>
+                    <ImageUpload bucket="store-assets" currentUrl={formData.cover_url_mobile} onUpload={url => setFormData({
+                      ...formData,
+                      cover_url_mobile: url
+                    })} onRemove={() => setFormData({
+                      ...formData,
+                      cover_url_mobile: ''
+                    })} className="mt-2" aspectRatio="9/16" />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
