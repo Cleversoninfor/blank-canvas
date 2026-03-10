@@ -19,7 +19,8 @@ export function ImageUpload({
   currentUrl, 
   onUpload, 
   onRemove,
-  className 
+  className,
+  aspectRatio
 }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentUrl || null);
