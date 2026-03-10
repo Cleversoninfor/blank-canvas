@@ -80,6 +80,7 @@ const AdminSettings = () => {
         pix_message: store.pix_message || '',
         logo_url: store.logo_url || '',
         cover_url: store.cover_url || '',
+        cover_url_mobile: store.cover_url_mobile || '',
         delivery_fee: store.delivery_fee?.toString() || '',
         delivery_time_min: store.delivery_time_min?.toString() || '30',
         delivery_time_max: store.delivery_time_max?.toString() || '45',
