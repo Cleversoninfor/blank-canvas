@@ -312,7 +312,7 @@ const AdminSettings = () => {
             })} onRemove={() => setFormData({
               ...formData,
               cover_url: ''
-            })} className="mt-1" />
+            })} className="mt-1" aspectRatio="3/1" />
             </div>
           </div>
 
