@@ -103,11 +103,11 @@ export function BrandSettings({ className }: BrandSettingsProps) {
 
         {/* Store Name */}
         <div className="space-y-2">
-          <Label className="text-xs sm:text-sm text-muted-foreground">Nome do Restaurante</Label>
+          <Label className="text-xs sm:text-sm text-muted-foreground">Nome do Comércio</Label>
           <Input
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="Nome do seu restaurante"
+            placeholder="Nome do seu comércio"
           />
         </div>
 
