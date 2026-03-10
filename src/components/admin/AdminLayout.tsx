@@ -44,7 +44,6 @@ interface AdminLayoutProps {
   title?: string;
 }
 
-// Menu organizado por grupos lógicos
 const navGroups = [
   {
     label: 'Operações',
@@ -98,15 +97,14 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
   const storeStatus = useStoreStatus();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Apply dynamic theme and PWA config based on store colors
   useTheme();
   usePWAConfig();
+
   useEffect(() => {
     if (!isLoading && !user) {
       navigate('/auth');
     }
   }, [user, isLoading, navigate]);
-
 
   const handleSignOut = async () => {
     await signOut();
@@ -115,15 +113,13 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: 'hsl(var(--admin-bg))' }}>
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
   if (!isAdmin) {
     return (
@@ -131,9 +127,8 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
         <Helmet>
           <title>Acesso negado - {store?.name || 'Admin'}</title>
         </Helmet>
-
-        <main className="min-h-screen bg-background flex items-center justify-center p-6">
-          <Card className="w-full max-w-md">
+        <main className="min-h-screen flex items-center justify-center p-6" style={{ backgroundColor: 'hsl(var(--admin-bg))' }}>
+          <Card className="w-full max-w-md admin-card">
             <CardHeader>
               <CardTitle>Acesso negado</CardTitle>
             </CardHeader>
@@ -142,25 +137,17 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
                 Sua conta ainda não tem permissão de administrador. Se você acabou de receber a permissão,
                 atualize abaixo.
               </p>
-
               <div className="flex flex-col gap-2">
                 <Button
                   onClick={async () => {
                     await refreshRole();
-                    toast({
-                      title: 'Permissões atualizadas',
-                      description: 'Se você for admin, o painel vai liberar automaticamente.',
-                    });
+                    toast({ title: 'Permissões atualizadas', description: 'Se você for admin, o painel vai liberar automaticamente.' });
                   }}
                 >
                   Atualizar permissões
                 </Button>
-                <Button variant="outline" onClick={handleSignOut}>
-                  Sair e entrar novamente
-                </Button>
-                <Button variant="ghost" onClick={() => navigate('/')}>
-                  Voltar ao cardápio
-                </Button>
+                <Button variant="outline" onClick={handleSignOut}>Sair e entrar novamente</Button>
+                <Button variant="ghost" onClick={() => navigate('/')}>Voltar ao cardápio</Button>
               </div>
             </CardContent>
           </Card>
@@ -175,153 +162,148 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
         <title>{title || 'Admin'} - {store?.name || 'Delivery'}</title>
       </Helmet>
 
-      {/* Global Order Notification */}
       <GlobalOrderNotification />
-
-      {/* Infornexa Header */}
       <InfornexaHeader />
 
-      <div className="min-h-screen bg-background flex">
+      <div className="min-h-screen flex" style={{ backgroundColor: 'hsl(var(--admin-bg))' }}>
         {/* Mobile Sidebar Overlay */}
         {sidebarOpen && (
           <div 
-            className="fixed inset-0 z-40 bg-foreground/60 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
 
         {/* Sidebar */}
         <aside className={cn(
-          "fixed lg:static inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform duration-300 lg:translate-x-0",
+          "fixed lg:static inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 lg:translate-x-0 flex flex-col",
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        )}>
-          <div className="flex flex-col h-full">
-            {/* Sidebar Header */}
-            <div className="flex items-center justify-between p-4 border-b border-border">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center overflow-hidden">
-                  {store?.logo_url ? (
-                    <img 
-                      src={store.logo_url} 
-                      alt={`Logo ${store?.name || 'Admin'}`}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-xl">🍔</span>
-                  )}
-                </div>
-                <div>
-                  <p className="font-bold text-foreground text-sm">{store?.name || 'Admin'}</p>
-                  <Badge variant={storeStatus.isOpen ? 'open' : 'closed'} className="text-xs">
-                    {storeStatus.isOpen ? 'Aberto' : 'Fechado'}
-                  </Badge>
-                </div>
+        )} style={{ backgroundColor: 'hsl(var(--sidebar-background))' }}>
+          {/* Sidebar Header */}
+          <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center overflow-hidden">
+                {store?.logo_url ? (
+                  <img src={store.logo_url} alt={`Logo ${store?.name || 'Admin'}`} className="h-full w-full object-cover" />
+                ) : (
+                  <span className="text-xl">🍔</span>
+                )}
               </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="lg:hidden"
-                onClick={() => setSidebarOpen(false)}
-              >
-                <X className="h-5 w-5" />
-              </Button>
+              <div>
+                <p className="font-bold text-white text-sm">{store?.name || 'Admin'}</p>
+                <Badge variant={storeStatus.isOpen ? 'open' : 'closed'} className="text-xs">
+                  {storeStatus.isOpen ? 'Aberto' : 'Fechado'}
+                </Badge>
+              </div>
             </div>
+            <button className="lg:hidden text-white/70 hover:text-white" onClick={() => setSidebarOpen(false)}>
+              <X className="h-5 w-5" />
+            </button>
+          </div>
 
-            {/* Navigation */}
-            <nav className="flex-1 p-4 space-y-4 overflow-y-auto">
-              {navGroups.map((group) => (
-                <div key={group.label}>
-                  <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
-                    {group.label}
-                  </p>
-                  <div className="space-y-1">
-                    {group.items.map((item) => {
-                      const isActive = location.pathname === item.path;
-                      return (
-                        <button
-                          key={item.id}
-                          onClick={() => {
-                            if (item.external) {
-                              window.open(item.path, '_blank');
-                            } else {
-                              navigate(item.path);
-                            }
-                            setSidebarOpen(false);
-                          }}
-                          className={cn(
-                            "flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-colors",
-                            isActive 
-                              ? "bg-primary text-primary-foreground" 
-                              : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                          )}
-                        >
-                          <item.icon className="h-5 w-5" />
-                          <span className="flex-1 text-left">{item.label}</span>
-                          {item.external && <ExternalLink className="h-3.5 w-3.5 opacity-50" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </nav>
-
-            {/* User Section */}
-            <div className="p-4 border-t border-border">
-              {/* PWA Install Button for Desktop */}
-              <div className="hidden lg:block mb-3">
-                <PWAInstallButton appName="Administração" />
-              </div>
-              
-              <div className="flex items-center gap-3 mb-3">
-                <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center">
-                  <span className="text-sm font-medium text-foreground">
-                    {user.email?.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">
-                    {user.user_metadata?.name || user.email}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {isAdmin ? 'Administrador' : 'Usuário'}
-                  </p>
+          {/* Navigation */}
+          <nav className="flex-1 p-3 space-y-4 overflow-y-auto scrollbar-hide">
+            {navGroups.map((group) => (
+              <div key={group.label}>
+                <p className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-widest text-white/40">
+                  {group.label}
+                </p>
+                <div className="space-y-0.5">
+                  {group.items.map((item) => {
+                    const isActive = location.pathname === item.path;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          if (item.external) {
+                            window.open(item.path, '_blank');
+                          } else {
+                            navigate(item.path);
+                          }
+                          setSidebarOpen(false);
+                        }}
+                        className={cn(
+                          "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150",
+                          isActive 
+                            ? "text-white" 
+                            : "text-white/60 hover:text-white"
+                        )}
+                        style={isActive ? {
+                          backgroundColor: 'rgba(255,255,255,0.1)',
+                          borderLeft: '3px solid hsl(var(--primary))',
+                          paddingLeft: '9px',
+                        } : {
+                          backgroundColor: 'transparent',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isActive) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isActive) e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
+                      >
+                        <item.icon className="h-[18px] w-[18px]" />
+                        <span className="flex-1 text-left">{item.label}</span>
+                        {item.external && <ExternalLink className="h-3.5 w-3.5 opacity-40" />}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full"
-                onClick={handleSignOut}
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Sair
-              </Button>
+            ))}
+          </nav>
+
+          {/* User Section */}
+          <div className="p-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+            <div className="hidden lg:block mb-3">
+              <PWAInstallButton appName="Administração" />
             </div>
+            
+            <div className="flex items-center gap-3 mb-3">
+              <div className="h-9 w-9 rounded-full bg-white/10 flex items-center justify-center">
+                <span className="text-sm font-medium text-white">
+                  {user.email?.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white truncate">
+                  {user.user_metadata?.name || user.email}
+                </p>
+                <p className="text-xs text-white/50">
+                  {isAdmin ? 'Administrador' : 'Usuário'}
+                </p>
+              </div>
+            </div>
+            <button 
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white/60 hover:text-white transition-colors"
+              style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.12)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)'}
+              onClick={handleSignOut}
+            >
+              <LogOut className="h-4 w-4" />
+              Sair
+            </button>
           </div>
         </aside>
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col min-h-screen min-w-0 overflow-x-hidden">
-          {/* Mobile Header */}
-          <header className="sticky top-0 z-30 flex items-center gap-3 bg-card px-4 py-3 border-b border-border lg:hidden">
-            <Button 
-              variant="ghost" 
-              size="icon"
+          {/* Top Bar */}
+          <header className="sticky top-0 z-30 flex items-center gap-3 px-4 sm:px-6 py-3 shadow-sm" 
+            style={{ backgroundColor: 'hsl(var(--admin-topbar))' }}>
+            <button 
+              className="lg:hidden text-white/70 hover:text-white"
               onClick={() => setSidebarOpen(true)}
             >
               <Menu className="h-5 w-5" />
-            </Button>
-            <h1 className="font-bold text-foreground truncate flex-1">{title || 'Admin'}</h1>
+            </button>
+            <h1 className="font-semibold text-white truncate flex-1 text-sm sm:text-base">{title || 'Admin'}</h1>
             <PWAInstallButton appName="Administração" />
           </header>
 
           {/* Content */}
-          <main className="flex-1 p-3 sm:p-4 lg:p-6 overflow-x-hidden">
-            {/* Desktop: keep install button visible without needing to find it in the sidebar */}
-            <div className="hidden lg:flex justify-end mb-4">
-              <PWAInstallButton appName="Administração" />
-            </div>
+          <main className="flex-1 p-4 sm:p-6 overflow-x-hidden">
             {children}
           </main>
         </div>

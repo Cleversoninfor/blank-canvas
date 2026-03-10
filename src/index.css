@@ -48,14 +48,22 @@
 
     --hero-gradient: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 100%);
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
+    --sidebar-background: 213 37% 22%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 213 37% 22%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 213 37% 28%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 213 37% 28%;
     --sidebar-ring: 45 100% 51%;
+
+    --admin-topbar: 215 33% 17%;
+    --admin-bg: 210 40% 96%;
+    --admin-card: 0 0% 100%;
+    --admin-card-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    --admin-card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.1);
+    --admin-table-header: 210 40% 97%;
+    --admin-table-hover: 210 40% 98%;
   }
 
   .dark {
@@ -87,14 +95,22 @@
     --input: 0 0% 20%;
     --ring: 45 100% 51%;
 
-    --sidebar-background: 0 0% 7%;
+    --sidebar-background: 213 37% 18%;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 45 100% 51%;
-    --sidebar-primary-foreground: 0 0% 10%;
-    --sidebar-accent: 0 0% 18%;
+    --sidebar-primary: 213 37% 18%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 213 37% 24%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 20%;
+    --sidebar-border: 213 37% 24%;
     --sidebar-ring: 45 100% 51%;
+
+    --admin-topbar: 215 33% 12%;
+    --admin-bg: 0 0% 10%;
+    --admin-card: 0 0% 14%;
+    --admin-card-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    --admin-card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.3);
+    --admin-table-header: 0 0% 16%;
+    --admin-table-hover: 0 0% 15%;
   }
 }
 
@@ -116,15 +132,15 @@
 
 @layer utilities {
   .shadow-card {
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--admin-card-shadow, 0 1px 3px rgba(0,0,0,0.1));
   }
   
   .shadow-card-hover {
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--admin-card-shadow-hover, 0 4px 12px rgba(0,0,0,0.15));
   }
   
   .shadow-float {
-    box-shadow: var(--shadow-xl);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12);
   }
 
   .scrollbar-hide {
@@ -146,6 +162,26 @@
 
   .animate-pulse-ring {
     animation: pulseRing 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Admin card styling */
+  .admin-card {
+    background: hsl(var(--admin-card));
+    border-radius: 16px;
+    box-shadow: var(--admin-card-shadow);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .admin-card:hover {
+    box-shadow: var(--admin-card-shadow-hover);
+    transform: translateY(-2px);
+  }
+
+  /* Admin table styling */
+  .admin-table thead th {
+    background: hsl(var(--admin-table-header));
+  }
+  .admin-table tbody tr:hover {
+    background: hsl(var(--admin-table-hover));
   }
 }
 
