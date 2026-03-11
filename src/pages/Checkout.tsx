@@ -449,21 +449,6 @@ const Checkout = () => {
               Retirada
             </button>
           )}
-          {availableTypes.dine_in && (
-            <button
-              onClick={() => setDeliveryType('dine_in')}
-              className={cn(
-                "flex-1 py-3 text-center text-sm font-medium transition-colors flex items-center justify-center gap-1",
-                deliveryType === 'dine_in' 
-                  ? "text-primary border-b-2 border-primary" 
-                  : "text-muted-foreground"
-              )}
-            >
-              <UtensilsCrossed className="h-4 w-4" />
-              <span className="hidden sm:inline">Consumo no local</span>
-              <span className="sm:hidden">Local</span>
-            </button>
-          )}
         </div>
 
         <div className="p-4 space-y-6">
