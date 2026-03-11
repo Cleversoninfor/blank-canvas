@@ -202,7 +202,7 @@ export default function WaiterDashboard() {
     return (
       <>
         <Helmet>
-          <title>{`Fechar Mesa ${selectedTable.number} - Garçom`}</title>
+          <title>{`Fechar ${selectedTable.name || 'Mesa/Comanda'} ${selectedTable.number} - Garçom`}</title>
         </Helmet>
         
         <div className="min-h-screen bg-background">
