@@ -663,8 +663,8 @@ const Checkout = () => {
             </section>
           </section>
 
-          {/* Payment Method Section - Not shown for dine-in */}
-          {deliveryType !== 'dine_in' && (
+          {/* Payment Method Section */}
+          <section className="space-y-2">
             <section className="space-y-2">
               <h3 className="font-semibold text-foreground">Método de pagamento</h3>
               <div className="grid grid-cols-2 gap-3">
