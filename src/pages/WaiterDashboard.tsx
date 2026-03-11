@@ -293,6 +293,7 @@ export default function WaiterDashboard() {
                 </SheetContent>
               </Sheet>
 
+              <PushNotificationToggle variant="button" userType="waiter" userIdentifier={waiterId} />
               <Button variant="outline" size="icon" onClick={handleLogout}>
                 <LogOut className="h-5 w-5" />
               </Button>

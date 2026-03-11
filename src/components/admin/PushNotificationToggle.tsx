@@ -5,7 +5,7 @@ import { useWebPush } from '@/hooks/useWebPush';
 
 interface PushNotificationToggleProps {
   variant?: 'switch' | 'button';
-  userType?: 'admin' | 'driver';
+  userType?: 'admin' | 'driver' | 'waiter';
   userIdentifier?: string | null;
 }
 
