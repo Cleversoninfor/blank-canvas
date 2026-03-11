@@ -255,43 +255,6 @@ const Checkout = () => {
       return;
     }
 
-    // Handle dine-in order differently
-    if (deliveryType === 'dine_in') {
-      try {
-        const order = await createDineInOrder.mutateAsync({
-          tableId: selectedTable!.id,
-          existingOrderId: selectedTable!.current_order_id || null,
-          items: items.map((item) => ({
-            productId: item.product.id,
-            productName: item.product.name,
-            quantity: item.quantity,
-            unitPrice: item.product.price,
-            observation: item.observation || null,
-          })),
-        });
-
-        console.log('[Checkout] Dine-in order created successfully:', order);
-        
-        clearCart();
-        clearCheckoutStorage();
-        
-        navigate('/dine-in-success', { 
-          state: { 
-            tableNumber: selectedTable!.number,
-            tableName: selectedTable!.name,
-            orderId: order.id 
-          } 
-        });
-      } catch (error: any) {
-        console.error('Erro ao enviar pedido (dine-in):', error);
-        toast({
-          title: 'Erro ao enviar pedido',
-          description: error?.message || 'Tente novamente em alguns instantes.',
-          variant: 'destructive',
-        });
-      }
-      return;
-    }
 
     // Validate change_for input for delivery/pickup
     const changeForValue =
