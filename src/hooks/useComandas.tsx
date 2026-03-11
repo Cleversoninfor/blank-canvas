@@ -124,16 +124,19 @@ export function useCreateComandaOrder() {
         _address_neighborhood: 'Local',
         _total_amount: totalAmount,
         _payment_method: 'local',
-        _items: items as any,
+        _items: JSON.parse(JSON.stringify(items)),
       });
 
+      console.log('create_order_with_items result:', { orderId, orderError });
       if (orderError) throw orderError;
+      if (orderId === null || orderId === undefined) throw new Error('Falha ao criar pedido: ID não retornado');
 
       // Link order to comanda
       const { error: linkError } = await supabase
         .from('comanda_pedidos')
         .insert({ comanda_id: comandaId, pedido_id: orderId });
 
+      console.log('comanda_pedidos insert result:', { linkError });
       if (linkError) throw linkError;
 
       return orderId;
