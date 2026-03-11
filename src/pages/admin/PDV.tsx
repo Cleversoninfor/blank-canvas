@@ -69,9 +69,9 @@ export default function PDV() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Mapa de Mesas</h1>
+              <h1 className="text-2xl font-bold text-foreground">Mapa de Mesas/Comandas</h1>
               <p className="text-muted-foreground">
-                Gerencie mesas e pedidos do salão
+                Gerencie mesas/comandas e pedidos do salão
               </p>
             </div>
             <div className="flex gap-2">
