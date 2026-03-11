@@ -625,6 +625,7 @@ export type Database = {
           mode_dine_in_enabled: boolean | null
           mode_pickup_enabled: boolean | null
           name: string
+          pdv_password: string | null
           phone_whatsapp: string | null
           pickup_time_max: number | null
           pickup_time_min: number | null
@@ -671,6 +672,7 @@ export type Database = {
           mode_dine_in_enabled?: boolean | null
           mode_pickup_enabled?: boolean | null
           name?: string
+          pdv_password?: string | null
           phone_whatsapp?: string | null
           pickup_time_max?: number | null
           pickup_time_min?: number | null
@@ -717,6 +719,7 @@ export type Database = {
           mode_dine_in_enabled?: boolean | null
           mode_pickup_enabled?: boolean | null
           name?: string
+          pdv_password?: string | null
           phone_whatsapp?: string | null
           pickup_time_max?: number | null
           pickup_time_min?: number | null

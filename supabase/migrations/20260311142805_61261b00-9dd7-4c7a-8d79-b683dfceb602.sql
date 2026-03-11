@@ -1,0 +1,1 @@
+ALTER TABLE public.store_config ADD COLUMN IF NOT EXISTS pdv_password text DEFAULT NULL;
