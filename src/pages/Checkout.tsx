@@ -867,8 +867,8 @@ const Checkout = () => {
             </div>
           </div>
 
-          {/* Delivery Estimate - show different message for dine-in */}
-          {deliveryType !== 'dine_in' && (
+          {/* Delivery Estimate */}
+          <div className="flex items-center gap-3 p-4 bg-card rounded-2xl shadow-card">
             <div className="flex items-center gap-3 p-4 bg-card rounded-2xl shadow-card">
               <Clock className="h-5 w-5 text-muted-foreground" />
               <div>
