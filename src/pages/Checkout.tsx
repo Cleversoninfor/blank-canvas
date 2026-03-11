@@ -636,31 +636,29 @@ const Checkout = () => {
 
           {/* Customer Data Section */}
           <section className="space-y-2">
-            <section className="space-y-2">
-              <h3 className="font-semibold text-foreground">Dados do cliente</h3>
-              <div className="bg-card rounded-2xl p-4 shadow-card space-y-4">
-                <div>
-                  <label className="text-sm text-muted-foreground">Nome completo</label>
-                  <Input
-                    placeholder="Seu nome"
-                    value={deliveryData.name}
-                    onChange={(e) => setDeliveryData({ ...deliveryData, name: e.target.value })}
-                    className="mt-1 bg-muted/50 border-0"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm text-muted-foreground">Telefone</label>
-                  <Input
-                    type="tel"
-                    placeholder="(00) 00000-0000"
-                    value={deliveryData.phone}
-                    onChange={(e) => setDeliveryData({ ...deliveryData, phone: formatPhone(e.target.value) })}
-                    className="mt-1 bg-muted/50 border-0"
-                    maxLength={15}
-                  />
-                </div>
+            <h3 className="font-semibold text-foreground">Dados do cliente</h3>
+            <div className="bg-card rounded-2xl p-4 shadow-card space-y-4">
+              <div>
+                <label className="text-sm text-muted-foreground">Nome completo</label>
+                <Input
+                  placeholder="Seu nome"
+                  value={deliveryData.name}
+                  onChange={(e) => setDeliveryData({ ...deliveryData, name: e.target.value })}
+                  className="mt-1 bg-muted/50 border-0"
+                />
               </div>
-            </section>
+              <div>
+                <label className="text-sm text-muted-foreground">Telefone</label>
+                <Input
+                  type="tel"
+                  placeholder="(00) 00000-0000"
+                  value={deliveryData.phone}
+                  onChange={(e) => setDeliveryData({ ...deliveryData, phone: formatPhone(e.target.value) })}
+                  className="mt-1 bg-muted/50 border-0"
+                  maxLength={15}
+                />
+              </div>
+            </div>
           </section>
 
           {/* Payment Method Section */}
