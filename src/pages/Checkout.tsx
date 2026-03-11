@@ -94,7 +94,6 @@ const Checkout = () => {
     }
     if (availableTypes.delivery) return 'delivery';
     if (availableTypes.pickup) return 'pickup';
-    if (availableTypes.dine_in) return 'dine_in';
     return 'delivery';
   };
 
