@@ -126,7 +126,7 @@ const Checkout = () => {
       neighborhood: deliveryData.neighborhood,
       complement: deliveryData.complement,
       selectedPayment,
-      selectedTable,
+      
     });
   }, [deliveryType, deliveryData, selectedPayment, selectedTable]);
 
