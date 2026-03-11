@@ -128,7 +128,7 @@ const Checkout = () => {
       selectedPayment,
       
     });
-  }, [deliveryType, deliveryData, selectedPayment, selectedTable]);
+  }, [deliveryType, deliveryData, selectedPayment]);
 
   // Delivery fee: use zone-based fee when mode is 'zones' and a zone is selected
   const activeZones = deliveryZones.filter(z => z.is_active);
