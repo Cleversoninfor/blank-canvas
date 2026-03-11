@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { StoreInfo } from '@/components/menu/StoreInfo';
+import { LocalHeroHeader } from '@/components/menu/LocalHeroHeader';
 import { StoreInfo } from '@/components/menu/StoreInfo';
 import { CategoryIcons } from '@/components/menu/CategoryIcons';
 import { CategoryGrid } from '@/components/menu/CategoryGrid';
