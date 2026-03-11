@@ -62,8 +62,6 @@ const App = () => (
                 <Route path="/admin/settings" element={<AdminSettings />} />
                 <Route path="/admin/setup" element={<AdminSetup />} />
                 <Route path="/admin/addons" element={<AdminAddons />} />
-                <Route path="/admin/pdv" element={<AdminPDV />} />
-                <Route path="/admin/waiters" element={<AdminWaiters />} />
                 <Route path="/admin/reports" element={<AdminReports />} />
                 <Route path="/admin/backup" element={<AdminBackup />} />
                 <Route path="/admin/qrcodes" element={<AdminQRCodes />} />
