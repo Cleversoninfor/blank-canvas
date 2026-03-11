@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { jsPDF } from "jspdf";
-import { Download, ChefHat, Users, Menu, QrCode, RefreshCw } from "lucide-react";
+import { Download, ChefHat, Menu, QrCode, RefreshCw } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -81,17 +81,10 @@ const QRCodes = () => {
       icon: ChefHat,
     },
     {
-      id: "waiter",
-      title: "Acesso Garçons",
-      description: "Painel de acesso para garçons fazerem pedidos",
-      path: "/waiter",
-      icon: Users,
-    },
-    {
-      id: "menu",
-      title: "Ver Cardápio",
-      description: "Cardápio digital para clientes visualizarem e fazerem pedidos",
-      path: "/",
+      id: "cardapio-local",
+      title: "Ver Cardápio Local",
+      description: "Cardápio digital para clientes visualizarem os produtos no restaurante via QR Code",
+      path: "/cardapio-local",
       icon: Menu,
     },
   ];
