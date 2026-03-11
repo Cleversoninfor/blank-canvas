@@ -9,7 +9,7 @@ function getEnv(name: string) {
 
 serve(async (req) => {
   try {
-    // Support both standard Edge env names and Lovable/Vite env names as fallback
+    // Support both standard Edge env names and Vite env names as fallback
     const supabaseUrl = getEnv("SUPABASE_URL") || getEnv("VITE_SUPABASE_URL");
     const supabaseAnonKey =
       getEnv("SUPABASE_ANON_KEY") ||
