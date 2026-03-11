@@ -81,7 +81,7 @@ const CardapioLocal = () => {
       </Helmet>
 
       <div className="min-h-screen bg-background pb-12">
-        <HeroHeader store={store} />
+        <LocalHeroHeader store={store} />
         <StoreInfo store={store} />
 
         {isCategoryMode ? (
