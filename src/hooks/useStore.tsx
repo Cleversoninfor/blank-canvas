@@ -44,6 +44,7 @@ export interface StoreConfig {
   mode_pickup_enabled: boolean | null;
   mode_dine_in_enabled: boolean | null;
   menu_layout: string;
+  pdv_password: string | null;
 }
 
 export function useStoreConfig() {
@@ -102,6 +103,7 @@ export function useStoreConfig() {
           mode_pickup_enabled: true,
           mode_dine_in_enabled: true,
           menu_layout: 'list',
+          pdv_password: null,
         } as StoreConfig;
       }
       

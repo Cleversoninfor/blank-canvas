@@ -1,5 +1,8 @@
-import { Truck, Store, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Truck, Store, Loader2, KeyRound, Save } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { useStoreConfig, useUpdateStoreConfig } from '@/hooks/useStore';
 import { useToast } from '@/hooks/use-toast';
 
@@ -7,6 +10,13 @@ export function OperationModes() {
   const { data: store, isLoading } = useStoreConfig();
   const updateStore = useUpdateStoreConfig();
   const { toast } = useToast();
+  const [pdvPassword, setPdvPassword] = useState('');
+
+  useEffect(() => {
+    if (store?.pdv_password) {
+      setPdvPassword(store.pdv_password);
+    }
+  }, [store?.pdv_password]);
 
   const handleToggle = async (mode: 'mode_delivery_enabled' | 'mode_pickup_enabled', value: boolean) => {
     if (!store) return;
@@ -92,6 +102,45 @@ export function OperationModes() {
             />
           </div>
         ))}
+      </div>
+
+      {/* Senha PDV */}
+      <div className="border-t border-border pt-4 mt-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <KeyRound className="h-4 w-4 text-primary" />
+          <p className="font-medium text-foreground text-sm">Senha PDV</p>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Defina uma senha para acesso ao PDV pela rota /pdv. Máximo de 8 caracteres.
+        </p>
+        <Input
+          type="text"
+          placeholder="Senha do PDV"
+          value={pdvPassword}
+          onChange={(e) => setPdvPassword(e.target.value.slice(0, 8))}
+          maxLength={8}
+          className="max-w-xs"
+        />
+        <p className="text-xs text-muted-foreground">{pdvPassword.length}/8 caracteres</p>
+        <Button
+          size="sm"
+          disabled={updateStore.isPending}
+          onClick={async () => {
+            if (!store) return;
+            try {
+              await updateStore.mutateAsync({
+                ...(store.id ? { id: store.id } : {}),
+                pdv_password: pdvPassword || null,
+              } as any);
+              toast({ title: 'Senha PDV salva com sucesso!' });
+            } catch {
+              toast({ title: 'Erro ao salvar senha', variant: 'destructive' });
+            }
+          }}
+        >
+          {updateStore.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+          Salvar Configurações
+        </Button>
       </div>
     </div>
   );
