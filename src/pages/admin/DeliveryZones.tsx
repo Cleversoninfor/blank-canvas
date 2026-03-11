@@ -265,9 +265,9 @@ export default function DeliveryZones() {
               >
                 <RadioGroupItem value="zones" id="zones" className="mt-1" />
                 <div>
-                  <p className="font-medium">Por Bairro/Zona</p>
+                  <p className="font-medium">Por Bairro/CEP/Setor</p>
                   <p className="text-sm text-muted-foreground">
-                    Taxa diferente para cada bairro ou região
+                    Taxa diferente para cada bairro, CEP ou setor
                   </p>
                 </div>
               </Label>
@@ -280,23 +280,23 @@ export default function DeliveryZones() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle>Zonas de Entrega</CardTitle>
+                <CardTitle>Entrega</CardTitle>
                 <CardDescription>
-                  Configure a taxa para cada bairro ou região
+                  Configure a taxa para cada bairro, CEP ou setor
                 </CardDescription>
               </div>
               <Button onClick={handleOpenCreate}>
                 <Plus className="h-4 w-4 mr-2" />
-                Nova Zona
+                Novo Local
               </Button>
             </CardHeader>
             <CardContent>
               {zones.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <MapPin className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Nenhuma zona de entrega cadastrada</p>
+                  <p>Nenhum local de entrega cadastrado</p>
                   <Button variant="link" onClick={handleOpenCreate}>
-                    Adicionar primeira zona
+                    Adicionar primeiro local
                   </Button>
                 </div>
               ) : (
@@ -380,16 +380,16 @@ export default function DeliveryZones() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editingZone ? 'Editar Zona' : 'Nova Zona de Entrega'}
+              {editingZone ? 'Editar Local' : 'Novo Local de Entrega'}
             </DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Nome do Bairro/Zona *</Label>
+              <Label htmlFor="name">Nome do Bairro/CEP/Setor *</Label>
               <Input
                 id="name"
-                placeholder="Ex: Centro, Zona Sul, Jardim América"
+                placeholder="Ex: Centro, 74000-000, Setor Bueno"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
@@ -456,9 +456,9 @@ export default function DeliveryZones() {
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir zona de entrega?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir local de entrega?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. A zona será removida permanentemente.
+              Esta ação não pode ser desfeita. O local será removido permanentemente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
