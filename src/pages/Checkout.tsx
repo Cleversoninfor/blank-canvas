@@ -886,7 +886,7 @@ const Checkout = () => {
         <div className="fixed bottom-0 left-0 right-0 bg-background p-4 pb-6 border-t border-border">
           <Button
             onClick={handleSubmit}
-            disabled={createOrder.isPending || createDineInOrder.isPending || !canOrder}
+            disabled={createOrder.isPending || !canOrder}
             size="xl"
             className="w-full rounded-full"
           >
