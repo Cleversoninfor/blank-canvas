@@ -18,9 +18,8 @@ export function OperationModes() {
       });
       
       const modeNames = {
-        mode_delivery_enabled: 'Delivery',
+      mode_delivery_enabled: 'Delivery',
         mode_pickup_enabled: 'Retirada',
-        mode_dine_in_enabled: 'Consumo no local',
       };
       
       toast({
