@@ -600,39 +600,6 @@ const Checkout = () => {
             </section>
           )}
 
-          {/* Dine-in Table Selection */}
-          {deliveryType === 'dine_in' && (
-            <section className="bg-card rounded-2xl p-4 shadow-card">
-              <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                <UtensilsCrossed className="h-5 w-5 text-primary" />
-                Selecione sua mesa
-              </h3>
-              <TableSelector
-                selectedTableId={selectedTable?.id || null}
-                onTableSelect={(table) => setSelectedTable({
-                  id: table.id,
-                  number: table.number,
-                  name: table.name,
-                  current_order_id: table.current_order_id,
-                })}
-              />
-              {selectedTable && (
-                <div className="mt-4 p-3 bg-primary/10 rounded-xl flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold">
-                    {selectedTable.number}
-                  </div>
-                  <div>
-                    <p className="font-medium text-foreground">
-                      Mesa {selectedTable.number} selecionada
-                    </p>
-                    {selectedTable.name && (
-                      <p className="text-sm text-muted-foreground">{selectedTable.name}</p>
-                    )}
-                  </div>
-                </div>
-              )}
-            </section>
-          )}
 
           {/* Customer Data Section */}
           <section className="space-y-2">
