@@ -136,7 +136,7 @@ export function TableCheckout({ table, onBack, onSuccess }: TableCheckoutProps) 
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
-          <h1 className="text-xl font-bold">Fechar Mesa {table.number}</h1>
+          <h1 className="text-xl font-bold">Fechar {table.name || 'Mesa/Comanda'} {table.number}</h1>
           <p className="text-sm text-muted-foreground">
             {calculations.orderCount} pedido{calculations.orderCount > 1 ? 's' : ''} • {calculations.itemCount} itens
           </p>
