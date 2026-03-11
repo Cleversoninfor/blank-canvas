@@ -248,9 +248,10 @@ const Checkout = () => {
       // Placeholder to maintain structure
       return;
     }
+    const zoneAsNeighborhood = isZoneMode && activeZones.length > 0;
     if (
       deliveryType === 'delivery' &&
-      (!deliveryData.street.trim() || !deliveryData.number.trim() || !deliveryData.neighborhood.trim())
+      (!deliveryData.street.trim() || !deliveryData.number.trim() || (!zoneAsNeighborhood && !deliveryData.neighborhood.trim()))
     ) {
       toast({ title: 'Preencha o endereço completo', variant: 'destructive' });
       return;
@@ -338,7 +339,7 @@ const Checkout = () => {
           customer_phone: deliveryData.phone,
           address_street: deliveryType === 'delivery' ? deliveryData.street : 'Retirada no local',
           address_number: deliveryType === 'delivery' ? deliveryData.number : '-',
-          address_neighborhood: deliveryType === 'delivery' ? deliveryData.neighborhood : '-',
+          address_neighborhood: deliveryType === 'delivery' ? (zoneAsNeighborhood && selectedZone ? selectedZone.name : deliveryData.neighborhood) : '-',
           address_complement: deliveryType === 'delivery' ? deliveryData.complement || null : null,
           total_amount: finalTotal,
           payment_method: paymentMethod,
@@ -569,7 +570,7 @@ const Checkout = () => {
                     className="mt-1 bg-muted/50 border-0"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className={isZoneMode && activeZones.length > 0 ? "" : "grid grid-cols-2 gap-3"}>
                   <div>
                     <label className="text-sm text-muted-foreground">Número</label>
                     <Input
@@ -579,15 +580,17 @@ const Checkout = () => {
                       className="mt-1 bg-muted/50 border-0"
                     />
                   </div>
-                  <div>
-                    <label className="text-sm text-muted-foreground">Bairro</label>
-                    <Input
-                      placeholder="Bairro"
-                      value={deliveryData.neighborhood}
-                      onChange={(e) => setDeliveryData({ ...deliveryData, neighborhood: e.target.value })}
-                      className="mt-1 bg-muted/50 border-0"
-                    />
-                  </div>
+                  {!(isZoneMode && activeZones.length > 0) && (
+                    <div>
+                      <label className="text-sm text-muted-foreground">Bairro</label>
+                      <Input
+                        placeholder="Bairro"
+                        value={deliveryData.neighborhood}
+                        onChange={(e) => setDeliveryData({ ...deliveryData, neighborhood: e.target.value })}
+                        className="mt-1 bg-muted/50 border-0"
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className="mt-4">
                   <label className="text-sm text-muted-foreground">Complemento / Ponto de referência</label>
