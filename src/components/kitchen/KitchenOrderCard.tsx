@@ -75,6 +75,11 @@ export function KitchenOrderCard({ order }: KitchenOrderCardProps) {
               <UtensilsCrossed className="h-4 w-4 mr-1" />
               Mesa {order.table_number}
             </Badge>
+          ) : order.customer_name?.startsWith('Comanda #') ? (
+            <Badge variant="outline" className="text-lg font-bold px-3 py-1 border-purple-500 text-purple-600">
+              <Receipt className="h-4 w-4 mr-1" />
+              {order.customer_name}
+            </Badge>
           ) : (
             <Badge variant="outline" className="text-lg font-bold px-3 py-1 border-orange-500 text-orange-600">
               <Truck className="h-4 w-4 mr-1" />
