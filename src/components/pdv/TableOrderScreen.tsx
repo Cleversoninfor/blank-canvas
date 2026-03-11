@@ -127,8 +127,7 @@ export function TableOrderScreen({ table, onBack, onCheckout, onTableTransferred
             </Button>
           )}
           <div>
-            <h1 className="text-xl font-bold">Mesa {table.number}</h1>
-            {table.name && <p className="text-sm text-muted-foreground">{table.name}</p>}
+            <h1 className="text-xl font-bold">{table.name || 'Mesa/Comanda'} {table.number}</h1>
           </div>
         </div>
 
