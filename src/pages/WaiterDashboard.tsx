@@ -28,6 +28,7 @@ import { useWaiterReadyItems, KitchenItem } from '@/hooks/useKitchenItems';
 import { useStoreConfig } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
 import { usePWAConfig } from '@/hooks/usePWAConfig';
+import { PushNotificationToggle } from '@/components/admin/PushNotificationToggle';
 import { TableWithOrder, TableStatus } from '@/types/pdv';
 
 type StatusFilter = 'all' | 'available' | 'occupied' | 'requesting_bill';
