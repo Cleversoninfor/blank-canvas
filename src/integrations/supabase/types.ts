@@ -136,6 +136,63 @@ export type Database = {
         }
         Relationships: []
       }
+      comanda_pedidos: {
+        Row: {
+          comanda_id: string
+          created_at: string
+          id: string
+          pedido_id: number
+        }
+        Insert: {
+          comanda_id: string
+          created_at?: string
+          id?: string
+          pedido_id: number
+        }
+        Update: {
+          comanda_id?: string
+          created_at?: string
+          id?: string
+          pedido_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comanda_pedidos_comanda_id_fkey"
+            columns: ["comanda_id"]
+            isOneToOne: false
+            referencedRelation: "comandas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comanda_pedidos_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comandas: {
+        Row: {
+          created_at: string
+          id: string
+          numero_comanda: number
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          numero_comanda: number
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          numero_comanda?: number
+          status?: string
+        }
+        Relationships: []
+      }
       coupons: {
         Row: {
           code: string

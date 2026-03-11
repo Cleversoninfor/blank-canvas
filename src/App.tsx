@@ -31,6 +31,7 @@ import DriverAccess from "./pages/DriverAccess";
 import DriverDashboard from "./pages/DriverDashboard";
 import AdminDrivers from "./pages/admin/Drivers";
 import AdminDriverReports from "./pages/admin/DriverReports";
+import AdminPDV from "./pages/admin/PDV";
 import CardapioLocal from "./pages/CardapioLocal";
 import NotFound from "./pages/NotFound";
 
@@ -69,6 +70,7 @@ const App = () => (
                 <Route path="/admin/qrcodes" element={<AdminQRCodes />} />
                 <Route path="/admin/drivers" element={<AdminDrivers />} />
                 <Route path="/admin/driver-reports" element={<AdminDriverReports />} />
+                <Route path="/admin/pdv" element={<AdminPDV />} />
                 <Route path="/driver" element={<DriverAccess />} />
                 <Route path="/driver/dashboard" element={<DriverDashboard />} />
                 <Route path="/kitchen" element={<Kitchen />} />

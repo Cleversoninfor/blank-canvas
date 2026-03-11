@@ -23,7 +23,8 @@ import {
   BarChart3,
   DatabaseBackup,
   QrCode,
-  Truck
+  Truck,
+  Monitor
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -51,6 +52,7 @@ const navGroups = [
       { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
       { id: 'kitchen', label: 'Cozinha', icon: ChefHat, path: '/kitchen', external: true },
       { id: 'drivers', label: 'Entregadores', icon: Truck, path: '/admin/drivers' },
+      { id: 'pdv', label: 'PDV', icon: Monitor, path: '/admin/pdv' },
     ]
   },
   {

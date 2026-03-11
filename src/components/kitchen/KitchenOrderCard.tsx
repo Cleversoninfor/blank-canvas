@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Clock, ChefHat, CheckCircle, Loader2, Truck, UtensilsCrossed } from 'lucide-react';
+import { Clock, ChefHat, CheckCircle, Loader2, Truck, UtensilsCrossed, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -74,6 +74,11 @@ export function KitchenOrderCard({ order }: KitchenOrderCardProps) {
             <Badge variant="outline" className="text-lg font-bold px-3 py-1">
               <UtensilsCrossed className="h-4 w-4 mr-1" />
               Mesa {order.table_number}
+            </Badge>
+          ) : order.customer_name?.startsWith('Comanda #') ? (
+            <Badge variant="outline" className="text-lg font-bold px-3 py-1 border-purple-500 text-purple-600">
+              <Receipt className="h-4 w-4 mr-1" />
+              {order.customer_name}
             </Badge>
           ) : (
             <Badge variant="outline" className="text-lg font-bold px-3 py-1 border-orange-500 text-orange-600">
