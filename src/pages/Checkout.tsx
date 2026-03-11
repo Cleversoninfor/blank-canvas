@@ -765,41 +765,39 @@ const Checkout = () => {
             </button>
           </section>
 
-          {/* Coupon Section - Not shown for dine-in */}
-          {deliveryType !== 'dine_in' && (
-            appliedCoupon ? (
-              <div className="flex items-center justify-between p-4 bg-secondary/10 border border-secondary/30 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <Tag className="h-5 w-5 text-secondary" />
-                  <div>
-                    <p className="font-medium text-foreground">{appliedCoupon.code}</p>
-                    <p className="text-sm text-secondary">
-                      -{appliedCoupon.discount_type === 'percentage' ? `${appliedCoupon.discount_value}%` : formatCurrency(appliedCoupon.discount_value)}
-                    </p>
-                  </div>
+          {/* Coupon Section */}
+          {appliedCoupon ? (
+            <div className="flex items-center justify-between p-4 bg-secondary/10 border border-secondary/30 rounded-xl">
+              <div className="flex items-center gap-3">
+                <Tag className="h-5 w-5 text-secondary" />
+                <div>
+                  <p className="font-medium text-foreground">{appliedCoupon.code}</p>
+                  <p className="text-sm text-secondary">
+                    -{appliedCoupon.discount_type === 'percentage' ? `${appliedCoupon.discount_value}%` : formatCurrency(appliedCoupon.discount_value)}
+                  </p>
                 </div>
-                <Button variant="ghost" size="icon" onClick={removeCoupon}>
-                  <X className="h-4 w-4" />
-                </Button>
               </div>
-            ) : (
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Cupom de desconto"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                  className="flex-1 bg-card border-border"
-                />
-                <Button 
-                  variant="outline" 
-                  className="text-primary border-primary hover:bg-primary/10"
-                  onClick={handleApplyCoupon}
-                  disabled={isApplyingCoupon}
-                >
-                  {isApplyingCoupon ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Aplicar'}
-                </Button>
-              </div>
-            )
+              <Button variant="ghost" size="icon" onClick={removeCoupon}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <Input
+                placeholder="Cupom de desconto"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                className="flex-1 bg-card border-border"
+              />
+              <Button 
+                variant="outline" 
+                className="text-primary border-primary hover:bg-primary/10"
+                onClick={handleApplyCoupon}
+                disabled={isApplyingCoupon}
+              >
+                {isApplyingCoupon ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Aplicar'}
+              </Button>
+            </div>
           )}
 
           {/* Summary */}
