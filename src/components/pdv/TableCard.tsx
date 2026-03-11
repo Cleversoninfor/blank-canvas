@@ -41,11 +41,8 @@ export function TableCard({ table, onClick }: TableCardProps) {
         <div className="flex items-start justify-between mb-3">
           <div>
             <h3 className="text-lg font-bold text-foreground">
-              Mesa {table.number}
+              {table.name || 'Mesa/Comanda'} {table.number}
             </h3>
-            {table.name && (
-              <p className="text-sm text-muted-foreground">{table.name}</p>
-            )}
           </div>
           <Badge className={cn("font-medium", status.color)} variant="outline">
             {status.label}

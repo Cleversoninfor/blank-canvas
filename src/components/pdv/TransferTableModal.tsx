@@ -86,7 +86,7 @@ export function TransferTableModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ArrowRightLeft className="h-5 w-5" />
-            Transferir Mesa {currentTable.number}
+            Transferir {currentTable.name || 'Mesa/Comanda'} {currentTable.number}
           </DialogTitle>
         </DialogHeader>
 
@@ -175,10 +175,7 @@ export function TransferTableModal({
                           : "border-border hover:border-primary/50 bg-secondary/50"
                     )}
                   >
-                    <p className="font-bold text-lg">Mesa {table.number}</p>
-                    {table.name && (
-                      <p className="text-xs text-muted-foreground">{table.name}</p>
-                    )}
+                    <p className="font-bold text-lg">{table.name || 'Mesa/Comanda'} {table.number}</p>
                     <p className={cn(
                       "text-xs mt-1",
                       table.status === 'occupied' ? "text-destructive" : "text-primary"

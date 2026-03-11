@@ -136,7 +136,7 @@ export function TableCheckout({ table, onBack, onSuccess }: TableCheckoutProps) 
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
-          <h1 className="text-xl font-bold">Fechar Mesa {table.number}</h1>
+          <h1 className="text-xl font-bold">Fechar {table.name || 'Mesa/Comanda'} {table.number}</h1>
           <p className="text-sm text-muted-foreground">
             {calculations.orderCount} pedido{calculations.orderCount > 1 ? 's' : ''} • {calculations.itemCount} itens
           </p>
@@ -332,7 +332,7 @@ export function TableCheckout({ table, onBack, onSuccess }: TableCheckoutProps) 
 
           {/* Print/PDF Buttons */}
           <CheckoutPrintButton
-            tableName={`Mesa ${table.number}`}
+            tableName={`${table.name || 'Mesa/Comanda'} ${table.number}`}
             items={allItems}
             subtotal={calculations.subtotal}
             discountAmount={calculations.discountAmount}
@@ -349,7 +349,7 @@ export function TableCheckout({ table, onBack, onSuccess }: TableCheckoutProps) 
           >
             {closeAllOrders.isPending
               ? 'Finalizando...'
-              : `Fechar Mesa - ${formatCurrency(calculations.total)}`}
+              : `Fechar ${table.name || 'Mesa/Comanda'} - ${formatCurrency(calculations.total)}`}
           </Button>
         </div>
       </div>

@@ -116,16 +116,16 @@ export function OrderHistoryModal({ open, onOpenChange }: OrderHistoryModalProps
             />
           </div>
           <div className="space-y-1">
-            <Label>Mesa</Label>
+            <Label>Mesa/Comanda</Label>
             <Select value={selectedTableId} onValueChange={setSelectedTableId}>
               <SelectTrigger>
                 <SelectValue placeholder="Todas" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todas as mesas</SelectItem>
+                <SelectItem value="all">Todas</SelectItem>
                 {tables.map((table) => (
                   <SelectItem key={table.id} value={table.id}>
-                    Mesa {table.number} {table.name ? `(${table.name})` : ''}
+                    {table.name || 'Mesa/Comanda'} {table.number}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -184,7 +184,7 @@ export function OrderHistoryModal({ open, onOpenChange }: OrderHistoryModalProps
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-bold">
-                              Mesa {table?.number || '?'}
+                              {table?.name || 'Mesa/Comanda'} {table?.number || '?'}
                             </span>
                             {getStatusBadge(order.status)}
                           </div>

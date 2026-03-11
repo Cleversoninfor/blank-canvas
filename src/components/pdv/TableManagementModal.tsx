@@ -116,7 +116,7 @@ export function TableManagementModal({ open, onOpenChange }: TableManagementModa
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col">
           <DialogHeader>
-            <DialogTitle>Gerenciar Mesas</DialogTitle>
+            <DialogTitle>Gerenciar Mesas/Comandas</DialogTitle>
           </DialogHeader>
 
           {/* Add/Edit Form */}
@@ -135,12 +135,13 @@ export function TableManagementModal({ open, onOpenChange }: TableManagementModa
                 />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="tableName">Nome</Label>
+                <Label htmlFor="tableName">Tipo*</Label>
                 <Input
                   id="tableName"
                   value={newTableName}
                   onChange={(e) => setNewTableName(e.target.value)}
-                  placeholder="Ex: Varanda"
+                  placeholder="Ex: Mesa ou Comanda"
+                  required
                 />
               </div>
               <div className="space-y-1">
@@ -192,8 +193,7 @@ export function TableManagementModal({ open, onOpenChange }: TableManagementModa
                         <div>
                           <div className="flex items-center gap-2">
                             <p className="font-medium">
-                              Mesa {table.number}
-                              {table.name && <span className="text-muted-foreground ml-1">({table.name})</span>}
+                              {table.name || 'Mesa/Comanda'} {table.number}
                             </p>
                             <Badge variant={statusInfo.variant} className="text-xs">
                               {statusInfo.label}

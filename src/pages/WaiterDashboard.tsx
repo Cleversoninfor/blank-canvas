@@ -174,7 +174,7 @@ export default function WaiterDashboard() {
     return (
       <>
         <Helmet>
-          <title>{`Mesa ${selectedTable.number} - Garçom`}</title>
+          <title>{`${selectedTable.name || 'Mesa/Comanda'} ${selectedTable.number} - Garçom`}</title>
         </Helmet>
         
         <div className="min-h-screen bg-background">
@@ -182,7 +182,7 @@ export default function WaiterDashboard() {
             <Button variant="ghost" size="icon" onClick={handleBackToTables}>
               <ChevronLeft className="h-5 w-5" />
             </Button>
-            <h1 className="font-bold text-foreground">Mesa {selectedTable.number}</h1>
+            <h1 className="font-bold text-foreground">{selectedTable.name || 'Mesa/Comanda'} {selectedTable.number}</h1>
           </header>
 
           <div className="p-4">
@@ -202,7 +202,7 @@ export default function WaiterDashboard() {
     return (
       <>
         <Helmet>
-          <title>{`Fechar Mesa ${selectedTable.number} - Garçom`}</title>
+          <title>{`Fechar ${selectedTable.name || 'Mesa/Comanda'} ${selectedTable.number} - Garçom`}</title>
         </Helmet>
         
         <div className="min-h-screen bg-background">
@@ -263,7 +263,7 @@ export default function WaiterDashboard() {
                           <div>
                             <Badge variant="outline" className="mb-1">
                               {item.order_type === 'table' 
-                                ? `Mesa ${item.table_number}`
+                             ? `${item.table_name || 'Mesa/Comanda'} ${item.table_number}`
                                 : `Pedido #${item.order_id}`}
                             </Badge>
                             <p className="font-medium">
@@ -310,7 +310,7 @@ export default function WaiterDashboard() {
           <TabsList className="grid w-full grid-cols-2 mx-4 mt-3" style={{ width: 'calc(100% - 2rem)' }}>
             <TabsTrigger value="tables" className="flex items-center gap-2">
               <UtensilsCrossed className="h-4 w-4" />
-              Mesas
+              Mesas/Comandas
             </TabsTrigger>
             <TabsTrigger value="kitchen" className="flex items-center gap-2 relative">
               <ChefHat className="h-4 w-4" />
@@ -414,7 +414,7 @@ export default function WaiterDashboard() {
                           {group.order_type === 'table' ? (
                             <>
                               <UtensilsCrossed className="h-4 w-4 mr-1" />
-                              Mesa {group.table_number}
+                              {group.table_name || 'Mesa/Comanda'} {group.table_number}
                             </>
                           ) : (
                             <>
