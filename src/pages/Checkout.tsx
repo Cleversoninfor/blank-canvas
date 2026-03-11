@@ -339,7 +339,7 @@ const Checkout = () => {
           customer_phone: deliveryData.phone,
           address_street: deliveryType === 'delivery' ? deliveryData.street : 'Retirada no local',
           address_number: deliveryType === 'delivery' ? deliveryData.number : '-',
-          address_neighborhood: deliveryType === 'delivery' ? deliveryData.neighborhood : '-',
+          address_neighborhood: deliveryType === 'delivery' ? (zoneAsNeighborhood && selectedZone ? selectedZone.name : deliveryData.neighborhood) : '-',
           address_complement: deliveryType === 'delivery' ? deliveryData.complement || null : null,
           total_amount: finalTotal,
           payment_method: paymentMethod,
