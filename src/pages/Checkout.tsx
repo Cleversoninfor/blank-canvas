@@ -250,14 +250,7 @@ const Checkout = () => {
       return;
     }
     
-    // Validate table selection for dine-in
-    if (deliveryType === 'dine_in' && !selectedTable) {
-      toast({ title: 'Selecione uma mesa', variant: 'destructive' });
-      return;
-    }
-    
-    // Payment is only required for delivery/pickup
-    if (deliveryType !== 'dine_in' && !selectedPayment) {
+    if (!selectedPayment) {
       toast({ title: 'Selecione a forma de pagamento', variant: 'destructive' });
       return;
     }
