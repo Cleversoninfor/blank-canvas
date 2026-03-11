@@ -294,9 +294,9 @@ export default function DeliveryZones() {
               {zones.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <MapPin className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Nenhuma zona de entrega cadastrada</p>
+                  <p>Nenhum local de entrega cadastrado</p>
                   <Button variant="link" onClick={handleOpenCreate}>
-                    Adicionar primeira zona
+                    Adicionar primeiro local
                   </Button>
                 </div>
               ) : (
