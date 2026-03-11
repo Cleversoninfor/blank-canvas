@@ -332,7 +332,7 @@ export function TableCheckout({ table, onBack, onSuccess }: TableCheckoutProps) 
 
           {/* Print/PDF Buttons */}
           <CheckoutPrintButton
-            tableName={`Mesa ${table.number}`}
+            tableName={`${table.name || 'Mesa/Comanda'} ${table.number}`}
             items={allItems}
             subtotal={calculations.subtotal}
             discountAmount={calculations.discountAmount}
