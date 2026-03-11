@@ -31,12 +31,6 @@ const paymentOptions: { id: DisplayPaymentMethod; dbValue: PaymentMethod; label:
   { id: 'pix', dbValue: 'pix', label: 'Pix', icon: QrCode },
 ];
 
-interface SelectedTable {
-  id: string;
-  number: number;
-  name: string | null;
-  current_order_id?: number | null;
-}
 
 interface CheckoutFormData {
   deliveryType: DeliveryType;
