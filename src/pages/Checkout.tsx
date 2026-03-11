@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Loader2, Clock, Banknote, CreditCard, QrCode, ChevronRight, Pencil, Trash2, Plus, Minus, Tag, X, AlertCircle, Store, MapPin, UtensilsCrossed } from 'lucide-react';
+import { ArrowLeft, Loader2, Clock, Banknote, CreditCard, QrCode, ChevronRight, Pencil, Trash2, Plus, Minus, Tag, X, AlertCircle, Store, MapPin } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
