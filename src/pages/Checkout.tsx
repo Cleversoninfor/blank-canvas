@@ -865,16 +865,15 @@ const Checkout = () => {
 
           {/* Delivery Estimate */}
           <div className="flex items-center gap-3 p-4 bg-card rounded-2xl shadow-card">
-            <div className="flex items-center gap-3 p-4 bg-card rounded-2xl shadow-card">
-              <Clock className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="text-xs text-primary font-medium uppercase">
-                  {deliveryType === 'delivery' ? 'Previsão de entrega' : 'Previsão de preparo'}
-                </p>
-                <p className="font-semibold text-foreground">
-                  {deliveryType === 'delivery' ? '30-45 min' : '15-25 min'}
-                </p>
-              </div>
+            <Clock className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <p className="text-xs text-primary font-medium uppercase">
+                {deliveryType === 'delivery' ? 'Previsão de entrega' : 'Previsão de preparo'}
+              </p>
+              <p className="font-semibold text-foreground">
+                {deliveryType === 'delivery' ? '30-45 min' : '15-25 min'}
+              </p>
+            </div>
           </div>
         </div>
 
