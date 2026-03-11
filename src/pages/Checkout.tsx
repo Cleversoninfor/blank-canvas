@@ -41,7 +41,7 @@ interface CheckoutFormData {
   neighborhood: string;
   complement: string;
   selectedPayment: DisplayPaymentMethod | null;
-  selectedTable: SelectedTable | null;
+  
 }
 
 function loadCheckoutFromStorage(): CheckoutFormData | null {
