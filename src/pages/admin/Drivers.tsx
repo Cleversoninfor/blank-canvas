@@ -171,7 +171,7 @@ export default function Drivers() {
                   <TableRow>
                     <TableHead>Nome</TableHead>
                     <TableHead>Telefone</TableHead>
-                    <TableHead>Comissão</TableHead>
+                    <TableHead>Valor</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
