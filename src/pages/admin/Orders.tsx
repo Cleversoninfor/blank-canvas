@@ -252,7 +252,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
         {!isCompleted && (
           <div className="space-y-2">
             <div className="flex gap-2">
-              {order.type === 'delivery' && order.payment_method === 'pix' && order.status === 'pending' && (
+              {order.type === 'delivery' && !isComanda && order.payment_method === 'pix' && order.status === 'pending' && (
                 <Button variant="whatsapp" size="sm" className="flex-1" onClick={sendPixCharge}>
                   Cobrar PIX
                 </Button>
