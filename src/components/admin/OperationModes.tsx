@@ -1,4 +1,4 @@
-import { Truck, Store, UtensilsCrossed, Loader2 } from 'lucide-react';
+import { Truck, Store, Loader2 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useStoreConfig, useUpdateStoreConfig } from '@/hooks/useStore';
 import { useToast } from '@/hooks/use-toast';
