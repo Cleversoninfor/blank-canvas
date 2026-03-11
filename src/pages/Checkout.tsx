@@ -75,7 +75,7 @@ const Checkout = () => {
   const { data: store } = useStoreConfig();
   const storeStatus = useStoreStatus();
   const createOrder = useCreateOrder();
-  const createDineInOrder = useCreateDineInOrder();
+  
   const validateCoupon = useValidateCoupon();
   const { zones: deliveryZones } = useDeliveryZones();
 
