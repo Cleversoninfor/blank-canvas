@@ -95,6 +95,8 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
 
   const formatCurrency = (value: number) => Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
+  const isComanda = order.type === 'delivery' && order.customer_name?.startsWith('Comanda #');
+
   const getPaymentLabel = (method: string | null) => {
     switch (method) {
       case 'pix':
@@ -111,6 +113,9 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
   const getOrderTypeLabel = () => {
     if (order.type === 'table') {
       return order.waiter_name ? `🍽️ ${order.waiter_name}` : '🍽️ Mesa';
+    }
+    if (isComanda) {
+      return `🧾 ${order.customer_name}`;
     }
     return '🛵 Delivery';
   };
