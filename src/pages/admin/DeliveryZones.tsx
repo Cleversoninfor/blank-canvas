@@ -265,9 +265,9 @@ export default function DeliveryZones() {
               >
                 <RadioGroupItem value="zones" id="zones" className="mt-1" />
                 <div>
-                  <p className="font-medium">Por Bairro/Zona</p>
+                  <p className="font-medium">Por Bairro/CEP/Setor</p>
                   <p className="text-sm text-muted-foreground">
-                    Taxa diferente para cada bairro ou região
+                    Taxa diferente para cada bairro, CEP ou setor
                   </p>
                 </div>
               </Label>
