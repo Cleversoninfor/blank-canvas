@@ -113,8 +113,8 @@ export default function Drivers() {
                   <Input id="phone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: formatPhone(e.target.value) })} placeholder="(11) 99999-9999" className="mt-1.5" maxLength={15} />
                 </div>
                 <div>
-                  <Label htmlFor="commission">Valor (%)</Label>
-                  <Input id="commission" type="number" min="0" max="100" step="0.5" value={formData.commission_percentage} onChange={(e) => setFormData({ ...formData, commission_percentage: e.target.value })} placeholder="5" className="mt-1.5" />
+                  <Label htmlFor="commission">Valor (R$)</Label>
+                  <Input id="commission" type="number" min="0" step="0.50" value={formData.commission_percentage} onChange={(e) => setFormData({ ...formData, commission_percentage: e.target.value })} placeholder="10.00" className="mt-1.5" />
                 </div>
                 <Button type="submit" className="w-full" disabled={createMutation.isPending || updateMutation.isPending}>
                   {(createMutation.isPending || updateMutation.isPending) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
