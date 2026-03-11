@@ -13,8 +13,6 @@ import { useValidateCoupon, calculateDiscount, Coupon } from '@/hooks/useCoupons
 import { saveLastOrderId } from '@/components/order/FloatingOrderButton';
 import { useStoreStatus } from '@/hooks/useStoreStatus';
 import { AddressSelector } from '@/components/checkout/AddressSelector';
-import { TableSelector } from '@/components/checkout/TableSelector';
-import { useCreateDineInOrder } from '@/hooks/useDineInOrder';
 import { GeolocationButton } from '@/components/checkout/GeolocationButton';
 import { useDeliveryZones } from '@/hooks/useDeliveryZones';
 import { PaymentMethod } from '@/types';
