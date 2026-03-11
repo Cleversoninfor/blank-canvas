@@ -193,8 +193,7 @@ export function TableManagementModal({ open, onOpenChange }: TableManagementModa
                         <div>
                           <div className="flex items-center gap-2">
                             <p className="font-medium">
-                              Mesa {table.number}
-                              {table.name && <span className="text-muted-foreground ml-1">({table.name})</span>}
+                              {table.name || 'Mesa/Comanda'} {table.number}
                             </p>
                             <Badge variant={statusInfo.variant} className="text-xs">
                               {statusInfo.label}
