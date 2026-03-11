@@ -28,9 +28,9 @@ export function StoreHeader({ store }: StoreHeaderProps) {
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <h1 className="text-lg font-bold text-foreground">{store.name}</h1>
-              <Badge variant={storeStatus.isOpen ? 'open' : 'closed'}>
+              <span className={`text-xs font-semibold ${storeStatus.isOpen ? 'text-green-500' : 'text-red-500'}`}>
                 {storeStatus.isOpen ? 'Aberto' : 'Fechado'}
-              </Badge>
+              </span>
             </div>
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <MapPin className="h-3.5 w-3.5" />

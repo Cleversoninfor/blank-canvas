@@ -113,7 +113,7 @@ export default function Drivers() {
                   <Input id="phone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: formatPhone(e.target.value) })} placeholder="(11) 99999-9999" className="mt-1.5" maxLength={15} />
                 </div>
                 <div>
-                  <Label htmlFor="commission">Comissão (%)</Label>
+                  <Label htmlFor="commission">Valor (%)</Label>
                   <Input id="commission" type="number" min="0" max="100" step="0.5" value={formData.commission_percentage} onChange={(e) => setFormData({ ...formData, commission_percentage: e.target.value })} placeholder="5" className="mt-1.5" />
                 </div>
                 <Button type="submit" className="w-full" disabled={createMutation.isPending || updateMutation.isPending}>
@@ -171,7 +171,7 @@ export default function Drivers() {
                   <TableRow>
                     <TableHead>Nome</TableHead>
                     <TableHead>Telefone</TableHead>
-                    <TableHead>Comissão</TableHead>
+                    <TableHead>Valor</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
