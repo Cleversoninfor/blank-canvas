@@ -709,14 +709,6 @@ const Checkout = () => {
             </section>
           )}
 
-          {/* Dine-in info */}
-          {deliveryType === 'dine_in' && (
-            <div className="p-4 bg-primary/10 border border-primary/30 rounded-xl">
-              <p className="text-sm text-foreground">
-                💳 O pagamento será realizado na mesa após consumir.
-              </p>
-            </div>
-          )}
 
           {/* Order Summary Section */}
           <section className="space-y-3">
