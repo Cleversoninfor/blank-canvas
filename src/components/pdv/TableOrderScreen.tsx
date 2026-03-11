@@ -334,7 +334,7 @@ export function TableOrderScreen({ table, onBack, onCheckout, onTableTransferred
             onClick={onCheckout}
             disabled={activeItems.length === 0}
           >
-            Fechar Mesa
+            Fechar {table.name || 'Mesa/Comanda'}
           </Button>
         )}
       </div>
