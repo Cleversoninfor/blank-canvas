@@ -263,7 +263,7 @@ export default function WaiterDashboard() {
                           <div>
                             <Badge variant="outline" className="mb-1">
                               {item.order_type === 'table' 
-                                ? `Mesa ${item.table_number}`
+                             ? `${item.table_name || 'Mesa/Comanda'} ${item.table_number}`
                                 : `Pedido #${item.order_id}`}
                             </Badge>
                             <p className="font-medium">
