@@ -27,6 +27,7 @@ interface KitchenOrderCardProps {
 export function KitchenOrderCard({ order }: KitchenOrderCardProps) {
   const { updateItemStatus } = useKitchenItemMutations();
   const [isUpdating, setIsUpdating] = useState(false);
+  const isComanda = order.customer_name?.startsWith('Comanda #');
 
   // Calculate waiting time from oldest item
   const waitingMinutes = Math.floor(
@@ -134,43 +135,86 @@ export function KitchenOrderCard({ order }: KitchenOrderCardProps) {
 
         {/* Actions */}
         <div className="flex gap-2 pt-2">
-          {order.status === 'pending' && (
-            <Button 
-              className="flex-1 text-lg py-6"
-              onClick={() => handleStatusChange('preparing')}
-              disabled={isUpdating}
-            >
-              {isUpdating ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <>
-                  <ChefHat className="h-5 w-5 mr-2" />
-                  Preparando
-                </>
+          {isComanda ? (
+            // Comanda orders: single "Finalizar" button that moves through statuses
+            order.status === 'pending' ? (
+              <Button 
+                className="flex-1 text-lg py-6"
+                onClick={() => handleStatusChange('preparing')}
+                disabled={isUpdating}
+              >
+                {isUpdating ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <>
+                    <ChefHat className="h-5 w-5 mr-2" />
+                    Preparando
+                  </>
+                )}
+              </Button>
+            ) : order.status === 'preparing' ? (
+              <Button 
+                className="flex-1 text-lg py-6 bg-green-600 hover:bg-green-700"
+                onClick={() => handleStatusChange('ready')}
+                disabled={isUpdating}
+              >
+                {isUpdating ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <>
+                    <CheckCircle className="h-5 w-5 mr-2" />
+                    Finalizar
+                  </>
+                )}
+              </Button>
+            ) : order.status === 'ready' ? (
+              <div className="flex-1 text-center py-4 bg-green-100 rounded-lg">
+                <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-1" />
+                <p className="text-green-700 font-medium">Finalizado</p>
+              </div>
+            ) : null
+          ) : (
+            // Normal orders (table/delivery)
+            <>
+              {order.status === 'pending' && (
+                <Button 
+                  className="flex-1 text-lg py-6"
+                  onClick={() => handleStatusChange('preparing')}
+                  disabled={isUpdating}
+                >
+                  {isUpdating ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <>
+                      <ChefHat className="h-5 w-5 mr-2" />
+                      Preparando
+                    </>
+                  )}
+                </Button>
               )}
-            </Button>
-          )}
-          {order.status === 'preparing' && (
-            <Button 
-              className="flex-1 text-lg py-6 bg-green-600 hover:bg-green-700"
-              onClick={() => handleStatusChange('ready')}
-              disabled={isUpdating}
-            >
-              {isUpdating ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <>
-                  <CheckCircle className="h-5 w-5 mr-2" />
-                  Pronto!
-                </>
+              {order.status === 'preparing' && (
+                <Button 
+                  className="flex-1 text-lg py-6 bg-green-600 hover:bg-green-700"
+                  onClick={() => handleStatusChange('ready')}
+                  disabled={isUpdating}
+                >
+                  {isUpdating ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <>
+                      <CheckCircle className="h-5 w-5 mr-2" />
+                      Pronto!
+                    </>
+                  )}
+                </Button>
               )}
-            </Button>
-          )}
-          {order.status === 'ready' && (
-            <div className="flex-1 text-center py-4 bg-green-100 rounded-lg">
-              <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-1" />
-              <p className="text-green-700 font-medium">Aguardando retirada</p>
-            </div>
+              {order.status === 'ready' && (
+                <div className="flex-1 text-center py-4 bg-green-100 rounded-lg">
+                  <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-1" />
+                  <p className="text-green-700 font-medium">Aguardando retirada</p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </CardContent>

@@ -95,6 +95,8 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
 
   const formatCurrency = (value: number) => Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
+  const isComanda = order.type === 'delivery' && order.customer_name?.startsWith('Comanda #');
+
   const getPaymentLabel = (method: string | null) => {
     switch (method) {
       case 'pix':
@@ -111,6 +113,9 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
   const getOrderTypeLabel = () => {
     if (order.type === 'table') {
       return order.waiter_name ? `🍽️ ${order.waiter_name}` : '🍽️ Mesa';
+    }
+    if (isComanda) {
+      return `🧾 ${order.customer_name}`;
     }
     return '🛵 Delivery';
   };
@@ -134,14 +139,14 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
   };
 
   const getNextStatus = (status: UnifiedOrder['status']): UnifiedOrder['status'] | null => {
-    // For table orders, different flow
-    if (order.type === 'table') {
-      const tableFlow: Record<string, UnifiedOrder['status']> = {
+    // For table orders or comanda orders, skip 'delivery' step
+    if (order.type === 'table' || isComanda) {
+      const flow: Record<string, UnifiedOrder['status']> = {
         pending: 'preparing',
         preparing: 'ready',
         ready: 'completed',
       };
-      return tableFlow[status] || null;
+      return flow[status] || null;
     }
 
     // For delivery orders
@@ -155,13 +160,13 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
   };
 
   const getNextStatusLabel = (status: UnifiedOrder['status']) => {
-    if (order.type === 'table') {
-      const tableLabels: Record<string, string> = {
+    if (order.type === 'table' || isComanda) {
+      const labels: Record<string, string> = {
         pending: 'Aceitar',
         preparing: 'Pronto',
         ready: 'Finalizar',
       };
-      return tableLabels[status];
+      return labels[status];
     }
 
     const labels: Record<string, string> = {
@@ -213,7 +218,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
           <Badge variant="outline" className="text-[10px]">
             {getOrderTypeLabel()}
           </Badge>
-          {order.payment_method && (
+          {!isComanda && order.payment_method && (
             <Badge variant={order.payment_method as any} className="text-[10px] sm:text-xs">
               {getPaymentLabel(order.payment_method)}
             </Badge>
@@ -247,7 +252,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
         {!isCompleted && (
           <div className="space-y-2">
             <div className="flex gap-2">
-              {order.type === 'delivery' && order.payment_method === 'pix' && order.status === 'pending' && (
+              {order.type === 'delivery' && !isComanda && order.payment_method === 'pix' && order.status === 'pending' && (
                 <Button variant="whatsapp" size="sm" className="flex-1" onClick={sendPixCharge}>
                   Cobrar PIX
                 </Button>
@@ -260,7 +265,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
             </div>
 
             {/* Driver selector for delivery orders with status "ready" or "delivery" */}
-            {order.type === 'delivery' && (order.status === 'ready' || order.status === 'delivery') && !order.driver_id && (
+            {order.type === 'delivery' && !isComanda && (order.status === 'ready' || order.status === 'delivery') && !order.driver_id && (
               <div onClick={(e) => e.stopPropagation()}>
                 <Select
                   onValueChange={(value) => {
@@ -292,7 +297,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
             )}
 
             {/* Show assigned driver name */}
-            {order.type === 'delivery' && order.driver_name && (
+            {order.type === 'delivery' && !isComanda && order.driver_name && (
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Truck className="h-3 w-3" />
                 <span>{order.driver_name}</span>
