@@ -705,7 +705,7 @@ const Checkout = () => {
                     className="mt-2 bg-card border-primary/30"
                   />
                 </div>
-              )}
+          </section>
             </section>
           )}
 
