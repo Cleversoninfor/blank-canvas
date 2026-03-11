@@ -663,49 +663,47 @@ const Checkout = () => {
 
           {/* Payment Method Section */}
           <section className="space-y-2">
-            <section className="space-y-2">
-              <h3 className="font-semibold text-foreground">Método de pagamento</h3>
-              <div className="grid grid-cols-2 gap-3">
-                {paymentOptions.map((option) => (
-                  <button
-                    key={option.id}
-                    onClick={() => setSelectedPayment(option.id)}
-                    className={cn(
-                      "flex items-center gap-2 p-4 rounded-xl border-2 transition-colors",
-                      selectedPayment === option.id
-                        ? "border-primary bg-primary/10"
-                        : "border-border bg-card"
-                    )}
-                  >
-                    <option.icon className={cn(
-                      "h-5 w-5",
-                      selectedPayment === option.id ? "text-primary" : "text-muted-foreground"
-                    )} />
-                    <span className={cn(
-                      "text-sm font-medium",
-                      selectedPayment === option.id ? "text-foreground" : "text-muted-foreground"
-                    )}>
-                      {option.label}
-                    </span>
-                  </button>
-                ))}
+            <h3 className="font-semibold text-foreground">Método de pagamento</h3>
+            <div className="grid grid-cols-2 gap-3">
+              {paymentOptions.map((option) => (
+                <button
+                  key={option.id}
+                  onClick={() => setSelectedPayment(option.id)}
+                  className={cn(
+                    "flex items-center gap-2 p-4 rounded-xl border-2 transition-colors",
+                    selectedPayment === option.id
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-card"
+                  )}
+                >
+                  <option.icon className={cn(
+                    "h-5 w-5",
+                    selectedPayment === option.id ? "text-primary" : "text-muted-foreground"
+                  )} />
+                  <span className={cn(
+                    "text-sm font-medium",
+                    selectedPayment === option.id ? "text-foreground" : "text-muted-foreground"
+                  )}>
+                    {option.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+            
+            {selectedPayment === 'money' && (
+              <div className="animate-slide-up rounded-xl bg-primary/10 p-4 mt-3">
+                <label className="text-sm font-medium text-primary">Troco para quanto?</label>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="R$ 50,00"
+                  value={changeFor}
+                  onChange={(e) => setChangeFor(e.target.value)}
+                  className="mt-2 bg-card border-primary/30"
+                />
               </div>
-              
-              {selectedPayment === 'money' && (
-                <div className="animate-slide-up rounded-xl bg-primary/10 p-4 mt-3">
-                  <label className="text-sm font-medium text-primary">Troco para quanto?</label>
-                  <Input
-                    type="text"
-                    inputMode="decimal"
-                    placeholder="R$ 50,00"
-                    value={changeFor}
-                    onChange={(e) => setChangeFor(e.target.value)}
-                    className="mt-2 bg-card border-primary/30"
-                  />
-                </div>
+            )}
           </section>
-            </section>
-          )}
 
 
           {/* Order Summary Section */}
