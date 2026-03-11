@@ -256,6 +256,12 @@ const Checkout = () => {
       return;
     }
     
+    // Validate zone selection when in zones mode
+    if (deliveryType === 'delivery' && isZoneMode && activeZones.length > 0 && !selectedZoneId) {
+      toast({ title: 'Selecione seu local de entrega', variant: 'destructive' });
+      return;
+    }
+    
     // Validate table selection for dine-in
     if (deliveryType === 'dine_in' && !selectedTable) {
       toast({ title: 'Selecione uma mesa', variant: 'destructive' });
