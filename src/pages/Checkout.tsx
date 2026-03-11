@@ -569,7 +569,7 @@ const Checkout = () => {
                     className="mt-1 bg-muted/50 border-0"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className={isZoneMode && activeZones.length > 0 ? "" : "grid grid-cols-2 gap-3"}>
                   <div>
                     <label className="text-sm text-muted-foreground">Número</label>
                     <Input
@@ -579,15 +579,17 @@ const Checkout = () => {
                       className="mt-1 bg-muted/50 border-0"
                     />
                   </div>
-                  <div>
-                    <label className="text-sm text-muted-foreground">Bairro</label>
-                    <Input
-                      placeholder="Bairro"
-                      value={deliveryData.neighborhood}
-                      onChange={(e) => setDeliveryData({ ...deliveryData, neighborhood: e.target.value })}
-                      className="mt-1 bg-muted/50 border-0"
-                    />
-                  </div>
+                  {!(isZoneMode && activeZones.length > 0) && (
+                    <div>
+                      <label className="text-sm text-muted-foreground">Bairro</label>
+                      <Input
+                        placeholder="Bairro"
+                        value={deliveryData.neighborhood}
+                        onChange={(e) => setDeliveryData({ ...deliveryData, neighborhood: e.target.value })}
+                        className="mt-1 bg-muted/50 border-0"
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className="mt-4">
                   <label className="text-sm text-muted-foreground">Complemento / Ponto de referência</label>
