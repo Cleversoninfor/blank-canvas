@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { HeroHeader } from '@/components/menu/HeroHeader';
+import { LocalHeroHeader } from '@/components/menu/LocalHeroHeader';
 import { StoreInfo } from '@/components/menu/StoreInfo';
 import { CategoryIcons } from '@/components/menu/CategoryIcons';
 import { CategoryGrid } from '@/components/menu/CategoryGrid';
@@ -81,7 +81,7 @@ const CardapioLocal = () => {
       </Helmet>
 
       <div className="min-h-screen bg-background pb-12">
-        <HeroHeader store={store} />
+        <LocalHeroHeader store={store} />
         <StoreInfo store={store} />
 
         {isCategoryMode ? (
