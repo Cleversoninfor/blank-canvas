@@ -140,7 +140,17 @@ const Checkout = () => {
     });
   }, [deliveryType, deliveryData, selectedPayment, selectedTable]);
 
-  const deliveryFee = deliveryType === 'delivery' ? Number(store?.delivery_fee || 5.99) : 0;
+  // Delivery fee: use zone-based fee when mode is 'zones' and a zone is selected
+  const activeZones = deliveryZones.filter(z => z.is_active);
+  const isZoneMode = store?.delivery_fee_mode === 'zones';
+  const selectedZone = activeZones.find(z => z.id === selectedZoneId) || null;
+  
+  const deliveryFee = useMemo(() => {
+    if (deliveryType !== 'delivery') return 0;
+    if (isZoneMode && selectedZone) return selectedZone.fee;
+    if (isZoneMode && !selectedZone) return 0;
+    return Number(store?.delivery_fee || 5.99);
+  }, [deliveryType, isZoneMode, selectedZone, store?.delivery_fee]);
 
   const formatCurrency = (value: number) =>
     value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
