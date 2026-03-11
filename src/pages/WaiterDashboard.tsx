@@ -310,7 +310,7 @@ export default function WaiterDashboard() {
           <TabsList className="grid w-full grid-cols-2 mx-4 mt-3" style={{ width: 'calc(100% - 2rem)' }}>
             <TabsTrigger value="tables" className="flex items-center gap-2">
               <UtensilsCrossed className="h-4 w-4" />
-              Mesas
+              Mesas/Comandas
             </TabsTrigger>
             <TabsTrigger value="kitchen" className="flex items-center gap-2 relative">
               <ChefHat className="h-4 w-4" />
