@@ -148,6 +148,14 @@ export function LocalHeroHeader({ store }: LocalHeroHeaderProps) {
               <UtensilsCrossed className="h-6 w-6 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">Cardápio</span>
             </button>
+            <a
+              href="https://crisp-begin-project.lovable.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+            >
+              Página Delivery
+            </a>
           </div>
         </nav>
 
