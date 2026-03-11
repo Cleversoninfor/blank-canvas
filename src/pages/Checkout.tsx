@@ -890,7 +890,7 @@ const Checkout = () => {
             size="xl"
             className="w-full rounded-full"
           >
-            {(createOrder.isPending || createDineInOrder.isPending) ? (
+            {createOrder.isPending ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Enviando...
@@ -899,8 +899,6 @@ const Checkout = () => {
               'Loja Fechada'
             ) : isBelowMinimum ? (
               `Faltam ${formatCurrency(minOrderValue - subtotal)}`
-            ) : deliveryType === 'dine_in' ? (
-              `Enviar Pedido para Mesa • ${formatCurrency(subtotal)}`
             ) : (
               `Finalizar Pedido • ${formatCurrency(finalTotal)}`
             )}
