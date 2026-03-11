@@ -10,6 +10,13 @@ export function OperationModes() {
   const { data: store, isLoading } = useStoreConfig();
   const updateStore = useUpdateStoreConfig();
   const { toast } = useToast();
+  const [pdvPassword, setPdvPassword] = useState('');
+
+  useEffect(() => {
+    if (store?.pdv_password) {
+      setPdvPassword(store.pdv_password);
+    }
+  }, [store?.pdv_password]);
 
   const handleToggle = async (mode: 'mode_delivery_enabled' | 'mode_pickup_enabled', value: boolean) => {
     if (!store) return;
