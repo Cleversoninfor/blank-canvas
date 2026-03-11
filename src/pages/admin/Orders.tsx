@@ -265,7 +265,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
             </div>
 
             {/* Driver selector for delivery orders with status "ready" or "delivery" */}
-            {order.type === 'delivery' && (order.status === 'ready' || order.status === 'delivery') && !order.driver_id && (
+            {order.type === 'delivery' && !isComanda && (order.status === 'ready' || order.status === 'delivery') && !order.driver_id && (
               <div onClick={(e) => e.stopPropagation()}>
                 <Select
                   onValueChange={(value) => {
