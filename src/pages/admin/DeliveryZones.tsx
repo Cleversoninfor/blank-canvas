@@ -456,9 +456,9 @@ export default function DeliveryZones() {
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir zona de entrega?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir local de entrega?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. A zona será removida permanentemente.
+              Esta ação não pode ser desfeita. O local será removido permanentemente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

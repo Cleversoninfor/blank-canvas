@@ -924,8 +924,12 @@ const Checkout = () => {
             </div>
             {deliveryType === 'delivery' && (
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Taxa de entrega</span>
-                <span className="text-foreground">{formatCurrency(deliveryFee)}</span>
+                <span className="text-muted-foreground">
+                  Taxa de entrega{selectedZone ? ` (${selectedZone.name})` : ''}
+                </span>
+                <span className="text-foreground">
+                  {isZoneMode && !selectedZone ? 'Selecione o local' : formatCurrency(deliveryFee)}
+                </span>
               </div>
             )}
             {appliedCoupon && discount > 0 && (
