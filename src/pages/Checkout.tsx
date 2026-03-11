@@ -223,16 +223,13 @@ const Checkout = () => {
       return;
     }
 
-    // Name and phone validation only for delivery/pickup
-    if (deliveryType !== 'dine_in') {
-      if (!deliveryData.name.trim()) {
-        toast({ title: 'Preencha seu nome', variant: 'destructive' });
-        return;
-      }
-      if (deliveryData.phone.replace(/\D/g, '').length < 10) {
-        toast({ title: 'Telefone inválido', variant: 'destructive' });
-        return;
-      }
+    if (!deliveryData.name.trim()) {
+      toast({ title: 'Preencha seu nome', variant: 'destructive' });
+      return;
+    }
+    if (deliveryData.phone.replace(/\D/g, '').length < 10) {
+      toast({ title: 'Telefone inválido', variant: 'destructive' });
+      return;
     }
     if (false) {
       // Placeholder to maintain structure
