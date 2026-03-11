@@ -380,7 +380,7 @@ export default function DeliveryZones() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editingZone ? 'Editar Zona' : 'Nova Zona de Entrega'}
+              {editingZone ? 'Editar Local' : 'Novo Local de Entrega'}
             </DialogTitle>
           </DialogHeader>
           
