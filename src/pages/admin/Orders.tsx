@@ -139,14 +139,14 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
   };
 
   const getNextStatus = (status: UnifiedOrder['status']): UnifiedOrder['status'] | null => {
-    // For table orders, different flow
-    if (order.type === 'table') {
-      const tableFlow: Record<string, UnifiedOrder['status']> = {
+    // For table orders or comanda orders, skip 'delivery' step
+    if (order.type === 'table' || isComanda) {
+      const flow: Record<string, UnifiedOrder['status']> = {
         pending: 'preparing',
         preparing: 'ready',
         ready: 'completed',
       };
-      return tableFlow[status] || null;
+      return flow[status] || null;
     }
 
     // For delivery orders
@@ -160,13 +160,13 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
   };
 
   const getNextStatusLabel = (status: UnifiedOrder['status']) => {
-    if (order.type === 'table') {
-      const tableLabels: Record<string, string> = {
+    if (order.type === 'table' || isComanda) {
+      const labels: Record<string, string> = {
         pending: 'Aceitar',
         preparing: 'Pronto',
         ready: 'Finalizar',
       };
-      return tableLabels[status];
+      return labels[status];
     }
 
     const labels: Record<string, string> = {
