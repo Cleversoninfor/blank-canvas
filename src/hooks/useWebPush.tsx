@@ -13,7 +13,7 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return outputArray;
 }
 
-export function useWebPush(userType: 'admin' | 'driver', userIdentifier?: string | null) {
+export function useWebPush(userType: 'admin' | 'driver' | 'waiter', userIdentifier?: string | null) {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission>('default');

@@ -52,7 +52,6 @@ Deno.serve(async (req) => {
       targetId = record.driver_id;
       title = '🚚 Novo Pedido de Entrega';
       notifBody = `Pedido #${record.id} - ${record.customer_name}. Toque para visualizar.`;
-      // Unique tag per order to force a fresh alert/sound on locked devices
       tag = `driver-new-order-${record.id}`;
       url = '/driver/dashboard';
     } else if (type === 'new_order') {
@@ -60,6 +59,14 @@ Deno.serve(async (req) => {
       notifBody = `Pedido #${record.id} - ${record.customer_name}`;
       tag = 'new-order';
       url = '/admin/orders';
+    } else if (type === 'waiter_item_ready') {
+      targetType = 'waiter';
+      targetId = record.waiter_id || null;
+      const tableName = record.table_name || `Mesa ${record.table_number || '?'}`;
+      title = '🍽️ Pedido Pronto!';
+      notifBody = `${record.product_name} - ${tableName} está pronto para servir!`;
+      tag = `waiter-ready-${record.item_id || Date.now()}`;
+      url = '/waiter/dashboard';
     } else {
       return new Response(
         JSON.stringify({ sent: 0 }),
