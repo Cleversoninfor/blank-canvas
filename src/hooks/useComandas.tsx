@@ -123,7 +123,7 @@ export function useCreateComandaOrder() {
         _address_number: '0',
         _address_neighborhood: 'Local',
         _total_amount: totalAmount,
-        _payment_method: 'local',
+        _payment_method: 'money',
         _items: JSON.parse(JSON.stringify(items)),
       });
 
