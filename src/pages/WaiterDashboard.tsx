@@ -182,7 +182,7 @@ export default function WaiterDashboard() {
             <Button variant="ghost" size="icon" onClick={handleBackToTables}>
               <ChevronLeft className="h-5 w-5" />
             </Button>
-            <h1 className="font-bold text-foreground">Mesa {selectedTable.number}</h1>
+            <h1 className="font-bold text-foreground">{selectedTable.name || 'Mesa/Comanda'} {selectedTable.number}</h1>
           </header>
 
           <div className="p-4">
