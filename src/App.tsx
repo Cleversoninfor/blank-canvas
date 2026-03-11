@@ -50,8 +50,6 @@ const App = () => (
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order/:id" element={<OrderStatus />} />
-                <Route path="/dine-in-success" element={<DineInSuccess />} />
-                <Route path="/dine-in-order/:orderId" element={<DineInOrderStatus />} />
                 <Route path="/my-orders" element={<MyOrders />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/admin" element={<AdminDashboard />} />
