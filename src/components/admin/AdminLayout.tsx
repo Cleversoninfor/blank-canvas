@@ -49,9 +49,7 @@ const navGroups = [
     label: 'Operações',
     items: [
       { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
-      { id: 'pdv', label: 'PDV', icon: Store, path: '/admin/pdv' },
       { id: 'kitchen', label: 'Cozinha', icon: ChefHat, path: '/kitchen', external: true },
-      { id: 'waiters', label: 'Garçons', icon: Users, path: '/admin/waiters' },
       { id: 'drivers', label: 'Entregadores', icon: Truck, path: '/admin/drivers' },
     ]
   },

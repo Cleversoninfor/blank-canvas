@@ -265,13 +265,6 @@ const AdminReports = () => {
         <div className="flex flex-wrap gap-3">
           <Button
             variant="outline"
-            onClick={() => navigate('/admin/waiter-reports')}
-          >
-            <Users className="w-4 h-4 mr-2" />
-            Relatórios Garçons
-          </Button>
-          <Button
-            variant="outline"
             onClick={() => navigate('/admin/driver-reports')}
           >
             <Truck className="w-4 h-4 mr-2" />

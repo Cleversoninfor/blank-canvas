@@ -1,4 +1,4 @@
-import { Truck, Store, UtensilsCrossed, Loader2 } from 'lucide-react';
+import { Truck, Store, Loader2 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useStoreConfig, useUpdateStoreConfig } from '@/hooks/useStore';
 import { useToast } from '@/hooks/use-toast';
@@ -8,7 +8,7 @@ export function OperationModes() {
   const updateStore = useUpdateStoreConfig();
   const { toast } = useToast();
 
-  const handleToggle = async (mode: 'mode_delivery_enabled' | 'mode_pickup_enabled' | 'mode_dine_in_enabled', value: boolean) => {
+  const handleToggle = async (mode: 'mode_delivery_enabled' | 'mode_pickup_enabled', value: boolean) => {
     if (!store) return;
     
     try {
@@ -18,9 +18,8 @@ export function OperationModes() {
       });
       
       const modeNames = {
-        mode_delivery_enabled: 'Delivery',
+      mode_delivery_enabled: 'Delivery',
         mode_pickup_enabled: 'Retirada',
-        mode_dine_in_enabled: 'Consumo no local',
       };
       
       toast({
@@ -58,13 +57,6 @@ export function OperationModes() {
       description: 'Aceitar pedidos para retirada no balcão',
       icon: Store,
       enabled: store?.mode_pickup_enabled ?? true,
-    },
-    {
-      id: 'mode_dine_in_enabled' as const,
-      label: 'Modo Atendimento no Comércio',
-      description: 'Aceitar pedidos para consumo nas mesas',
-      icon: UtensilsCrossed,
-      enabled: store?.mode_dine_in_enabled ?? true,
     },
   ];
 
