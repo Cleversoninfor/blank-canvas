@@ -40,14 +40,14 @@ export function TableMap({ onTableClick, onAddTable }: TableMapProps) {
           <Plus className="h-12 w-12 text-muted-foreground" />
         </div>
         <h3 className="text-xl font-semibold text-foreground mb-2">
-          Nenhuma mesa cadastrada
+          Nenhuma mesa/comanda cadastrada
         </h3>
         <p className="text-muted-foreground text-center max-w-md mb-6">
-          Comece adicionando as mesas do seu estabelecimento para gerenciar pedidos do salão.
+          Comece adicionando as mesas ou comandas do seu estabelecimento para gerenciar pedidos do salão.
         </p>
         <Button size="lg" onClick={onAddTable}>
           <Plus className="h-5 w-5 mr-2" />
-          Adicionar Primeira Mesa
+          Adicionar Primeira Mesa/Comanda
         </Button>
       </div>
     );
