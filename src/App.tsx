@@ -47,6 +47,7 @@ const App = () => (
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/cardapio-local" element={<CardapioLocal />} />
                 <Route path="/install" element={<Install />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
