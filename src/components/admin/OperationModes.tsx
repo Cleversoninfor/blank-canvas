@@ -8,7 +8,7 @@ export function OperationModes() {
   const updateStore = useUpdateStoreConfig();
   const { toast } = useToast();
 
-  const handleToggle = async (mode: 'mode_delivery_enabled' | 'mode_pickup_enabled' | 'mode_dine_in_enabled', value: boolean) => {
+  const handleToggle = async (mode: 'mode_delivery_enabled' | 'mode_pickup_enabled', value: boolean) => {
     if (!store) return;
     
     try {
