@@ -297,7 +297,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
             )}
 
             {/* Show assigned driver name */}
-            {order.type === 'delivery' && order.driver_name && (
+            {order.type === 'delivery' && !isComanda && order.driver_name && (
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Truck className="h-3 w-3" />
                 <span>{order.driver_name}</span>
