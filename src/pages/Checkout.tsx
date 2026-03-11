@@ -108,7 +108,7 @@ const Checkout = () => {
   });
   const [geoCoords, setGeoCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<DisplayPaymentMethod | null>(savedData?.selectedPayment || null);
-  const [selectedTable, setSelectedTable] = useState<SelectedTable | null>(savedData?.selectedTable || null);
+  
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [changeFor, setChangeFor] = useState('');
   const [couponCode, setCouponCode] = useState('');
