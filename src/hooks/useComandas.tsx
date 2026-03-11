@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 export interface Comanda {
   id: string;
   numero_comanda: number;
-  status: string;
+  status: string; // 'livre' | 'ocupada'
   created_at: string;
 }
 
@@ -22,7 +22,7 @@ export function useComandas() {
       const { data, error } = await supabase
         .from('comandas')
         .select('*')
-        .eq('status', 'active')
+        .in('status', ['livre', 'ocupada'])
         .order('numero_comanda', { ascending: true });
 
       if (error) throw error;
@@ -49,6 +49,42 @@ export function useComandaPedidos(comandaId?: string) {
   });
 }
 
+// Fetch full order details for a comanda's linked orders
+export function useComandaOrderDetails(comandaId?: string) {
+  const { data: pedidos = [] } = useComandaPedidos(comandaId);
+  
+  return useQuery({
+    queryKey: ['comanda-order-details', comandaId, pedidos.map(p => p.pedido_id)],
+    queryFn: async () => {
+      if (pedidos.length === 0) return [];
+      
+      const orderIds = pedidos.map(p => p.pedido_id);
+      
+      // Get orders
+      const { data: orders, error: ordersError } = await supabase
+        .from('orders')
+        .select('*')
+        .in('id', orderIds);
+      
+      if (ordersError) throw ordersError;
+      
+      // Get order items
+      const { data: items, error: itemsError } = await supabase
+        .from('order_items')
+        .select('*')
+        .in('order_id', orderIds);
+      
+      if (itemsError) throw itemsError;
+      
+      return (orders || []).map(order => ({
+        ...order,
+        items: (items || []).filter(item => item.order_id === order.id),
+      }));
+    },
+    enabled: !!comandaId && pedidos.length > 0,
+  });
+}
+
 export function useCreateComanda() {
   const queryClient = useQueryClient();
 
@@ -56,7 +92,7 @@ export function useCreateComanda() {
     mutationFn: async (numeroComanda: number) => {
       const { data, error } = await supabase
         .from('comandas')
-        .insert({ numero_comanda: numeroComanda })
+        .insert({ numero_comanda: numeroComanda, status: 'livre' })
         .select()
         .single();
 
@@ -74,7 +110,6 @@ export function useDeleteComanda() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      // Check if comanda has linked orders
       const { data: pedidos, error: checkError } = await supabase
         .from('comanda_pedidos')
         .select('id')
@@ -99,6 +134,24 @@ export function useDeleteComanda() {
   });
 }
 
+export function useUpdateComandaStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { error } = await supabase
+        .from('comandas')
+        .update({ status })
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['comandas'] });
+    },
+  });
+}
+
 export function useCreateComandaOrder() {
   const queryClient = useQueryClient();
 
@@ -112,10 +165,8 @@ export function useCreateComandaOrder() {
       numeroComanda: number;
       items: { product_name: string; quantity: number; unit_price: number; observation?: string }[];
     }) => {
-      // Calculate total
       const totalAmount = items.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
 
-      // Create order using the existing orders table
       const { data: orderId, error: orderError } = await supabase.rpc('create_order_with_items', {
         _customer_name: `Comanda #${numeroComanda}`,
         _customer_phone: '0000000000',
@@ -127,16 +178,13 @@ export function useCreateComandaOrder() {
         _items: JSON.parse(JSON.stringify(items)),
       });
 
-      console.log('create_order_with_items result:', { orderId, orderError });
       if (orderError) throw orderError;
       if (orderId === null || orderId === undefined) throw new Error('Falha ao criar pedido: ID não retornado');
 
-      // Link order to comanda
       const { error: linkError } = await supabase
         .from('comanda_pedidos')
         .insert({ comanda_id: comandaId, pedido_id: orderId });
 
-      console.log('comanda_pedidos insert result:', { linkError });
       if (linkError) throw linkError;
 
       return orderId;
@@ -144,9 +192,59 @@ export function useCreateComandaOrder() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['comandas'] });
       queryClient.invalidateQueries({ queryKey: ['comanda-pedidos'] });
+      queryClient.invalidateQueries({ queryKey: ['comanda-order-details'] });
       queryClient.invalidateQueries({ queryKey: ['all-orders'] });
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['kitchen-items'] });
+    },
+  });
+}
+
+export function useCloseSale() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      comandaId,
+      valorTotal,
+      formaPagamento,
+    }: {
+      comandaId: string;
+      valorTotal: number;
+      formaPagamento: string;
+    }) => {
+      // Register the sale
+      const { error: vendaError } = await supabase
+        .from('comanda_vendas' as any)
+        .insert({
+          comanda_id: comandaId,
+          valor_total: valorTotal,
+          forma_pagamento: formaPagamento,
+        });
+
+      if (vendaError) throw vendaError;
+
+      // Unlink all orders from the comanda
+      const { error: unlinkError } = await supabase
+        .from('comanda_pedidos')
+        .delete()
+        .eq('comanda_id', comandaId);
+
+      if (unlinkError) throw unlinkError;
+
+      // Set comanda back to livre
+      const { error: statusError } = await supabase
+        .from('comandas')
+        .update({ status: 'livre' })
+        .eq('id', comandaId);
+
+      if (statusError) throw statusError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['comandas'] });
+      queryClient.invalidateQueries({ queryKey: ['comanda-pedidos'] });
+      queryClient.invalidateQueries({ queryKey: ['comanda-order-details'] });
+      queryClient.invalidateQueries({ queryKey: ['all-orders'] });
     },
   });
 }

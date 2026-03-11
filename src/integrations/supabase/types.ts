@@ -172,6 +172,41 @@ export type Database = {
           },
         ]
       }
+      comanda_vendas: {
+        Row: {
+          comanda_id: string | null
+          created_at: string
+          data_venda: string
+          forma_pagamento: string
+          id: string
+          valor_total: number
+        }
+        Insert: {
+          comanda_id?: string | null
+          created_at?: string
+          data_venda?: string
+          forma_pagamento: string
+          id?: string
+          valor_total?: number
+        }
+        Update: {
+          comanda_id?: string | null
+          created_at?: string
+          data_venda?: string
+          forma_pagamento?: string
+          id?: string
+          valor_total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comanda_vendas_comanda_id_fkey"
+            columns: ["comanda_id"]
+            isOneToOne: false
+            referencedRelation: "comandas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comandas: {
         Row: {
           created_at: string
