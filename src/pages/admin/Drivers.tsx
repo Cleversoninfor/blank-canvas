@@ -191,7 +191,7 @@ export default function Drivers() {
                         )}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{driver.commission_percentage ?? 5}%</Badge>
+                        <Badge variant="outline">R$ {Number(driver.commission_percentage ?? 0).toFixed(2).replace('.', ',')}</Badge>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">

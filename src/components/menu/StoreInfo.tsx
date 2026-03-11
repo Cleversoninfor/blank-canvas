@@ -69,7 +69,7 @@ export function StoreInfo({ store }: StoreInfoProps) {
               <Clock className={`h-5 w-5 ${storeStatus.isOpen ? 'text-secondary' : 'text-destructive'}`} />
             </div>
             <div>
-              <p className={`text-sm font-semibold ${storeStatus.isOpen ? 'text-secondary' : 'text-destructive'}`}>
+              <p className={`text-sm font-semibold ${storeStatus.isOpen ? 'text-green-500' : 'text-red-500'}`}>
                 {storeStatus.isOpen ? 'Aberto' : 'Fechado'}
               </p>
               {!storeStatus.isForcedOpen && (
