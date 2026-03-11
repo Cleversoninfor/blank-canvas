@@ -634,8 +634,8 @@ const Checkout = () => {
             </section>
           )}
 
-          {/* Customer Data Section - Not shown for dine-in */}
-          {deliveryType !== 'dine_in' && (
+          {/* Customer Data Section */}
+          <section className="space-y-2">
             <section className="space-y-2">
               <h3 className="font-semibold text-foreground">Dados do cliente</h3>
               <div className="bg-card rounded-2xl p-4 shadow-card space-y-4">
