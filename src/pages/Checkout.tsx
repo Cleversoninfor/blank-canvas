@@ -594,6 +594,54 @@ const Checkout = () => {
                   />
                 </div>
               </div>
+
+              {/* Zone/Neighborhood Selector */}
+              {isZoneMode && activeZones.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-border">
+                  <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-3">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    Selecione seu local de entrega
+                  </label>
+                  <div className="grid grid-cols-1 gap-2">
+                    {activeZones.map((zone) => (
+                      <button
+                        key={zone.id}
+                        type="button"
+                        onClick={() => setSelectedZoneId(zone.id)}
+                        className={cn(
+                          "flex items-center justify-between p-3 rounded-xl border-2 transition-colors text-left",
+                          selectedZoneId === zone.id
+                            ? "border-primary bg-primary/10"
+                            : "border-border bg-muted/30 hover:border-primary/50"
+                        )}
+                      >
+                        <div>
+                          <p className={cn(
+                            "font-medium text-sm",
+                            selectedZoneId === zone.id ? "text-foreground" : "text-muted-foreground"
+                          )}>
+                            {zone.name}
+                          </p>
+                          {zone.min_order_value ? (
+                            <p className="text-xs text-muted-foreground">
+                              Pedido mín: {formatCurrency(zone.min_order_value)}
+                            </p>
+                          ) : null}
+                        </div>
+                        <span className={cn(
+                          "font-semibold text-sm",
+                          selectedZoneId === zone.id ? "text-primary" : "text-muted-foreground"
+                        )}>
+                          {zone.fee === 0 ? 'Grátis' : formatCurrency(zone.fee)}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                  {!selectedZoneId && (
+                    <p className="text-xs text-destructive mt-2">Selecione um local para calcular a taxa de entrega</p>
+                  )}
+                </div>
+              )}
             </section>
           )}
 
