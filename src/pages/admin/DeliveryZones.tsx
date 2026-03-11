@@ -386,10 +386,10 @@ export default function DeliveryZones() {
           
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Nome do Bairro/Zona *</Label>
+              <Label htmlFor="name">Nome do Bairro/CEP/Setor *</Label>
               <Input
                 id="name"
-                placeholder="Ex: Centro, Zona Sul, Jardim América"
+                placeholder="Ex: Centro, 74000-000, Setor Bueno"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
