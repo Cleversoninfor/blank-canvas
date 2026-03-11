@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Clock, ChefHat, CheckCircle, Loader2, Truck, UtensilsCrossed } from 'lucide-react';
+import { Clock, ChefHat, CheckCircle, Loader2, Truck, UtensilsCrossed, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
