@@ -879,8 +879,7 @@ const Checkout = () => {
                   {deliveryType === 'delivery' ? '30-45 min' : '15-25 min'}
                 </p>
               </div>
-            </div>
-          )}
+          </div>
         </div>
 
         {/* Submit Button */}
