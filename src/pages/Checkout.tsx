@@ -85,7 +85,6 @@ const Checkout = () => {
   const availableTypes = {
     delivery: store?.mode_delivery_enabled ?? true,
     pickup: store?.mode_pickup_enabled ?? true,
-    dine_in: store?.mode_dine_in_enabled ?? true,
   };
 
   // Get initial delivery type - use first available
