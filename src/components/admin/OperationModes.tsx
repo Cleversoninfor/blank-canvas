@@ -58,13 +58,6 @@ export function OperationModes() {
       icon: Store,
       enabled: store?.mode_pickup_enabled ?? true,
     },
-    {
-      id: 'mode_dine_in_enabled' as const,
-      label: 'Modo Atendimento no Comércio',
-      description: 'Aceitar pedidos para consumo nas mesas',
-      icon: UtensilsCrossed,
-      enabled: store?.mode_dine_in_enabled ?? true,
-    },
   ];
 
   return (
