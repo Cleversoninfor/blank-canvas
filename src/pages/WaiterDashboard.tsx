@@ -414,7 +414,7 @@ export default function WaiterDashboard() {
                           {group.order_type === 'table' ? (
                             <>
                               <UtensilsCrossed className="h-4 w-4 mr-1" />
-                              Mesa {group.table_number}
+                              {group.table_name || 'Mesa/Comanda'} {group.table_number}
                             </>
                           ) : (
                             <>

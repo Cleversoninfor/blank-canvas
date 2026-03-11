@@ -349,7 +349,7 @@ export function TableCheckout({ table, onBack, onSuccess }: TableCheckoutProps) 
           >
             {closeAllOrders.isPending
               ? 'Finalizando...'
-              : `Fechar Mesa - ${formatCurrency(calculations.total)}`}
+              : `Fechar ${table.name || 'Mesa/Comanda'} - ${formatCurrency(calculations.total)}`}
           </Button>
         </div>
       </div>

@@ -132,7 +132,7 @@ export function OpenTableModal({
               Cancelar
             </Button>
             <Button type="submit" disabled={openTable.isPending}>
-              {openTable.isPending ? 'Abrindo...' : 'Abrir Mesa'}
+              {openTable.isPending ? 'Abrindo...' : `Abrir ${table?.name || 'Mesa/Comanda'}`}
             </Button>
           </DialogFooter>
         </form>

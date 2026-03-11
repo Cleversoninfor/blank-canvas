@@ -371,7 +371,7 @@ export function TableOrderScreen({ table, onBack, onCheckout, onTableTransferred
           <AlertDialogHeader>
             <AlertDialogTitle>Cancelar pedido?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação irá cancelar o pedido inteiro e liberar a mesa. Esta ação não pode ser desfeita.
+              Esta ação irá cancelar o pedido inteiro e liberar a mesa/comanda. Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

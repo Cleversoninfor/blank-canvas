@@ -85,7 +85,7 @@ export default function PDV() {
               </Button>
               <Button onClick={() => setManagementModalOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
-                Nova Mesa
+                Nova Mesa/Comanda
               </Button>
             </div>
           </div>

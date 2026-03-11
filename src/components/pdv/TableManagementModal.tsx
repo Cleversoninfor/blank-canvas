@@ -116,7 +116,7 @@ export function TableManagementModal({ open, onOpenChange }: TableManagementModa
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col">
           <DialogHeader>
-            <DialogTitle>Gerenciar Mesas</DialogTitle>
+            <DialogTitle>Gerenciar Mesas/Comandas</DialogTitle>
           </DialogHeader>
 
           {/* Add/Edit Form */}

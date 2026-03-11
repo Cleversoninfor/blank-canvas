@@ -54,12 +54,10 @@ export function WaiterTableCard({ table, onClick, readyItemsCount = 0 }: WaiterT
       <CardContent className="p-4">
         {/* Table number */}
         <div className="text-center mb-3">
+          <p className="text-sm text-muted-foreground">{table.name || 'Mesa/Comanda'}</p>
           <span className={cn("text-3xl font-bold", config.textColor)}>
             {table.number}
           </span>
-          {table.name && (
-            <p className="text-sm text-muted-foreground">{table.name}</p>
-          )}
         </div>
 
         {/* Status badge */}

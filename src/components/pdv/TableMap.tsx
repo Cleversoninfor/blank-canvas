@@ -28,7 +28,7 @@ export function TableMap({ onTableClick, onAddTable }: TableMapProps) {
   if (error) {
     return (
       <div className="text-center text-destructive p-4">
-        Erro ao carregar mesas
+        Erro ao carregar mesas/comandas
       </div>
     );
   }

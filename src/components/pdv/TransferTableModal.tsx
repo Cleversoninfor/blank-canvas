@@ -175,10 +175,7 @@ export function TransferTableModal({
                           : "border-border hover:border-primary/50 bg-secondary/50"
                     )}
                   >
-                    <p className="font-bold text-lg">Mesa {table.number}</p>
-                    {table.name && (
-                      <p className="text-xs text-muted-foreground">{table.name}</p>
-                    )}
+                    <p className="font-bold text-lg">{table.name || 'Mesa/Comanda'} {table.number}</p>
                     <p className={cn(
                       "text-xs mt-1",
                       table.status === 'occupied' ? "text-destructive" : "text-primary"

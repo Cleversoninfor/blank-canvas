@@ -184,7 +184,7 @@ export function OrderHistoryModal({ open, onOpenChange }: OrderHistoryModalProps
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-bold">
-                              Mesa {table?.number || '?'}
+                              {table?.name || 'Mesa/Comanda'} {table?.number || '?'}
                             </span>
                             {getStatusBadge(order.status)}
                           </div>
