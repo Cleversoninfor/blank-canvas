@@ -103,6 +103,7 @@ export function useStoreConfig() {
           mode_pickup_enabled: true,
           mode_dine_in_enabled: true,
           menu_layout: 'list',
+          pdv_password: null,
         } as StoreConfig;
       }
       
