@@ -27,6 +27,7 @@ interface KitchenOrderCardProps {
 export function KitchenOrderCard({ order }: KitchenOrderCardProps) {
   const { updateItemStatus } = useKitchenItemMutations();
   const [isUpdating, setIsUpdating] = useState(false);
+  const isComanda = order.customer_name?.startsWith('Comanda #');
 
   // Calculate waiting time from oldest item
   const waitingMinutes = Math.floor(
