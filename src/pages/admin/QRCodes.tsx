@@ -81,17 +81,10 @@ const QRCodes = () => {
       icon: ChefHat,
     },
     {
-      id: "waiter",
-      title: "Acesso Garçons",
-      description: "Painel de acesso para garçons fazerem pedidos",
-      path: "/waiter",
-      icon: Users,
-    },
-    {
-      id: "menu",
-      title: "Ver Cardápio",
-      description: "Cardápio digital para clientes visualizarem e fazerem pedidos",
-      path: "/",
+      id: "cardapio-local",
+      title: "Ver Cardápio Local",
+      description: "Cardápio digital para clientes visualizarem os produtos no restaurante via QR Code",
+      path: "/cardapio-local",
       icon: Menu,
     },
   ];
