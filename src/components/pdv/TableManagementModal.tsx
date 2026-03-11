@@ -135,12 +135,13 @@ export function TableManagementModal({ open, onOpenChange }: TableManagementModa
                 />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="tableName">Nome</Label>
+                <Label htmlFor="tableName">Tipo*</Label>
                 <Input
                   id="tableName"
                   value={newTableName}
                   onChange={(e) => setNewTableName(e.target.value)}
-                  placeholder="Ex: Varanda"
+                  placeholder="Ex: Mesa ou Comanda"
+                  required
                 />
               </div>
               <div className="space-y-1">
