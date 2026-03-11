@@ -248,9 +248,10 @@ const Checkout = () => {
       // Placeholder to maintain structure
       return;
     }
+    const zoneAsNeighborhood = isZoneMode && activeZones.length > 0;
     if (
       deliveryType === 'delivery' &&
-      (!deliveryData.street.trim() || !deliveryData.number.trim() || !deliveryData.neighborhood.trim())
+      (!deliveryData.street.trim() || !deliveryData.number.trim() || (!zoneAsNeighborhood && !deliveryData.neighborhood.trim()))
     ) {
       toast({ title: 'Preencha o endereço completo', variant: 'destructive' });
       return;
