@@ -661,7 +661,7 @@ const Checkout = () => {
                 </div>
               </div>
             </section>
-          )}
+          </section>
 
           {/* Payment Method Section - Not shown for dine-in */}
           {deliveryType !== 'dine_in' && (
