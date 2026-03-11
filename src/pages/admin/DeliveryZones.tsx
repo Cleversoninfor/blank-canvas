@@ -280,9 +280,9 @@ export default function DeliveryZones() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle>Zonas de Entrega</CardTitle>
+                <CardTitle>Entrega</CardTitle>
                 <CardDescription>
-                  Configure a taxa para cada bairro ou região
+                  Configure a taxa para cada bairro, CEP ou setor
                 </CardDescription>
               </div>
               <Button onClick={handleOpenCreate}>
