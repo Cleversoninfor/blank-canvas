@@ -103,6 +103,45 @@ export function OperationModes() {
           </div>
         ))}
       </div>
+
+      {/* Senha PDV */}
+      <div className="border-t border-border pt-4 mt-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <KeyRound className="h-4 w-4 text-primary" />
+          <p className="font-medium text-foreground text-sm">Senha PDV</p>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Defina uma senha para acesso ao PDV pela rota /pdv. Máximo de 8 caracteres.
+        </p>
+        <Input
+          type="text"
+          placeholder="Senha do PDV"
+          value={pdvPassword}
+          onChange={(e) => setPdvPassword(e.target.value.slice(0, 8))}
+          maxLength={8}
+          className="max-w-xs"
+        />
+        <p className="text-xs text-muted-foreground">{pdvPassword.length}/8 caracteres</p>
+        <Button
+          size="sm"
+          disabled={updateStore.isPending}
+          onClick={async () => {
+            if (!store) return;
+            try {
+              await updateStore.mutateAsync({
+                ...(store.id ? { id: store.id } : {}),
+                pdv_password: pdvPassword || null,
+              } as any);
+              toast({ title: 'Senha PDV salva com sucesso!' });
+            } catch {
+              toast({ title: 'Erro ao salvar senha', variant: 'destructive' });
+            }
+          }}
+        >
+          {updateStore.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+          Salvar Configurações
+        </Button>
+      </div>
     </div>
   );
 }
