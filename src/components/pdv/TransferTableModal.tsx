@@ -86,7 +86,7 @@ export function TransferTableModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ArrowRightLeft className="h-5 w-5" />
-            Transferir Mesa {currentTable.number}
+            Transferir {currentTable.name || 'Mesa/Comanda'} {currentTable.number}
           </DialogTitle>
         </DialogHeader>
 
