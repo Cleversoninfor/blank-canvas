@@ -79,7 +79,7 @@ export function OpenTableModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Abrir Mesa {table?.number}</DialogTitle>
+          <DialogTitle>Abrir {table?.name || 'Mesa/Comanda'} {table?.number}</DialogTitle>
           <DialogDescription>
             Informe os dados para iniciar o atendimento desta mesa.
           </DialogDescription>
