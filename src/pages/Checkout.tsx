@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 
 type DisplayPaymentMethod = 'money' | 'debit' | 'credit' | 'pix';
-type DeliveryType = 'delivery' | 'pickup' | 'dine_in';
+type DeliveryType = 'delivery' | 'pickup';
 
 const CHECKOUT_STORAGE_KEY = 'delivery-checkout';
 
