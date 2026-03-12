@@ -12,7 +12,6 @@ import { CartButton } from '@/components/cart/CartButton';
 import { FloatingOrderButton, getLastOrderId } from '@/components/order/FloatingOrderButton';
 import { InstallPrompt } from '@/components/pwa/InstallPrompt';
 import { InfornexaBanner } from '@/components/menu/InfornexaBanner';
-import { WhatsAppFloatingButton } from '@/components/menu/WhatsAppFloatingButton';
 import { useStoreConfig } from '@/hooks/useStore';
 import { useCategories } from '@/hooks/useCategories';
 import { useProducts, Product } from '@/hooks/useProducts';
@@ -305,7 +304,6 @@ const Index = () => {
         {/* PWA Install Prompt */}
         <InstallPrompt />
 
-        <WhatsAppFloatingButton />
         <CartButton />
         
         {modalProduct && (
