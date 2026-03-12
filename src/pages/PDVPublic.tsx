@@ -306,35 +306,7 @@ const PDVPublic = () => {
                   ))}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                  {loadingProducts || loadingCategories ? (
-                    <div className="col-span-full flex justify-center py-8">
-                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                    </div>
-                  ) : productsError ? (
-                    <p className="col-span-full text-center text-destructive py-8">
-                      Erro ao carregar produtos. Tente novamente.
-                    </p>
-                  ) : filteredProducts.length > 0 ? (
-                    filteredProducts.map(product => (
-                      <Card key={product.id} className="cursor-pointer hover:ring-2 hover:ring-primary/30 transition-all active:scale-[0.97]" onClick={() => addToCart(product)}>
-                        <CardContent className="p-3 space-y-2">
-                          {product.image_url && (
-                            <img
-                              src={product.image_url}
-                              alt={product.name}
-                              className="w-full h-24 object-cover rounded-lg"
-                              loading="lazy"
-                            />
-                          )}
-                          <p className="font-semibold text-sm text-foreground line-clamp-1">{product.name}</p>
-                          <p className="text-xs text-muted-foreground line-clamp-2 min-h-8">{product.description || 'Sem descrição'}</p>
-                          <p className="text-sm font-bold text-primary">{formatCurrency(product.price)}</p>
-                        </CardContent>
-                      </Card>
-                    ))
-                  ) : (
-                    <p className="col-span-full text-center text-muted-foreground py-8">Nenhum produto encontrado</p>
-                  )}
+                  {renderProductsGrid()}
                 </div>
               </div>
 
