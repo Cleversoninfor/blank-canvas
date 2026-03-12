@@ -27,7 +27,11 @@ interface CartItem {
   observation?: string;
 }
 
-const formatCurrency = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const formatCurrency = (v: unknown) => {
+  const parsed = typeof v === 'number' ? v : Number(v);
+  const safeValue = Number.isFinite(parsed) ? parsed : 0;
+  return safeValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+};
 
 const PDVPublic = () => {
   const { toast } = useToast();
