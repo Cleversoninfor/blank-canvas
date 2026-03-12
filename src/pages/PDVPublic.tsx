@@ -27,7 +27,11 @@ interface CartItem {
   observation?: string;
 }
 
-const formatCurrency = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const formatCurrency = (v: unknown) => {
+  const parsed = typeof v === 'number' ? v : Number(v);
+  const safeValue = Number.isFinite(parsed) ? parsed : 0;
+  return safeValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+};
 
 const PDVPublic = () => {
   const { toast } = useToast();
@@ -40,8 +44,10 @@ const PDVPublic = () => {
 
   // PDV state
   const { data: comandas = [], isLoading: loadingComandas } = useComandas();
-  const { data: products = [] } = useProducts();
-  const { data: categories = [] } = useCategories();
+  const { data: productsData, isLoading: loadingProducts, error: productsError } = useProducts();
+  const products = Array.isArray(productsData) ? productsData : [];
+  const { data: categoriesData, isLoading: loadingCategories } = useCategories();
+  const categories = Array.isArray(categoriesData) ? categoriesData : [];
   const createComanda = useCreateComanda();
   const deleteComanda = useDeleteComanda();
   const createOrder = useCreateComandaOrder();
@@ -142,6 +148,13 @@ const PDVPublic = () => {
   };
 
   const handleSelectComanda = async (comanda: Comanda) => {
+    console.log('[PDV] Abrindo venda', {
+      comandaId: comanda.id,
+      numeroComanda: comanda.numero_comanda,
+      productsLoaded: products.length,
+      categoriesLoaded: categories.length,
+    });
+
     setSelectedComanda({ ...comanda, status: 'ocupada' });
     setCart([]);
     setView('venda');
@@ -175,7 +188,7 @@ const PDVPublic = () => {
     }).filter(i => i.quantity > 0));
   };
 
-  const cartTotal = cart.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
+  const cartTotal = cart.reduce((sum, i) => sum + Number(i.product.price || 0) * i.quantity, 0);
 
   const handleFinalizarPedido = async () => {
     if (!selectedComanda || cart.length === 0) return;
@@ -186,7 +199,7 @@ const PDVPublic = () => {
         items: cart.map(i => ({
           product_name: i.product.name,
           quantity: i.quantity,
-          unit_price: i.product.price,
+          unit_price: Number(i.product.price || 0),
           observation: i.observation,
         })),
       });
@@ -197,12 +210,62 @@ const PDVPublic = () => {
     }
   };
 
-  const availableProducts = products.filter(p => p.is_available);
+  const availableProducts = products.filter(p => Boolean(p?.is_available));
   const filteredProducts = availableProducts.filter(p => {
-    const matchesSearch = !searchTerm || p.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || p.category_id === selectedCategory;
+    const productName = String(p?.name ?? '').toLowerCase();
+    const matchesSearch = !searchTerm || productName.includes(searchTerm.toLowerCase());
+    const matchesCategory = !selectedCategory || p?.category_id === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  const renderProductsGrid = () => {
+    try {
+      if (loadingProducts || loadingCategories) {
+        return (
+          <div className="col-span-full flex justify-center py-8">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          </div>
+        );
+      }
+
+      if (productsError) {
+        return (
+          <p className="col-span-full text-center text-destructive py-8">
+            Erro ao carregar produtos. Tente novamente.
+          </p>
+        );
+      }
+
+      if (filteredProducts.length === 0) {
+        return <p className="col-span-full text-center text-muted-foreground py-8">Nenhum produto encontrado</p>;
+      }
+
+      return filteredProducts.map(product => (
+        <Card key={product.id} className="cursor-pointer hover:ring-2 hover:ring-primary/30 transition-all active:scale-[0.97]" onClick={() => addToCart(product)}>
+          <CardContent className="p-3 space-y-2">
+            {product.image_url && (
+              <img
+                src={product.image_url}
+                alt={product.name}
+                className="w-full h-24 object-cover rounded-lg"
+                loading="lazy"
+              />
+            )}
+            <p className="font-semibold text-sm text-foreground line-clamp-1">{product.name}</p>
+            <p className="text-xs text-muted-foreground line-clamp-2 min-h-8">{product.description || 'Sem descrição'}</p>
+            <p className="text-sm font-bold text-primary">{formatCurrency(product.price)}</p>
+          </CardContent>
+        </Card>
+      ));
+    } catch (error) {
+      console.error('Erro ao renderizar produtos no PDV:', error);
+      return (
+        <p className="col-span-full text-center text-destructive py-8">
+          Erro ao exibir produtos. Atualize a página e tente novamente.
+        </p>
+      );
+    }
+  };
 
   const PDVHeader = ({ title }: { title: string }) => (
     <div className="sticky top-0 z-30 flex items-center gap-3 px-4 sm:px-6 py-3 bg-primary text-primary-foreground shadow-md mb-4 -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 rounded-b-xl">
@@ -249,19 +312,8 @@ const PDVPublic = () => {
                     <Badge key={cat.id} variant={selectedCategory === cat.id ? 'default' : 'outline'} className="cursor-pointer" onClick={() => setSelectedCategory(cat.id)}>{cat.name}</Badge>
                   ))}
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {filteredProducts.map(product => (
-                    <Card key={product.id} className="cursor-pointer hover:ring-2 hover:ring-primary/30 transition-all active:scale-[0.97]" onClick={() => addToCart(product)}>
-                      <CardContent className="p-3">
-                        {product.image_url && <img src={product.image_url} alt={product.name} className="w-full h-20 object-cover rounded-lg mb-2" />}
-                        <p className="font-medium text-sm text-foreground truncate">{product.name}</p>
-                        <p className="text-sm font-bold text-primary">{formatCurrency(product.price)}</p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                  {filteredProducts.length === 0 && (
-                    <p className="col-span-full text-center text-muted-foreground py-8">Nenhum produto encontrado</p>
-                  )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                  {renderProductsGrid()}
                 </div>
               </div>
 
