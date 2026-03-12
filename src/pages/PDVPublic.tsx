@@ -211,6 +211,55 @@ const PDVPublic = () => {
     return matchesSearch && matchesCategory;
   });
 
+  const renderProductsGrid = () => {
+    try {
+      if (loadingProducts || loadingCategories) {
+        return (
+          <div className="col-span-full flex justify-center py-8">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          </div>
+        );
+      }
+
+      if (productsError) {
+        return (
+          <p className="col-span-full text-center text-destructive py-8">
+            Erro ao carregar produtos. Tente novamente.
+          </p>
+        );
+      }
+
+      if (filteredProducts.length === 0) {
+        return <p className="col-span-full text-center text-muted-foreground py-8">Nenhum produto encontrado</p>;
+      }
+
+      return filteredProducts.map(product => (
+        <Card key={product.id} className="cursor-pointer hover:ring-2 hover:ring-primary/30 transition-all active:scale-[0.97]" onClick={() => addToCart(product)}>
+          <CardContent className="p-3 space-y-2">
+            {product.image_url && (
+              <img
+                src={product.image_url}
+                alt={product.name}
+                className="w-full h-24 object-cover rounded-lg"
+                loading="lazy"
+              />
+            )}
+            <p className="font-semibold text-sm text-foreground line-clamp-1">{product.name}</p>
+            <p className="text-xs text-muted-foreground line-clamp-2 min-h-8">{product.description || 'Sem descrição'}</p>
+            <p className="text-sm font-bold text-primary">{formatCurrency(product.price)}</p>
+          </CardContent>
+        </Card>
+      ));
+    } catch (error) {
+      console.error('Erro ao renderizar produtos no PDV:', error);
+      return (
+        <p className="col-span-full text-center text-destructive py-8">
+          Erro ao exibir produtos. Atualize a página e tente novamente.
+        </p>
+      );
+    }
+  };
+
   const PDVHeader = ({ title }: { title: string }) => (
     <div className="sticky top-0 z-30 flex items-center gap-3 px-4 sm:px-6 py-3 bg-primary text-primary-foreground shadow-md mb-4 -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 rounded-b-xl">
       <Receipt className="h-5 w-5" />
