@@ -148,6 +148,13 @@ const PDVPublic = () => {
   };
 
   const handleSelectComanda = async (comanda: Comanda) => {
+    console.log('[PDV] Abrindo venda', {
+      comandaId: comanda.id,
+      numeroComanda: comanda.numero_comanda,
+      productsLoaded: products.length,
+      categoriesLoaded: categories.length,
+    });
+
     setSelectedComanda({ ...comanda, status: 'ocupada' });
     setCart([]);
     setView('venda');
