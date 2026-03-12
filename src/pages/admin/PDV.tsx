@@ -30,7 +30,7 @@ const formatCurrency = (v: number) => v.toLocaleString('pt-BR', { style: 'curren
 const PDV = () => {
   const { toast } = useToast();
   const { data: comandas = [], isLoading: loadingComandas } = useComandas();
-  const { data: products = [] } = useProducts();
+  const { data: allProducts = [], isLoading: loadingProducts } = useProducts();
   const { data: categories = [] } = useCategories();
   const createComanda = useCreateComanda();
   const deleteComanda = useDeleteComanda();
@@ -74,20 +74,20 @@ const PDV = () => {
     }
   };
 
-  const handleSelectComanda = async (comanda: Comanda) => {
-    if (comanda.status === 'livre') {
-      try {
-        await updateStatus.mutateAsync({ id: comanda.id, status: 'ocupada' });
-      } catch (err: any) {
-        toast({ title: 'Erro', description: err.message, variant: 'destructive' });
-        return;
-      }
-    }
-    
-    // Whether it was just marked as ocupada or already was, set it for the Venda view
-    setSelectedComanda({ ...comanda, status: 'ocupada' });
+  // Navigate to the venda view immediately, then mark as ocupada in the background
+  const handleSelectComanda = (comanda: Comanda) => {
+    setSelectedComanda(comanda);
     setCart([]);
+    setSearchTerm('');
+    setSelectedCategory(null);
     setView('venda');
+
+    // Mark as ocupada in the background if it's livre
+    if (comanda.status === 'livre') {
+      updateStatus.mutateAsync({ id: comanda.id, status: 'ocupada' }).catch((err: any) => {
+        toast({ title: 'Aviso', description: 'Não foi possível marcar a comanda como ocupada: ' + err.message, variant: 'destructive' });
+      });
+    }
   };
 
   const addToCart = (product: Product) => {
@@ -134,16 +134,12 @@ const PDV = () => {
     }
   };
 
-  // removed p.is_available filter because it might be null or false in Supabase
-  const filteredProducts = products.filter(p => {
-    // Check search term
-    const matchesSearch = !searchTerm || 
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  // Filter products for the venda view - no is_available filter
+  const filteredProducts = allProducts.filter(p => {
+    const matchesSearch = !searchTerm ||
+      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (p.description && p.description.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    // Check category - handle null state (All) properly
     const matchesCategory = selectedCategory === null || p.category_id === selectedCategory;
-    
     return matchesSearch && matchesCategory;
   });
 
@@ -169,52 +165,102 @@ const PDV = () => {
           <div className="flex items-center gap-3 mb-4">
             <Receipt className="h-6 w-6 text-primary" />
             <h2 className="text-xl font-bold text-foreground">Comanda #{selectedComanda.numero_comanda}</h2>
-            <Badge variant="secondary">Ocupada</Badge>
+            <Badge variant="secondary">Em Atendimento</Badge>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {/* Products */}
+            {/* Products Panel */}
             <div className="lg:col-span-2 space-y-4">
-              <div className="relative flex-1">
+              {/* Search */}
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Buscar produto..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10" />
+                <Input
+                  placeholder="Buscar produto..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
               </div>
 
+              {/* Category Filters */}
               <div className="flex gap-2 flex-wrap">
-                <Badge variant={selectedCategory === null ? 'default' : 'outline'} className="cursor-pointer" onClick={() => setSelectedCategory(null)}>Todos</Badge>
+                <Badge
+                  variant={selectedCategory === null ? 'default' : 'outline'}
+                  className="cursor-pointer"
+                  onClick={() => setSelectedCategory(null)}
+                >
+                  Todos
+                </Badge>
                 {categories.map(cat => (
-                  <Badge key={cat.id} variant={selectedCategory === cat.id ? 'default' : 'outline'} className="cursor-pointer" onClick={() => setSelectedCategory(cat.id)}>{cat.name}</Badge>
+                  <Badge
+                    key={cat.id}
+                    variant={selectedCategory === cat.id ? 'default' : 'outline'}
+                    className="cursor-pointer"
+                    onClick={() => setSelectedCategory(cat.id)}
+                  >
+                    {cat.name}
+                  </Badge>
                 ))}
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {filteredProducts.map(product => (
-                  <Card key={product.id} className="cursor-pointer hover:ring-2 hover:ring-primary/30 transition-all active:scale-[0.97]" onClick={() => addToCart(product)}>
-                    <CardContent className="p-3">
-                      {product.image_url && <img src={product.image_url} alt={product.name} className="w-full h-20 object-cover rounded-lg mb-2" />}
-                      <p className="font-medium text-sm text-foreground truncate">{product.name}</p>
-                      <p className="text-sm font-bold text-primary">{formatCurrency(product.price)}</p>
-                    </CardContent>
-                  </Card>
-                ))}
-                {filteredProducts.length === 0 && (
-                  <p className="col-span-full text-center text-muted-foreground py-8">Nenhum produto encontrado</p>
-                )}
-              </div>
+              {/* Products Grid */}
+              {loadingProducts ? (
+                <div className="flex justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : allProducts.length === 0 ? (
+                <div className="col-span-full text-center py-12 text-muted-foreground">
+                  <Package className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                  <p>Nenhum produto cadastrado ainda.</p>
+                  <p className="text-sm mt-1">Cadastre produtos em Admin → Produtos.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {filteredProducts.map(product => (
+                    <Card
+                      key={product.id}
+                      className="cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all active:scale-[0.97] select-none"
+                      onClick={() => addToCart(product)}
+                    >
+                      <CardContent className="p-3">
+                        {product.image_url && (
+                          <img
+                            src={product.image_url}
+                            alt={product.name}
+                            className="w-full h-20 object-cover rounded-lg mb-2"
+                          />
+                        )}
+                        <p className="font-medium text-sm text-foreground truncate">{product.name}</p>
+                        <p className="text-sm font-bold text-primary">{formatCurrency(product.price)}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  {filteredProducts.length === 0 && allProducts.length > 0 && (
+                    <p className="col-span-full text-center text-muted-foreground py-8">
+                      Nenhum produto encontrado para "{searchTerm}"
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
-            {/* Cart */}
+            {/* Cart Panel */}
             <div className="lg:col-span-1">
               <Card className="sticky top-20">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-base">
                     <ShoppingCart className="h-5 w-5" />
                     Pedido
+                    {cart.length > 0 && (
+                      <Badge className="ml-auto">{cart.reduce((s, i) => s + i.quantity, 0)} itens</Badge>
+                    )}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {cart.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-4">Clique nos produtos para adicionar</p>
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      Clique nos produtos para adicionar
+                    </p>
                   ) : (
                     <>
                       {cart.map(item => (
@@ -239,7 +285,7 @@ const PDV = () => {
                       </div>
                       <Button className="w-full" size="lg" onClick={handleFinalizarPedido} disabled={createOrder.isPending}>
                         {createOrder.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <ShoppingCart className="h-4 w-4 mr-2" />}
-                        Enviar Pedido
+                        Enviar para Cozinha
                       </Button>
                     </>
                   )}
@@ -254,7 +300,6 @@ const PDV = () => {
               open={!!closeSaleComanda}
               onClose={() => {
                 setCloseSaleComanda(null);
-                // If sale was closed, go back to main
                 setView('main');
                 setSelectedComanda(null);
                 setCart([]);
@@ -404,7 +449,13 @@ const PDV = () => {
                           {comanda.status === 'livre' ? 'Livre' : 'Ocupada'}
                         </Badge>
                       </div>
-                      <Button variant="action-icon-destructive" size="icon-sm" onClick={() => handleDeleteComanda(comanda)} disabled={deleteComanda.isPending} title="Excluir comanda">
+                      <Button
+                        variant="action-icon-destructive"
+                        size="icon-sm"
+                        onClick={() => handleDeleteComanda(comanda)}
+                        disabled={deleteComanda.isPending}
+                        title="Excluir comanda"
+                      >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
