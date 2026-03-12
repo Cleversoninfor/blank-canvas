@@ -44,8 +44,10 @@ const PDVPublic = () => {
 
   // PDV state
   const { data: comandas = [], isLoading: loadingComandas } = useComandas();
-  const { data: products = [] } = useProducts();
-  const { data: categories = [] } = useCategories();
+  const { data: productsData, isLoading: loadingProducts, error: productsError } = useProducts();
+  const products = Array.isArray(productsData) ? productsData : [];
+  const { data: categoriesData, isLoading: loadingCategories } = useCategories();
+  const categories = Array.isArray(categoriesData) ? categoriesData : [];
   const createComanda = useCreateComanda();
   const deleteComanda = useDeleteComanda();
   const createOrder = useCreateComandaOrder();
