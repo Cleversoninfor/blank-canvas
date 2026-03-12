@@ -405,11 +405,9 @@ const PDV = () => {
                           {comanda.status === 'livre' ? 'Livre' : 'Ocupada'}
                         </Badge>
                       </div>
-                      {comanda.status === 'livre' && (
-                        <Button variant="action-icon-destructive" size="icon-sm" onClick={() => handleDeleteComanda(comanda)} disabled={deleteComanda.isPending}>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      )}
+                      <Button variant="action-icon-destructive" size="icon-sm" onClick={() => handleDeleteComanda(comanda)} disabled={deleteComanda.isPending} title="Excluir comanda">
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
                     </div>
                   ))}
                 </div>
