@@ -181,7 +181,7 @@ const PDVPublic = () => {
     }).filter(i => i.quantity > 0));
   };
 
-  const cartTotal = cart.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
+  const cartTotal = cart.reduce((sum, i) => sum + Number(i.product.price || 0) * i.quantity, 0);
 
   const handleFinalizarPedido = async () => {
     if (!selectedComanda || cart.length === 0) return;
@@ -192,7 +192,7 @@ const PDVPublic = () => {
         items: cart.map(i => ({
           product_name: i.product.name,
           quantity: i.quantity,
-          unit_price: i.product.price,
+          unit_price: Number(i.product.price || 0),
           observation: i.observation,
         })),
       });
@@ -203,10 +203,11 @@ const PDVPublic = () => {
     }
   };
 
-  const availableProducts = products.filter(p => p.is_available);
+  const availableProducts = products.filter(p => Boolean(p?.is_available));
   const filteredProducts = availableProducts.filter(p => {
-    const matchesSearch = !searchTerm || p.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || p.category_id === selectedCategory;
+    const productName = String(p?.name ?? '').toLowerCase();
+    const matchesSearch = !searchTerm || productName.includes(searchTerm.toLowerCase());
+    const matchesCategory = !selectedCategory || p?.category_id === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
