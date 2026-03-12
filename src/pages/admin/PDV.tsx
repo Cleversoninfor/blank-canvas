@@ -134,8 +134,8 @@ const PDV = () => {
     }
   };
 
-  const availableProducts = products.filter(p => p.is_available);
-  const filteredProducts = availableProducts.filter(p => {
+  // removed p.is_available filter because it might be null or false in Supabase
+  const filteredProducts = products.filter(p => {
     // Check search term
     const matchesSearch = !searchTerm || 
       p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
