@@ -133,8 +133,14 @@ const PDV = () => {
 
   const availableProducts = products.filter(p => p.is_available);
   const filteredProducts = availableProducts.filter(p => {
-    const matchesSearch = !searchTerm || p.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || p.category_id === selectedCategory;
+    // Check search term
+    const matchesSearch = !searchTerm || 
+      p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      (p.description && p.description.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    // Check category - handle null state (All) properly
+    const matchesCategory = selectedCategory === null || p.category_id === selectedCategory;
+    
     return matchesSearch && matchesCategory;
   });
 
