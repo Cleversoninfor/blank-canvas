@@ -142,15 +142,15 @@ const PDVPublic = () => {
   };
 
   const handleSelectComanda = async (comanda: Comanda) => {
-    try {
-      await updateStatus.mutateAsync({ id: comanda.id, status: 'ocupada' });
-    } catch (err: any) {
-      toast({ title: 'Erro', description: err.message, variant: 'destructive' });
-      return;
-    }
     setSelectedComanda({ ...comanda, status: 'ocupada' });
     setCart([]);
     setView('venda');
+    try {
+      await updateStatus.mutateAsync({ id: comanda.id, status: 'ocupada' });
+    } catch (err: any) {
+      console.error('Erro ao atualizar status da comanda:', err);
+      toast({ title: 'Aviso', description: 'Não foi possível atualizar o status da comanda, mas a venda foi aberta.', variant: 'destructive' });
+    }
   };
 
   const addToCart = (product: Product) => {
