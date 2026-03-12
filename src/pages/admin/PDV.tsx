@@ -75,13 +75,16 @@ const PDV = () => {
   };
 
   const handleSelectComanda = async (comanda: Comanda) => {
-    // Mark as ocupada
-    try {
-      await updateStatus.mutateAsync({ id: comanda.id, status: 'ocupada' });
-    } catch (err: any) {
-      toast({ title: 'Erro', description: err.message, variant: 'destructive' });
-      return;
+    if (comanda.status === 'livre') {
+      try {
+        await updateStatus.mutateAsync({ id: comanda.id, status: 'ocupada' });
+      } catch (err: any) {
+        toast({ title: 'Erro', description: err.message, variant: 'destructive' });
+        return;
+      }
     }
+    
+    // Whether it was just marked as ocupada or already was, set it for the Venda view
     setSelectedComanda({ ...comanda, status: 'ocupada' });
     setCart([]);
     setView('venda');
@@ -286,12 +289,8 @@ const PDV = () => {
                 return (
                   <Card
                     key={comanda.id}
-                    className={`transition-all ${
-                      isLivre
-                        ? 'cursor-pointer hover:ring-2 hover:ring-primary/30 active:scale-[0.97]'
-                        : 'opacity-60 cursor-not-allowed'
-                    }`}
-                    onClick={() => isLivre && handleSelectComanda(comanda)}
+                    className="cursor-pointer hover:ring-2 hover:ring-primary/30 active:scale-[0.97] transition-all"
+                    onClick={() => handleSelectComanda(comanda)}
                   >
                     <CardContent className="p-4 text-center">
                       {isLivre ? (
@@ -424,12 +423,12 @@ const PDV = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button onClick={() => setView('select-comanda')} className="w-full" size="lg" disabled={livres.length === 0}>
+              <Button onClick={() => setView('select-comanda')} className="w-full" size="lg" disabled={comandas.length === 0}>
                 <Package className="h-4 w-4 mr-2" />
-                Abrir Venda
+                Vender / Lançar Itens
               </Button>
               <p className="text-xs text-muted-foreground text-center">
-                {livres.length === 0 ? 'Nenhuma comanda livre disponível' : `${livres.length} comanda(s) livre(s)`}
+                {comandas.length === 0 ? 'Nenhuma comanda disponível' : `${comandas.length} comanda(s) no total`}
               </p>
             </CardContent>
           </Card>
