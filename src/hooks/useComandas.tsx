@@ -292,28 +292,25 @@ export function useTransferOrders() {
         const { error: moveLinksError } = await supabase
           .from('comanda_pedidos')
           .update({ comanda_id: targetComandaId })
+          .in('pedido_id', pedidoIds)
           .eq('comanda_id', sourceComandaId);
 
         if (moveLinksError) throw moveLinksError;
       }
 
       // 4. Update status of both comandas
-      // Set target to occupied, source to free
-      const [{ error: sourceError }, { error: targetError }] = await Promise.all([
+      await Promise.all([
         supabase.from('comandas').update({ status: 'livre' }).eq('id', sourceComandaId),
         supabase.from('comandas').update({ status: 'ocupada' }).eq('id', targetComandaId)
       ]);
-
-      if (sourceError) throw sourceError;
-      if (targetError) throw targetError;
     },
     onSuccess: () => {
-      // Forçar limpeza absoluta para garantir que itens antigos sumam e novos se unifiquem
-      queryClient.resetQueries({ queryKey: ['comandas'] });
-      queryClient.resetQueries({ queryKey: ['comanda-pedidos'] });
-      queryClient.resetQueries({ queryKey: ['comanda-order-details'] });
-      queryClient.resetQueries({ queryKey: ['orders'] });
-      queryClient.resetQueries({ queryKey: ['all-orders'] });
+      // Forçar limpeza absoluta e re-fetch de todas as queries ativas
+      queryClient.invalidateQueries({ queryKey: ['comandas'], refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: ['comanda-pedidos'], refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: ['comanda-order-details'], refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: ['orders'], refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: ['all-orders'], refetchType: 'all' });
     },
   });
 }

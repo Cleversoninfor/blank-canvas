@@ -39,15 +39,17 @@ export function CloseSaleModal({ comanda, open, onClose }: CloseSaleModalProps) 
     
     orders.forEach(order => {
       (order.items || []).forEach((item: any) => {
-        const key = `${item.product_name}-${item.unit_price}`;
+        const name = (item.product_name || '').trim();
+        const price = Number(item.unit_price) || 0;
+        const key = `${name}-${price}`;
         const existing = itemMap.get(key);
         if (existing) {
           existing.quantity += item.quantity;
         } else {
           itemMap.set(key, {
-            product_name: item.product_name,
+            product_name: name,
             quantity: item.quantity,
-            unit_price: item.unit_price,
+            unit_price: price,
           });
         }
       });
