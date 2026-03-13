@@ -35,13 +35,14 @@ export function CloseSaleModal({ comanda, open, onClose }: CloseSaleModalProps) 
 
   // Flatten all items from all orders
   const allItems = useMemo(() => {
-    const itemMap = new Map<string, { product_name: string; quantity: number; unit_price: number }>();
+    const itemMap = new Map<string, { product_name: string; quantity: number; unit_price: number; observation?: string }>();
     
     orders.forEach(order => {
       (order.items || []).forEach((item: any) => {
         const name = (item.product_name || '').trim();
         const price = Number(item.unit_price) || 0;
-        const key = `${name}-${price}`;
+        const observation = (item.observation || '').trim();
+        const key = `${name}-${price}-${observation}`;
         const existing = itemMap.get(key);
         if (existing) {
           existing.quantity += item.quantity;
@@ -50,6 +51,7 @@ export function CloseSaleModal({ comanda, open, onClose }: CloseSaleModalProps) 
             product_name: name,
             quantity: item.quantity,
             unit_price: price,
+            observation: observation,
           });
         }
       });
@@ -101,8 +103,13 @@ export function CloseSaleModal({ comanda, open, onClose }: CloseSaleModalProps) 
               {allItems.map((item, i) => (
                 <div key={i} className="flex items-center justify-between text-sm py-1.5 border-b border-border last:border-0">
                   <div className="flex-1">
-                    <span className="font-medium">{item.product_name}</span>
-                    <span className="text-muted-foreground ml-2">x{item.quantity}</span>
+                    <div className="flex items-center">
+                      <span className="font-medium text-foreground">{item.product_name}</span>
+                      <span className="text-muted-foreground ml-2">x{item.quantity}</span>
+                    </div>
+                    {item.observation && (
+                      <p className="text-xs text-muted-foreground italic leading-tight mt-0.5">{item.observation}</p>
+                    )}
                   </div>
                   <span className="font-medium">{formatCurrency(item.unit_price * item.quantity)}</span>
                 </div>

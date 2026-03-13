@@ -23,12 +23,13 @@ export function ComandaConsumoCard({ comanda, onAddMore, onCloseSale, onDelete }
   const { data: orders = [], isLoading } = useComandaOrderDetails(comanda.id);
 
   const allItems = useMemo(() => {
-    const itemMap = new Map<string, { product_name: string; quantity: number; unit_price: number }>();
+    const itemMap = new Map<string, { product_name: string; quantity: number; unit_price: number; observation?: string }>();
     orders.forEach(order => {
       (order.items || []).forEach((item: any) => {
         const name = (item.product_name || '').trim();
         const price = Number(item.unit_price) || 0;
-        const key = `${name}-${price}`;
+        const observation = (item.observation || '').trim();
+        const key = `${name}-${price}-${observation}`;
         const existing = itemMap.get(key);
         if (existing) {
           existing.quantity += item.quantity;
@@ -37,6 +38,7 @@ export function ComandaConsumoCard({ comanda, onAddMore, onCloseSale, onDelete }
             product_name: name,
             quantity: item.quantity,
             unit_price: price,
+            observation: observation,
           });
         }
       });
@@ -79,8 +81,13 @@ export function ComandaConsumoCard({ comanda, onAddMore, onCloseSale, onDelete }
                 {allItems.map((item, i) => (
                   <div key={i} className="flex items-center justify-between text-sm py-1.5 border-b border-border last:border-0">
                     <div className="flex-1">
-                      <span className="font-medium text-foreground">{item.product_name}</span>
-                      <span className="text-muted-foreground ml-2">x{item.quantity}</span>
+                      <div className="flex items-center">
+                        <span className="font-medium text-foreground">{item.product_name}</span>
+                        <span className="text-muted-foreground ml-2">x{item.quantity}</span>
+                      </div>
+                      {item.observation && (
+                        <p className="text-[11px] text-muted-foreground italic leading-tight mt-0.5">{item.observation}</p>
+                      )}
                     </div>
                     <span className="font-semibold text-primary">{formatCurrency(item.unit_price * item.quantity)}</span>
                   </div>
