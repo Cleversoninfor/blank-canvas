@@ -464,7 +464,7 @@ const PDVPublic = () => {
       <div className="min-h-screen bg-background p-4 sm:p-6">
         <PDVHeader title="PDV" />
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Criar Comanda */}
             <Card>
               <CardHeader>
@@ -531,6 +531,22 @@ const PDVPublic = () => {
                     <p className="text-2xl font-bold text-destructive">{ocupadas.length}</p>
                     <p className="text-xs text-muted-foreground">Ocupadas</p>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Consumo Comandas */}
+            <Card className="cursor-pointer hover:ring-2 hover:ring-primary/30 transition-all" onClick={() => setView('consumo')}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ClipboardList className="h-5 w-5" /> Consumo Comandas
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">Veja os itens das comandas ocupadas, adicione ou remova produtos.</p>
+                <div className="p-3 bg-muted/50 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-primary">{ocupadas.length}</p>
+                  <p className="text-xs text-muted-foreground">Comandas em consumo</p>
                 </div>
               </CardContent>
             </Card>
