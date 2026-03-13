@@ -59,6 +59,7 @@ const PDVPublic = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newNumero, setNewNumero] = useState('');
   const [selectedComanda, setSelectedComanda] = useState<Comanda | null>(null);
+  const [selectorComanda, setSelectorComanda] = useState<Comanda | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
