@@ -16,6 +16,7 @@ import {
 import { useProducts, Product } from '@/hooks/useProducts';
 import { useCategories } from '@/hooks/useCategories';
 import { CloseSaleModal } from '@/components/pdv/CloseSaleModal';
+import { ProductSelectorModal } from '@/components/pdv/ProductSelectorModal';
 import { ComandaConsumoCard } from '@/components/pdv/ComandaConsumoCard';
 import { useStoreConfig } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
@@ -58,6 +59,7 @@ const PDVPublic = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newNumero, setNewNumero] = useState('');
   const [selectedComanda, setSelectedComanda] = useState<Comanda | null>(null);
+  const [selectorComanda, setSelectorComanda] = useState<Comanda | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -148,22 +150,45 @@ const PDVPublic = () => {
     }
   };
 
-  const handleSelectComanda = async (comanda: Comanda) => {
-    console.log('[PDV] Abrindo venda', {
-      comandaId: comanda.id,
-      numeroComanda: comanda.numero_comanda,
-      productsLoaded: products.length,
-      categoriesLoaded: categories.length,
-    });
+  const handleSelectComanda = (comanda: Comanda) => {
+    setSelectorComanda(comanda);
 
-    setSelectedComanda({ ...comanda, status: 'ocupada' });
-    setCart([]);
-    setView('venda');
+    if (comanda.status === 'livre') {
+      updateStatus.mutateAsync({ id: comanda.id, status: 'ocupada' }).catch((err: any) => {
+        console.error('Erro ao atualizar status da comanda:', err);
+        toast({
+          title: 'Aviso',
+          description: 'Não foi possível atualizar o status da comanda, mas você pode continuar a venda.',
+          variant: 'destructive',
+        });
+      });
+    }
+  };
+
+  const handleSelectorConfirm = async (items: CartItem[]) => {
+    if (!selectorComanda) return;
+
     try {
-      await updateStatus.mutateAsync({ id: comanda.id, status: 'ocupada' });
+      await createOrder.mutateAsync({
+        comandaId: selectorComanda.id,
+        numeroComanda: selectorComanda.numero_comanda,
+        items: items.map(i => ({
+          product_name: i.product.name,
+          quantity: i.quantity,
+          unit_price: Number(i.product.price || 0),
+          observation: i.observation,
+        })),
+      });
+
+      toast({
+        title: 'Pedido enviado!',
+        description: `Itens adicionados na Comanda #${selectorComanda.numero_comanda}.`,
+      });
+
+      setSelectorComanda(null);
     } catch (err: any) {
-      console.error('Erro ao atualizar status da comanda:', err);
-      toast({ title: 'Aviso', description: 'Não foi possível atualizar o status da comanda, mas a venda foi aberta.', variant: 'destructive' });
+      toast({ title: 'Erro ao enviar pedido', description: err.message, variant: 'destructive' });
+      throw err;
     }
   };
 
@@ -415,6 +440,16 @@ const PDVPublic = () => {
                 })}
               </div>
             )}
+
+            {selectorComanda && (
+              <ProductSelectorModal
+                open={!!selectorComanda}
+                comandaNumero={selectorComanda.numero_comanda}
+                onClose={() => setSelectorComanda(null)}
+                onConfirm={handleSelectorConfirm}
+                isLoading={createOrder.isPending}
+              />
+            )}
           </div>
         </div>
       </>
@@ -442,14 +477,21 @@ const PDVPublic = () => {
                     key={comanda.id}
                     comanda={comanda}
                     onAddMore={(c) => {
-                      setSelectedComanda({ ...c, status: 'ocupada' });
-                      setCart([]);
-                      setView('venda');
+                      setSelectorComanda(c);
                     }}
                     onCloseSale={(c) => setCloseSaleComanda(c)}
                   />
                 ))}
               </div>
+            )}
+            {selectorComanda && (
+              <ProductSelectorModal
+                open={!!selectorComanda}
+                comandaNumero={selectorComanda.numero_comanda}
+                onClose={() => setSelectorComanda(null)}
+                onConfirm={handleSelectorConfirm}
+                isLoading={createOrder.isPending}
+              />
             )}
             {closeSaleComanda && (
               <CloseSaleModal comanda={closeSaleComanda} open={!!closeSaleComanda} onClose={() => { setCloseSaleComanda(null); setView('main'); }} />
