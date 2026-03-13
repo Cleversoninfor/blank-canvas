@@ -467,9 +467,7 @@ const PDVPublic = () => {
                     key={comanda.id}
                     comanda={comanda}
                     onAddMore={(c) => {
-                      setSelectedComanda({ ...c, status: 'ocupada' });
-                      setCart([]);
-                      setView('venda');
+                      setSelectorComanda(c);
                     }}
                     onCloseSale={(c) => setCloseSaleComanda(c)}
                   />
