@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   Plus, Trash2, ShoppingCart, Hash, ArrowLeft, Search,
-  Loader2, Receipt, Package, DollarSign, LockOpen, Lock, KeyRound,
+  Loader2, Receipt, Package, DollarSign, LockOpen, Lock, KeyRound, ClipboardList,
 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
@@ -16,10 +16,11 @@ import {
 import { useProducts, Product } from '@/hooks/useProducts';
 import { useCategories } from '@/hooks/useCategories';
 import { CloseSaleModal } from '@/components/pdv/CloseSaleModal';
+import { ComandaConsumoCard } from '@/components/pdv/ComandaConsumoCard';
 import { useStoreConfig } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
 
-type PDVView = 'main' | 'select-comanda' | 'venda' | 'select-close';
+type PDVView = 'main' | 'select-comanda' | 'venda' | 'select-close' | 'consumo';
 
 interface CartItem {
   product: Product;
@@ -420,6 +421,45 @@ const PDVPublic = () => {
     );
   }
 
+  // === CONSUMO COMANDAS VIEW ===
+  if (view === 'consumo') {
+    return (
+      <>
+        <Helmet><title>PDV - Consumo Comandas</title></Helmet>
+        <div className="min-h-screen bg-background p-4 sm:p-6">
+          <PDVHeader title="PDV - Consumo Comandas" />
+          <div className="space-y-4">
+            <Button variant="ghost" onClick={() => setView('main')}>
+              <ArrowLeft className="h-4 w-4 mr-2" /> Voltar ao PDV
+            </Button>
+            <h2 className="text-xl font-bold text-foreground">Comandas em Consumo</h2>
+            {ocupadas.length === 0 ? (
+              <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma comanda ocupada no momento.</CardContent></Card>
+            ) : (
+              <div className="space-y-3">
+                {ocupadas.map(comanda => (
+                  <ComandaConsumoCard
+                    key={comanda.id}
+                    comanda={comanda}
+                    onAddMore={(c) => {
+                      setSelectedComanda({ ...c, status: 'ocupada' });
+                      setCart([]);
+                      setView('venda');
+                    }}
+                    onCloseSale={(c) => setCloseSaleComanda(c)}
+                  />
+                ))}
+              </div>
+            )}
+            {closeSaleComanda && (
+              <CloseSaleModal comanda={closeSaleComanda} open={!!closeSaleComanda} onClose={() => { setCloseSaleComanda(null); setView('main'); }} />
+            )}
+          </div>
+        </div>
+      </>
+    );
+  }
+
   // === SELECT COMANDA FOR CLOSING SALE ===
   if (view === 'select-close') {
     return (
@@ -463,7 +503,7 @@ const PDVPublic = () => {
       <div className="min-h-screen bg-background p-4 sm:p-6">
         <PDVHeader title="PDV" />
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Criar Comanda */}
             <Card>
               <CardHeader>
@@ -530,6 +570,22 @@ const PDVPublic = () => {
                     <p className="text-2xl font-bold text-destructive">{ocupadas.length}</p>
                     <p className="text-xs text-muted-foreground">Ocupadas</p>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Consumo Comandas */}
+            <Card className="cursor-pointer hover:ring-2 hover:ring-primary/30 transition-all" onClick={() => setView('consumo')}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ClipboardList className="h-5 w-5" /> Consumo Comandas
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">Veja os itens das comandas ocupadas, adicione ou remova produtos.</p>
+                <div className="p-3 bg-muted/50 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-primary">{ocupadas.length}</p>
+                  <p className="text-xs text-muted-foreground">Comandas em consumo</p>
                 </div>
               </CardContent>
             </Card>
