@@ -308,12 +308,12 @@ export function useTransferOrders() {
       if (targetError) throw targetError;
     },
     onSuccess: () => {
-      // Perform deep invalidation and selective resets
-      queryClient.invalidateQueries({ queryKey: ['comandas'] });
+      // Forçar limpeza absoluta para garantir que itens antigos sumam e novos se unifiquem
+      queryClient.resetQueries({ queryKey: ['comandas'] });
       queryClient.resetQueries({ queryKey: ['comanda-pedidos'] });
       queryClient.resetQueries({ queryKey: ['comanda-order-details'] });
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
-      queryClient.invalidateQueries({ queryKey: ['all-orders'] });
+      queryClient.resetQueries({ queryKey: ['orders'] });
+      queryClient.resetQueries({ queryKey: ['all-orders'] });
     },
   });
 }

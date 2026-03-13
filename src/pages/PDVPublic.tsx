@@ -496,17 +496,9 @@ const PDVPublic = () => {
                     }}
                     onCloseSale={(c) => setCloseSaleComanda(c)}
                     onDelete={(c) => handleDeleteComanda(c)}
-                    onTransfer={(c) => setTransferSourceComanda(c)}
                   />
                 ))}
               </div>
-            )}
-            {transferSourceComanda && (
-              <TransferComandaModal
-                sourceComanda={transferSourceComanda}
-                open={!!transferSourceComanda}
-                onClose={() => setTransferSourceComanda(null)}
-              />
             )}
             {selectorComanda && (
               <ProductSelectorModal

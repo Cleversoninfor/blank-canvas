@@ -16,10 +16,9 @@ interface ComandaConsumoCardProps {
   onAddMore: (comanda: Comanda) => void;
   onCloseSale: (comanda: Comanda) => void;
   onDelete?: (comanda: Comanda) => void;
-  onTransfer?: (comanda: Comanda) => void;
 }
 
-export function ComandaConsumoCard({ comanda, onAddMore, onCloseSale, onDelete, onTransfer }: ComandaConsumoCardProps) {
+export function ComandaConsumoCard({ comanda, onAddMore, onCloseSale, onDelete }: ComandaConsumoCardProps) {
   const [expanded, setExpanded] = useState(false);
   const { data: orders = [], isLoading } = useComandaOrderDetails(comanda.id);
 
@@ -98,11 +97,6 @@ export function ComandaConsumoCard({ comanda, onAddMore, onCloseSale, onDelete, 
               <Button variant="default" className="flex-1" onClick={() => onCloseSale(comanda)}>
                 Fechar Venda
               </Button>
-              {onTransfer && (
-                <Button variant="outline" className="flex-1 border-primary/20 hover:bg-primary/5" onClick={() => onTransfer(comanda)}>
-                  Transferir
-                </Button>
-              )}
               {onDelete && (
                 <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive hover:bg-destructive/10" onClick={() => onDelete(comanda)} title="Excluir Comanda">
                   <Trash2 className="h-4 w-4" />
