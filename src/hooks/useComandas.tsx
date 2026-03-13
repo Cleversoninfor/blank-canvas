@@ -51,37 +51,45 @@ export function useComandaPedidos(comandaId?: string) {
 
 // Fetch full order details for a comanda's linked orders
 export function useComandaOrderDetails(comandaId?: string) {
-  const { data: pedidos = [] } = useComandaPedidos(comandaId);
-  
   return useQuery({
-    queryKey: ['comanda-order-details', comandaId, pedidos.map(p => p.pedido_id)],
+    queryKey: ['comanda-order-details', comandaId],
     queryFn: async () => {
-      if (pedidos.length === 0) return [];
+      if (!comandaId) return [];
       
-      const orderIds = pedidos.map(p => p.pedido_id);
+      // 1. Get linked order IDs
+      const { data: links, error: linksError } = await supabase
+        .from('comanda_pedidos')
+        .select('pedido_id')
+        .eq('comanda_id', comandaId);
       
-      // Get orders
-      const { data: orders, error: ordersError } = await supabase
-        .from('orders')
-        .select('*')
-        .in('id', orderIds);
+      if (linksError) throw linksError;
+      if (!links || links.length === 0) return [];
       
-      if (ordersError) throw ordersError;
+      const orderIds = links.map(l => l.pedido_id);
       
-      // Get order items
-      const { data: items, error: itemsError } = await supabase
-        .from('order_items')
-        .select('*')
-        .in('order_id', orderIds);
+      // 2. Get orders and items in parallel for better performance
+      const [ordersRes, itemsRes] = await Promise.all([
+        supabase
+          .from('orders')
+          .select('*')
+          .in('id', orderIds)
+          .order('created_at', { ascending: true }),
+        supabase
+          .from('order_items')
+          .select('*')
+          .in('order_id', orderIds)
+      ]);
       
-      if (itemsError) throw itemsError;
+      if (ordersRes.error) throw ordersRes.error;
+      if (itemsRes.error) throw itemsRes.error;
       
-      return (orders || []).map(order => ({
+      // 3. Map items to their respective orders
+      return (ordersRes.data || []).map(order => ({
         ...order,
-        items: (items || []).filter(item => item.order_id === order.id),
+        items: (itemsRes.data || []).filter(item => item.order_id === order.id),
       }));
     },
-    enabled: !!comandaId && pedidos.length > 0,
+    enabled: !!comandaId,
   });
 }
 
