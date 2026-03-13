@@ -421,6 +421,45 @@ const PDVPublic = () => {
     );
   }
 
+  // === CONSUMO COMANDAS VIEW ===
+  if (view === 'consumo') {
+    return (
+      <>
+        <Helmet><title>PDV - Consumo Comandas</title></Helmet>
+        <div className="min-h-screen bg-background p-4 sm:p-6">
+          <PDVHeader title="PDV - Consumo Comandas" />
+          <div className="space-y-4">
+            <Button variant="ghost" onClick={() => setView('main')}>
+              <ArrowLeft className="h-4 w-4 mr-2" /> Voltar ao PDV
+            </Button>
+            <h2 className="text-xl font-bold text-foreground">Comandas em Consumo</h2>
+            {ocupadas.length === 0 ? (
+              <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma comanda ocupada no momento.</CardContent></Card>
+            ) : (
+              <div className="space-y-3">
+                {ocupadas.map(comanda => (
+                  <ComandaConsumoCard
+                    key={comanda.id}
+                    comanda={comanda}
+                    onAddMore={(c) => {
+                      setSelectedComanda({ ...c, status: 'ocupada' });
+                      setCart([]);
+                      setView('venda');
+                    }}
+                    onCloseSale={(c) => setCloseSaleComanda(c)}
+                  />
+                ))}
+              </div>
+            )}
+            {closeSaleComanda && (
+              <CloseSaleModal comanda={closeSaleComanda} open={!!closeSaleComanda} onClose={() => { setCloseSaleComanda(null); setView('main'); }} />
+            )}
+          </div>
+        </div>
+      </>
+    );
+  }
+
   // === SELECT COMANDA FOR CLOSING SALE ===
   if (view === 'select-close') {
     return (
