@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  Plus, Trash2, ShoppingCart, Hash, ArrowLeft, Search,
+  Plus, Trash2, ShoppingCart, Hash, ArrowLeft, Search, ArrowRight,
   Loader2, Receipt, Package, DollarSign, LockOpen, Lock, KeyRound, ClipboardList,
 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
@@ -18,6 +18,7 @@ import { useCategories } from '@/hooks/useCategories';
 import { CloseSaleModal } from '@/components/pdv/CloseSaleModal';
 import { ProductSelectorModal } from '@/components/pdv/ProductSelectorModal';
 import { ComandaConsumoCard } from '@/components/pdv/ComandaConsumoCard';
+import { TransferComandaModal } from '@/components/pdv/TransferComandaModal';
 import { useStoreConfig } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -64,6 +65,7 @@ const PDVPublic = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [closeSaleComanda, setCloseSaleComanda] = useState<Comanda | null>(null);
+  const [transferSourceComanda, setTransferSourceComanda] = useState<Comanda | null>(null);
 
   const livres = comandas.filter(c => c.status === 'livre');
   const ocupadas = comandas.filter(c => c.status === 'ocupada');
@@ -494,9 +496,17 @@ const PDVPublic = () => {
                     }}
                     onCloseSale={(c) => setCloseSaleComanda(c)}
                     onDelete={(c) => handleDeleteComanda(c)}
+                    onTransfer={(c) => setTransferSourceComanda(c)}
                   />
                 ))}
               </div>
+            )}
+            {transferSourceComanda && (
+              <TransferComandaModal
+                sourceComanda={transferSourceComanda}
+                open={!!transferSourceComanda}
+                onClose={() => setTransferSourceComanda(null)}
+              />
             )}
             {selectorComanda && (
               <ProductSelectorModal
@@ -552,6 +562,18 @@ const PDVPublic = () => {
                       >
                         {deleteComanda.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
                       </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="absolute top-1 left-1 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 z-10"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setTransferSourceComanda(comanda);
+                        }}
+                        title="Transferir pedidos"
+                      >
+                        <ArrowRight className="h-3 w-3" />
+                      </Button>
                       <Lock className="h-8 w-8 mx-auto mb-2 text-destructive" />
                       <p className="font-bold text-lg">Comanda #{comanda.numero_comanda}</p>
                       <Badge variant="destructive" className="mt-1">Ocupada</Badge>
@@ -559,6 +581,13 @@ const PDVPublic = () => {
                   </Card>
                 ))}
               </div>
+            )}
+            {transferSourceComanda && (
+              <TransferComandaModal
+                sourceComanda={transferSourceComanda}
+                open={!!transferSourceComanda}
+                onClose={() => setTransferSourceComanda(null)}
+              />
             )}
             {closeSaleComanda && (
               <CloseSaleModal comanda={closeSaleComanda} open={!!closeSaleComanda} onClose={() => { setCloseSaleComanda(null); setView('main'); }} />

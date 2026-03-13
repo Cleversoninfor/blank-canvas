@@ -248,3 +248,37 @@ export function useCloseSale() {
     },
   });
 }
+export function useTransferOrders() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      sourceComandaId,
+      targetComandaId,
+    }: {
+      sourceComandaId: string;
+      targetComandaId: string;
+    }) => {
+      // 1. Update all links from source to target in comanda_pedidos
+      const { error: updateError } = await supabase
+        .from('comanda_pedidos')
+        .update({ comanda_id: targetComandaId })
+        .eq('comanda_id', sourceComandaId);
+
+      if (updateError) throw updateError;
+
+      // 2. Set source comanda to 'livre'
+      const { error: statusError } = await supabase
+        .from('comandas')
+        .update({ status: 'livre' })
+        .eq('id', sourceComandaId);
+
+      if (statusError) throw statusError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['comandas'] });
+      queryClient.invalidateQueries({ queryKey: ['comanda-pedidos'] });
+      queryClient.invalidateQueries({ queryKey: ['comanda-order-details'] });
+    },
+  });
+}
