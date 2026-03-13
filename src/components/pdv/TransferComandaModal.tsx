@@ -19,8 +19,8 @@ export function TransferComandaModal({ sourceComanda, open, onClose }: TransferC
   const transferOrders = useTransferOrders();
   const [targetComanda, setTargetComanda] = useState<Comanda | null>(null);
 
-  // List only occupied comandas, excluding the current one
-  const targetOptions = comandas.filter(c => c.status === 'ocupada' && c.id !== sourceComanda.id);
+  // List all other comandas
+  const targetOptions = comandas.filter(c => c.id !== sourceComanda.id);
 
   const handleTransfer = async () => {
     if (!targetComanda) return;
@@ -29,6 +29,7 @@ export function TransferComandaModal({ sourceComanda, open, onClose }: TransferC
       await transferOrders.mutateAsync({
         sourceComandaId: sourceComanda.id,
         targetComandaId: targetComanda.id,
+        targetNumeroComanda: targetComanda.numero_comanda,
       });
 
       toast({
@@ -70,14 +71,14 @@ export function TransferComandaModal({ sourceComanda, open, onClose }: TransferC
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase">Comandas Ativas</h3>
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase">Selecione o Destino</h3>
             {isLoading ? (
               <div className="flex justify-center py-4">
                 <Loader2 className="h-5 w-5 animate-spin text-primary" />
               </div>
             ) : targetOptions.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">
-                Nenhuma outra comanda ocupada disponível para transferência.
+                Nenhuma outra comanda disponível.
               </p>
             ) : (
               <div className="grid grid-cols-2 gap-2">
@@ -90,9 +91,11 @@ export function TransferComandaModal({ sourceComanda, open, onClose }: TransferC
                     onClick={() => setTargetComanda(comanda)}
                   >
                     <CardContent className="p-3 text-center">
-                      <Lock className="h-5 w-5 mx-auto mb-1 text-orange-400" />
+                      <Lock className={`h-5 w-5 mx-auto mb-1 ${comanda.status === 'livre' ? 'text-green-500' : 'text-orange-400'}`} />
                       <p className="font-bold">#{comanda.numero_comanda}</p>
-                      <Badge variant="secondary" className="text-[10px] py-0">Ocupada</Badge>
+                      <Badge variant={comanda.status === 'livre' ? 'default' : 'secondary'} className="text-[10px] py-0">
+                        {comanda.status === 'livre' ? 'Livre' : 'Ocupada'}
+                      </Badge>
                     </CardContent>
                   </Card>
                 ))}

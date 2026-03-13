@@ -255,30 +255,62 @@ export function useTransferOrders() {
     mutationFn: async ({
       sourceComandaId,
       targetComandaId,
+      targetNumeroComanda,
     }: {
       sourceComandaId: string;
       targetComandaId: string;
+      targetNumeroComanda: number;
     }) => {
-      // 1. Update all links from source to target in comanda_pedidos
-      const { error: updateError } = await supabase
+      // 1. Get all pedido_ids for the source comanda
+      const { data: pedidos, error: fetchError } = await supabase
         .from('comanda_pedidos')
-        .update({ comanda_id: targetComandaId })
+        .select('pedido_id')
         .eq('comanda_id', sourceComandaId);
 
-      if (updateError) throw updateError;
+      if (fetchError) throw fetchError;
+      
+      const pedidoIds = (pedidos || []).map(p => p.pedido_id);
 
-      // 2. Set source comanda to 'livre'
-      const { error: statusError } = await supabase
+      if (pedidoIds.length > 0) {
+        // 2. Update customer_name in orders table so items appear under the new comanda number
+        const { error: orderUpdateError } = await supabase
+          .from('orders')
+          .update({ customer_name: `Comanda #${targetNumeroComanda}` })
+          .in('id', pedidoIds);
+
+        if (orderUpdateError) throw orderUpdateError;
+
+        // 3. Update all links from source to target in comanda_pedidos
+        const { error: updateError } = await supabase
+          .from('comanda_pedidos')
+          .update({ comanda_id: targetComandaId })
+          .eq('comanda_id', sourceComandaId);
+
+        if (updateError) throw updateError;
+      }
+
+      // 4. Set target comanda to 'ocupada' (important if it was 'livre')
+      const { error: targetStatusError } = await supabase
+        .from('comandas')
+        .update({ status: 'ocupada' })
+        .eq('id', targetComandaId);
+
+      if (targetStatusError) throw targetStatusError;
+
+      // 5. Set source comanda to 'livre'
+      const { error: sourceStatusError } = await supabase
         .from('comandas')
         .update({ status: 'livre' })
         .eq('id', sourceComandaId);
 
-      if (statusError) throw statusError;
+      if (sourceStatusError) throw sourceStatusError;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['comandas'] });
       queryClient.invalidateQueries({ queryKey: ['comanda-pedidos'] });
       queryClient.invalidateQueries({ queryKey: ['comanda-order-details'] });
+      queryClient.invalidateQueries({ queryKey: ['all-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
     },
   });
 }
