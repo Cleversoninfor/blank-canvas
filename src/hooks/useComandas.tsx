@@ -269,18 +269,18 @@ export function useTransferOrders() {
       targetComandaId: string;
       targetNumeroComanda: number;
     }) => {
-      // 1. Get all pedido_ids for the source comanda
-      const { data: pedidos, error: fetchError } = await supabase
+      // 1. Get all linked orders for the source comanda
+      const { data: links, error: fetchError } = await supabase
         .from('comanda_pedidos')
         .select('pedido_id')
         .eq('comanda_id', sourceComandaId);
 
       if (fetchError) throw fetchError;
       
-      const pedidoIds = (pedidos || []).map(p => p.pedido_id);
+      const pedidoIds = (links || []).map(link => link.pedido_id);
 
       if (pedidoIds.length > 0) {
-        // 2. Update customer_name in orders table so items appear under the new comanda number
+        // 2. Update all orders with the new customer_name
         const { error: orderUpdateError } = await supabase
           .from('orders')
           .update({ customer_name: `Comanda #${targetNumeroComanda}` })
@@ -288,37 +288,32 @@ export function useTransferOrders() {
 
         if (orderUpdateError) throw orderUpdateError;
 
-        // 3. Update all links from source to target in comanda_pedidos
-        const { error: updateError } = await supabase
+        // 3. Move the links from source to target
+        const { error: moveLinksError } = await supabase
           .from('comanda_pedidos')
           .update({ comanda_id: targetComandaId })
           .eq('comanda_id', sourceComandaId);
 
-        if (updateError) throw updateError;
+        if (moveLinksError) throw moveLinksError;
       }
 
-      // 4. Set target comanda to 'ocupada' (important if it was 'livre')
-      const { error: targetStatusError } = await supabase
-        .from('comandas')
-        .update({ status: 'ocupada' })
-        .eq('id', targetComandaId);
+      // 4. Update status of both comandas
+      // Set target to occupied, source to free
+      const [{ error: sourceError }, { error: targetError }] = await Promise.all([
+        supabase.from('comandas').update({ status: 'livre' }).eq('id', sourceComandaId),
+        supabase.from('comandas').update({ status: 'ocupada' }).eq('id', targetComandaId)
+      ]);
 
-      if (targetStatusError) throw targetStatusError;
-
-      // 5. Set source comanda to 'livre'
-      const { error: sourceStatusError } = await supabase
-        .from('comandas')
-        .update({ status: 'livre' })
-        .eq('id', sourceComandaId);
-
-      if (sourceStatusError) throw sourceStatusError;
+      if (sourceError) throw sourceError;
+      if (targetError) throw targetError;
     },
     onSuccess: () => {
+      // Perform deep invalidation and selective resets
       queryClient.invalidateQueries({ queryKey: ['comandas'] });
-      queryClient.invalidateQueries({ queryKey: ['comanda-pedidos'] });
-      queryClient.invalidateQueries({ queryKey: ['comanda-order-details'] });
-      queryClient.invalidateQueries({ queryKey: ['all-orders'] });
+      queryClient.resetQueries({ queryKey: ['comanda-pedidos'] });
+      queryClient.resetQueries({ queryKey: ['comanda-order-details'] });
       queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['all-orders'] });
     },
   });
 }
