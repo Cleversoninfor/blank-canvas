@@ -440,6 +440,16 @@ const PDVPublic = () => {
                 })}
               </div>
             )}
+
+            {selectorComanda && (
+              <ProductSelectorModal
+                open={!!selectorComanda}
+                comandaNumero={selectorComanda.numero_comanda}
+                onClose={() => setSelectorComanda(null)}
+                onConfirm={handleSelectorConfirm}
+                isLoading={createOrder.isPending}
+              />
+            )}
           </div>
         </div>
       </>
