@@ -16,6 +16,7 @@ import {
 import { useProducts, Product } from '@/hooks/useProducts';
 import { useCategories } from '@/hooks/useCategories';
 import { CloseSaleModal } from '@/components/pdv/CloseSaleModal';
+import { ProductSelectorModal } from '@/components/pdv/ProductSelectorModal';
 import { ComandaConsumoCard } from '@/components/pdv/ComandaConsumoCard';
 import { useStoreConfig } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
