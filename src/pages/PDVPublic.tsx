@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   Plus, Trash2, ShoppingCart, Hash, ArrowLeft, Search,
-  Loader2, Receipt, Package, DollarSign, LockOpen, Lock, KeyRound,
+  Loader2, Receipt, Package, DollarSign, LockOpen, Lock, KeyRound, ClipboardList,
 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
