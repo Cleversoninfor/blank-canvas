@@ -427,10 +427,23 @@ const PDVPublic = () => {
                   return (
                     <Card
                       key={comanda.id}
-                      className={`transition-all ${isLivre ? 'cursor-pointer hover:ring-2 hover:ring-primary/30 active:scale-[0.97]' : 'opacity-60 cursor-not-allowed'}`}
+                      className={`relative transition-all ${isLivre ? 'cursor-pointer hover:ring-2 hover:ring-primary/30 active:scale-[0.97]' : 'opacity-60 cursor-not-allowed'}`}
                       onClick={() => isLivre && handleSelectComanda(comanda)}
                     >
                       <CardContent className="p-4 text-center">
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 z-10"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteComanda(comanda);
+                          }}
+                          title="Excluir comanda"
+                          disabled={deleteComanda.isPending}
+                        >
+                          {deleteComanda.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
+                        </Button>
                         {isLivre ? <LockOpen className="h-8 w-8 mx-auto mb-2 text-green-500" /> : <Lock className="h-8 w-8 mx-auto mb-2 text-destructive" />}
                         <p className="font-bold text-lg">Comanda #{comanda.numero_comanda}</p>
                         <Badge variant={isLivre ? 'default' : 'destructive'} className="mt-1">{isLivre ? 'Livre' : 'Ocupada'}</Badge>
@@ -480,6 +493,7 @@ const PDVPublic = () => {
                       setSelectorComanda(c);
                     }}
                     onCloseSale={(c) => setCloseSaleComanda(c)}
+                    onDelete={(c) => handleDeleteComanda(c)}
                   />
                 ))}
               </div>
@@ -519,8 +533,25 @@ const PDVPublic = () => {
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {ocupadas.map(comanda => (
-                  <Card key={comanda.id} className="cursor-pointer hover:ring-2 hover:ring-primary/30 transition-all active:scale-[0.97]" onClick={() => setCloseSaleComanda(comanda)}>
+                  <Card 
+                    key={comanda.id} 
+                    className="relative cursor-pointer hover:ring-2 hover:ring-primary/30 transition-all active:scale-[0.97]" 
+                    onClick={() => setCloseSaleComanda(comanda)}
+                  >
                     <CardContent className="p-4 text-center">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 z-10"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteComanda(comanda);
+                        }}
+                        title="Excluir comanda"
+                        disabled={deleteComanda.isPending}
+                      >
+                        {deleteComanda.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
+                      </Button>
                       <Lock className="h-8 w-8 mx-auto mb-2 text-destructive" />
                       <p className="font-bold text-lg">Comanda #{comanda.numero_comanda}</p>
                       <Badge variant="destructive" className="mt-1">Ocupada</Badge>
