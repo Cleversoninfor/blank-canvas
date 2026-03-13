@@ -166,6 +166,7 @@ export function ProductSelectorModal({ open, comandaNumero, onClose, onConfirm, 
                             />
                           )}
                           <p className="font-medium text-sm text-foreground truncate">{product.name}</p>
+                          <p className="text-xs text-muted-foreground line-clamp-2 min-h-8">{product.description || 'Sem descrição'}</p>
                           <p className="text-sm font-bold text-primary">{formatCurrency(product.price)}</p>
                         </CardContent>
                       </Card>
