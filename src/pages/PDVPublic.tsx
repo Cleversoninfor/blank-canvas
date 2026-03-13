@@ -20,7 +20,7 @@ import { ComandaConsumoCard } from '@/components/pdv/ComandaConsumoCard';
 import { useStoreConfig } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
 
-type PDVView = 'main' | 'select-comanda' | 'venda' | 'select-close';
+type PDVView = 'main' | 'select-comanda' | 'venda' | 'select-close' | 'consumo';
 
 interface CartItem {
   product: Product;
