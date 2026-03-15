@@ -88,6 +88,8 @@ export function OrderDetailModal({ order, open, onOpenChange }: OrderDetailModal
   const status = statusConfig[order.status] || { label: order.status, color: 'bg-gray-100 text-gray-800' };
   const payment = order.payment_method ? (paymentConfig[order.payment_method] || { label: order.payment_method, icon: '💰' }) : null;
 
+  const isPDVOrder = order.customer_name?.startsWith('Comanda #');
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
@@ -98,7 +100,7 @@ export function OrderDetailModal({ order, open, onOpenChange }: OrderDetailModal
             </DialogTitle>
             <div className="flex gap-2">
               <Badge variant="outline" className="text-xs">
-                {order.type === 'table' ? '🍽️ Mesa' : '🛵 Delivery'}
+                {order.type === 'table' || isPDVOrder ? '🍽️ Comanda' : '🛵 Delivery'}
               </Badge>
               <Badge className={status.color}>{status.label}</Badge>
             </div>
@@ -147,7 +149,7 @@ export function OrderDetailModal({ order, open, onOpenChange }: OrderDetailModal
                     <User className="h-4 w-4 text-muted-foreground" />
                     <span className="font-medium">{order.customer_name}</span>
                   </div>
-                  {order.customer_phone && (
+                  {order.customer_phone && !isPDVOrder && (
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Phone className="h-4 w-4 text-muted-foreground" />
@@ -169,8 +171,8 @@ export function OrderDetailModal({ order, open, onOpenChange }: OrderDetailModal
             </div>
           </div>
 
-          {/* Delivery Address - Only for delivery orders */}
-          {order.type === 'delivery' && order.address_street && (
+          {/* Delivery Address - Only for delivery orders (not PDV) */}
+          {order.type === 'delivery' && order.address_street && !isPDVOrder && (
             <>
               <Separator />
               <div className="space-y-3">
