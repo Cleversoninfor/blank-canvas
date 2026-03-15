@@ -358,7 +358,9 @@ const AdminOrders = () => {
   const { data: store } = useStoreConfig();
   const { data: orders, isLoading, refetch } = useAllOrders();
   const updateStatus = useUpdateUnifiedOrderStatus();
-  
+
+  // Auto-prompt push notification permission for admin
+  useAutoPromptPush('admin');
 
   const [autoRefresh, setAutoRefresh] = useState(() => {
     const saved = localStorage.getItem('orders-auto-refresh');
