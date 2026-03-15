@@ -1,9 +1,12 @@
-import { Trash2, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { Trash2, Lock, ArrowRight, Loader2, FileDown, Printer } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useComandaOrderDetails, Comanda } from '@/hooks/useComandas';
 import { useMemo } from 'react';
+import { useStoreConfig } from '@/hooks/useStore';
+import { PrintOrderData, generateOrderPDF, generateThermalPDF } from '@/utils/thermalPrinter';
+import { toast } from 'sonner';
 
 const formatCurrency = (v: number) => {
   const safe = Number.isFinite(v) ? v : 0;
@@ -20,6 +23,7 @@ interface CloseComandaCardProps {
 
 export function CloseComandaCard({ comanda, onClose, onTransfer, onDelete, deleteIsPending }: CloseComandaCardProps) {
   const { data: orders = [], isLoading } = useComandaOrderDetails(comanda.id);
+  const { data: store } = useStoreConfig();
 
   const total = useMemo(() => {
     let sum = 0;
@@ -30,6 +34,61 @@ export function CloseComandaCard({ comanda, onClose, onTransfer, onDelete, delet
     });
     return sum;
   }, [orders]);
+
+  const getPrintData = (): PrintOrderData | null => {
+    if (!orders.length) return null;
+    
+    const allItems: any[] = [];
+    orders.forEach(order => {
+      (order.items || []).forEach((item: any) => {
+        const existing = allItems.find(i => i.name === item.product_name && i.unitPrice === Number(item.unit_price) && i.observation === item.observation);
+        if (existing) {
+          existing.quantity += item.quantity;
+        } else {
+          allItems.push({
+            name: item.product_name,
+            quantity: item.quantity,
+            unitPrice: Number(item.unit_price),
+            observation: item.observation || undefined,
+          });
+        }
+      });
+    });
+
+    return {
+      orderNumber: comanda.numero_comanda,
+      orderType: 'table',
+      tableName: `Comanda #${comanda.numero_comanda}`,
+      storeName: store?.name || 'Estabelecimento',
+      items: allItems,
+      subtotal: total,
+      total: total,
+      createdAt: new Date(),
+    };
+  };
+
+  const handlePrintPDF = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const data = getPrintData();
+    if (!data) return;
+    try {
+      generateOrderPDF(data);
+      toast.success('PDF exportado com sucesso!');
+    } catch (error) {
+      toast.error('Erro ao exportar PDF');
+    }
+  };
+
+  const handlePrintThermal = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const data = getPrintData();
+    if (!data) return;
+    try {
+      generateThermalPDF(data);
+    } catch (error) {
+      toast.error('Erro ao gerar impressão térmica');
+    }
+  };
 
   return (
     <Card
@@ -47,6 +106,7 @@ export function CloseComandaCard({ comanda, onClose, onTransfer, onDelete, delet
         >
           {deleteIsPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
         </Button>
+        
         <Lock className="h-8 w-8 mx-auto mb-2 text-destructive" />
         <p className="font-bold text-lg">Comanda #{comanda.numero_comanda}</p>
         <Badge variant="destructive" className="mt-1">Ocupada</Badge>
@@ -57,6 +117,29 @@ export function CloseComandaCard({ comanda, onClose, onTransfer, onDelete, delet
           ) : (
             <p className="font-bold text-primary text-xl">{formatCurrency(total)}</p>
           )}
+
+          <div className="grid grid-cols-2 gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-[10px] h-8 px-2"
+              onClick={handlePrintPDF}
+              disabled={isLoading || orders.length === 0}
+            >
+              <FileDown className="h-3 w-3 mr-1" />
+              PDF
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-[10px] h-8 px-2"
+              onClick={handlePrintThermal}
+              disabled={isLoading || orders.length === 0}
+            >
+              <Printer className="h-3 w-3 mr-1" />
+              Térmica
+            </Button>
+          </div>
 
           <Button 
             variant="outline" 
