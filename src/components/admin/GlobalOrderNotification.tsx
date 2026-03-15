@@ -26,6 +26,9 @@ export function GlobalOrderNotification() {
   // Enable realtime updates
   useOrdersRealtime(true);
 
+  // Listen for push notifications from SW to play alarm in foreground
+  useServiceWorkerPush();
+
   // Don't show notifications on kitchen page
   const isKitchenPage = location.pathname === '/kitchen';
 
