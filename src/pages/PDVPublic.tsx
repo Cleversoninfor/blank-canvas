@@ -19,6 +19,7 @@ import { CloseSaleModal } from '@/components/pdv/CloseSaleModal';
 import { ProductSelectorModal } from '@/components/pdv/ProductSelectorModal';
 import { ComandaConsumoCard } from '@/components/pdv/ComandaConsumoCard';
 import { TransferComandaModal } from '@/components/pdv/TransferComandaModal';
+import { CloseComandaCard } from '@/components/pdv/CloseComandaCard';
 import { useStoreConfig } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
 
