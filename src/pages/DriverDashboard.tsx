@@ -198,6 +198,9 @@ export default function DriverDashboard() {
   // Listen for push notifications from SW to play alarm in foreground
   useServiceWorkerPush();
 
+  // Auto-prompt push permission for driver
+  useAutoPromptPush('driver', driverId);
+
   useEffect(() => {
     if (!driverId || !driverName) {
       navigate('/driver');
