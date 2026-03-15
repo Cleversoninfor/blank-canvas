@@ -98,7 +98,9 @@ Deno.serve(async (req) => {
           },
           JSON.stringify({ title, body: notifBody, tag, url }),
           {
-            TTL: 120,
+            // TTL de 24h: garante entrega mesmo quando o celular está em deep sleep
+            // ou com pouca bateria (o servidor de push tenta por 24h antes de descartar)
+            TTL: 86400,
             urgency: 'high',
           }
         );
