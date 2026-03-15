@@ -90,7 +90,7 @@ const PDVPublic = () => {
     return (
       <>
         <Helmet><title>Acesso ao PDV</title></Helmet>
-        <div className="min-h-screen flex items-center justify-center bg-[#23354D] p-4">
+        <div className="min-h-screen flex items-center justify-center bg-[#F1F5F9] p-4">
           <Card className="w-full max-w-sm">
             <CardHeader className="text-center">
               <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
@@ -319,7 +319,7 @@ const PDVPublic = () => {
     return (
       <>
         <Helmet><title>PDV - Comanda #{selectedComanda.numero_comanda}</title></Helmet>
-        <div className="min-h-screen bg-[#23354D] p-4 sm:p-6">
+        <div className="min-h-screen bg-[#F1F5F9] p-4 sm:p-6">
           <PDVHeader title={`PDV - Comanda #${selectedComanda.numero_comanda}`} />
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -423,7 +423,7 @@ const PDVPublic = () => {
     return (
       <>
         <Helmet><title>PDV - Abrir Venda</title></Helmet>
-        <div className="min-h-screen bg-[#23354D] p-6 sm:p-10">
+        <div className="min-h-screen bg-[#F1F5F9] p-6 sm:p-10">
           <div className="max-w-7xl mx-auto space-y-10">
             <PDVHeader title="PDV - Abrir Venda" />
             <div className="space-y-8">
@@ -503,7 +503,7 @@ const PDVPublic = () => {
     return (
       <>
         <Helmet><title>PDV - Consumo Comandas</title></Helmet>
-        <div className="min-h-screen bg-[#23354D] p-4 sm:p-6">
+        <div className="min-h-screen bg-[#F1F5F9] p-4 sm:p-6">
           <PDVHeader title="PDV - Consumo Comandas" />
           <div className="space-y-4">
             <Button variant="ghost" onClick={() => setView('main')}>
@@ -548,7 +548,7 @@ const PDVPublic = () => {
     return (
       <>
         <Helmet><title>PDV - Fechar Venda</title></Helmet>
-        <div className="min-h-screen bg-[#23354D] p-4 sm:p-6">
+        <div className="min-h-screen bg-[#F1F5F9] p-4 sm:p-6">
           <PDVHeader title="PDV - Fechar Venda" />
           <div className="space-y-4">
             <Button variant="ghost" onClick={() => setView('main')}>
@@ -591,7 +591,7 @@ const PDVPublic = () => {
   return (
     <>
       <Helmet><title>PDV</title></Helmet>
-      <div className="min-h-screen bg-[#23354D] p-6 sm:p-10">
+      <div className="min-h-screen bg-[#F1F5F9] p-6 sm:p-10">
         <div className="max-w-7xl mx-auto space-y-10">
           <PDVHeader title="PDV Central" />
           
