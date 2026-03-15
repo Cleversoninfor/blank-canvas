@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   Plus, Trash2, ShoppingCart, Hash, ArrowLeft, Search, ArrowRight,
-  Loader2, Receipt, Package, DollarSign, LockOpen, Lock, KeyRound, ClipboardList,
+  Loader2, Receipt, Package, LockOpen, Lock, KeyRound, ClipboardList,
 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
@@ -90,7 +90,7 @@ const PDVPublic = () => {
     return (
       <>
         <Helmet><title>Acesso ao PDV</title></Helmet>
-        <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="min-h-screen flex items-center justify-center bg-[#23354D] p-4">
           <Card className="w-full max-w-sm">
             <CardHeader className="text-center">
               <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
@@ -319,7 +319,7 @@ const PDVPublic = () => {
     return (
       <>
         <Helmet><title>PDV - Comanda #{selectedComanda.numero_comanda}</title></Helmet>
-        <div className="min-h-screen bg-background p-4 sm:p-6">
+        <div className="min-h-screen bg-[#23354D] p-4 sm:p-6">
           <PDVHeader title={`PDV - Comanda #${selectedComanda.numero_comanda}`} />
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -327,7 +327,7 @@ const PDVPublic = () => {
                 <ArrowLeft className="h-4 w-4 mr-2" /> Voltar ao PDV
               </Button>
               <Button variant="destructive" onClick={() => setCloseSaleComanda(selectedComanda)}>
-                <DollarSign className="h-4 w-4 mr-2" /> Fechar Venda
+                <span className="font-bold mr-2 text-sm italic">R$</span> Fechar Venda
               </Button>
             </div>
 
@@ -423,7 +423,7 @@ const PDVPublic = () => {
     return (
       <>
         <Helmet><title>PDV - Abrir Venda</title></Helmet>
-        <div className="min-h-screen bg-background p-6 sm:p-10">
+        <div className="min-h-screen bg-[#23354D] p-6 sm:p-10">
           <div className="max-w-7xl mx-auto space-y-10">
             <PDVHeader title="PDV - Abrir Venda" />
             <div className="space-y-8">
@@ -503,7 +503,7 @@ const PDVPublic = () => {
     return (
       <>
         <Helmet><title>PDV - Consumo Comandas</title></Helmet>
-        <div className="min-h-screen bg-background p-4 sm:p-6">
+        <div className="min-h-screen bg-[#23354D] p-4 sm:p-6">
           <PDVHeader title="PDV - Consumo Comandas" />
           <div className="space-y-4">
             <Button variant="ghost" onClick={() => setView('main')}>
@@ -548,7 +548,7 @@ const PDVPublic = () => {
     return (
       <>
         <Helmet><title>PDV - Fechar Venda</title></Helmet>
-        <div className="min-h-screen bg-background p-4 sm:p-6">
+        <div className="min-h-screen bg-[#23354D] p-4 sm:p-6">
           <PDVHeader title="PDV - Fechar Venda" />
           <div className="space-y-4">
             <Button variant="ghost" onClick={() => setView('main')}>
@@ -591,7 +591,7 @@ const PDVPublic = () => {
   return (
     <>
       <Helmet><title>PDV</title></Helmet>
-      <div className="min-h-screen bg-background p-6 sm:p-10">
+      <div className="min-h-screen bg-[#23354D] p-6 sm:p-10">
         <div className="max-w-7xl mx-auto space-y-10">
           <PDVHeader title="PDV Central" />
           
@@ -704,8 +704,8 @@ const PDVPublic = () => {
             >
               <CardHeader className="bg-amber-500/5 pb-2">
                 <CardTitle className="flex items-center gap-3 text-lg font-bold group-hover:text-primary transition-colors">
-                  <div className="p-2 bg-amber-500/10 rounded-lg text-amber-600">
-                    <DollarSign className="h-5 w-5" />
+                  <div className="p-2 bg-amber-500/10 rounded-lg text-amber-600 font-bold text-xs flex items-center justify-center w-9 h-9">
+                    R$
                   </div>
                   Fechar Venda
                 </CardTitle>
