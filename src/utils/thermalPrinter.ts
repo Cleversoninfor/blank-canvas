@@ -148,7 +148,9 @@ export function generateReceiptBytes(data: PrintOrderData): Uint8Array {
   // Header
   bytes.push(...CENTER);
   bytes.push(...DOUBLE_SIZE);
-  addLine(bytes, data.orderType === 'delivery' ? 'DELIVERY' : 'COMANDA');
+  const isPDVOrder = data.customerName?.startsWith('Comanda #');
+  const typeLabel = data.orderType === 'delivery' ? (isPDVOrder ? 'Consumo no local' : 'DELIVERY') : 'COMANDA';
+  addLine(bytes, typeLabel);
   bytes.push(...NORMAL_SIZE);
   addLine(bytes, `#${data.orderNumber}`);
   bytes.push(LF);
@@ -163,19 +165,23 @@ export function generateReceiptBytes(data: PrintOrderData): Uint8Array {
       addLine(bytes, `Garcom: ${data.waiterName}`);
     }
   } else if (data.orderType === 'delivery') {
+    const isPDVOrder = data.customerName?.startsWith('Comanda #');
     bytes.push(...BOLD_ON);
     addLine(bytes, data.customerName || '');
     bytes.push(...BOLD_OFF);
-    if (data.customerPhone) {
-      addLine(bytes, `Tel: ${data.customerPhone}`);
-    }
-    if (data.address) {
-      addLine(bytes, `${data.address.street}, ${data.address.number}`);
-      addLine(bytes, data.address.neighborhood);
-      if (data.address.complement) {
-        // Wrap complement text to fit within printer width
-        const complementLines = wrapText(data.address.complement, width - 2, '  ');
-        complementLines.forEach(line => addLine(bytes, line));
+    
+    if (!isPDVOrder) {
+      if (data.customerPhone) {
+        addLine(bytes, `Tel: ${data.customerPhone}`);
+      }
+      if (data.address) {
+        addLine(bytes, `${data.address.street}, ${data.address.number}`);
+        addLine(bytes, data.address.neighborhood);
+        if (data.address.complement) {
+          // Wrap complement text to fit within printer width
+          const complementLines = wrapText(data.address.complement, width - 2, '  ');
+          complementLines.forEach(line => addLine(bytes, line));
+        }
       }
     }
   }
@@ -257,10 +263,13 @@ export function generateReceiptText(data: PrintOrderData): string {
   const ESC_T = '\x1B';
   const GS_T = '\x1D';
   
+  const isPDVOrder = data.customerName?.startsWith('Comanda #');
+  const typeLabel = data.orderType === 'delivery' ? (isPDVOrder ? 'Consumidor Local' : 'DELIVERY') : 'COMANDA';
+  
   receipt += ESC_T + '@'; // Init
   receipt += ESC_T + 'a\x01'; // Center
   receipt += ESC_T + '!\x30'; // Double size
-  receipt += (data.orderType === 'delivery' ? 'DELIVERY' : 'COMANDA') + '\n';
+  receipt += typeLabel + '\n';
   receipt += ESC_T + '!\x00'; // Normal
   receipt += `#${data.orderNumber}\n\n`;
 
@@ -273,17 +282,21 @@ export function generateReceiptText(data: PrintOrderData): string {
       receipt += `Garcom: ${data.waiterName}\n`;
     }
   } else if (data.orderType === 'delivery') {
+    const isPDVOrder = data.customerName?.startsWith('Comanda #');
     receipt += ESC_T + 'E\x01';
     receipt += `${data.customerName}\n`;
     receipt += ESC_T + 'E\x00';
-    if (data.customerPhone) {
-      receipt += `Tel: ${data.customerPhone}\n`;
-    }
-    if (data.address) {
-      receipt += `${data.address.street}, ${data.address.number}\n`;
-      receipt += `${data.address.neighborhood}\n`;
-      if (data.address.complement) {
-        receipt += `${data.address.complement}\n`;
+    
+    if (!isPDVOrder) {
+      if (data.customerPhone) {
+        receipt += `Tel: ${data.customerPhone}\n`;
+      }
+      if (data.address) {
+        receipt += `${data.address.street}, ${data.address.number}\n`;
+        receipt += `${data.address.neighborhood}\n`;
+        if (data.address.complement) {
+          receipt += `${data.address.complement}\n`;
+        }
       }
     }
   }
@@ -417,7 +430,7 @@ export function printReceiptBrowser(data: PrintOrderData): void {
       </style>
     </head>
     <body>
-      <div class="center double">${data.orderType === 'delivery' ? 'DELIVERY' : 'COMANDA'}</div>
+      <div class="center double">${data.orderType === 'delivery' ? (data.customerName?.startsWith('Comanda #') ? 'Consumo no local' : 'DELIVERY') : 'COMANDA'}</div>
       <div class="center bold">#${data.orderNumber}</div>
       <br>
       ${data.orderType === 'table' && data.tableName ? `
@@ -426,11 +439,13 @@ export function printReceiptBrowser(data: PrintOrderData): void {
       ` : ''}
       ${data.orderType === 'delivery' ? `
         <div class="bold">${data.customerName || ''}</div>
-        ${data.customerPhone ? `<div>Tel: ${data.customerPhone}</div>` : ''}
-        ${data.address ? `
-          <div>${data.address.street}, ${data.address.number}</div>
-          <div>${data.address.neighborhood}</div>
-          ${data.address.complement ? `<div class="complement">${data.address.complement}</div>` : ''}
+        ${!data.customerName?.startsWith('Comanda #') ? `
+          ${data.customerPhone ? `<div>Tel: ${data.customerPhone}</div>` : ''}
+          ${data.address ? `
+            <div>${data.address.street}, ${data.address.number}</div>
+            <div>${data.address.neighborhood}</div>
+            ${data.address.complement ? `<div class="complement">${data.address.complement}</div>` : ''}
+          ` : ''}
         ` : ''}
       ` : ''}
       <div>Data: ${data.createdAt.toLocaleDateString('pt-BR')} ${data.createdAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
@@ -485,6 +500,7 @@ export function generatePrintableText(data: PrintOrderData): string {
   };
 
   // ========== 1. HEADER ==========
+  const isPDVOrder = data.customerName?.startsWith('Comanda #');
   // Store name centered
   if (data.storeName) {
     const storeName = data.storeName.toUpperCase();
@@ -499,10 +515,13 @@ export function generatePrintableText(data: PrintOrderData): string {
   
   // Order type centered
   let orderTypeLabel = 'DELIVERY';
+  
   if (data.orderType === 'table') {
     orderTypeLabel = 'Consumidor Local';
   } else if (data.orderType === 'pickup') {
     orderTypeLabel = 'RETIRAR NO LOCAL';
+  } else if (isPDVOrder) {
+    orderTypeLabel = 'Consumidor Local';
   }
   text += centerText(orderTypeLabel) + '\n';
   
@@ -520,7 +539,7 @@ export function generatePrintableText(data: PrintOrderData): string {
   if (data.customerName) {
     text += `${data.customerName}\n`;
   }
-  if (data.customerPhone) {
+  if (data.customerPhone && !isPDVOrder) {
     text += `Tel: ${data.customerPhone}\n`;
   }
   if (data.orderType === 'table' && data.waiterName) {
@@ -531,7 +550,7 @@ export function generatePrintableText(data: PrintOrderData): string {
   }
 
   // ========== 4. DELIVERY ADDRESS ==========
-  if (data.orderType === 'delivery' && data.address) {
+  if (data.orderType === 'delivery' && data.address && !isPDVOrder) {
     text += '-'.repeat(width) + '\n';
     text += 'ENDERECO DE ENTREGA\n';
     const fullAddress = `${data.address.street}, ${data.address.number} - ${data.address.neighborhood}`;
@@ -779,6 +798,8 @@ export function generateThermalPDF(data: PrintOrderData): void {
     y += space;
   };
 
+  const isPDVOrder = data.customerName?.startsWith('Comanda #');
+
   // ========== 1. HEADER ==========
   // Store name centered
   if (data.storeName) {
@@ -787,10 +808,13 @@ export function generateThermalPDF(data: PrintOrderData): void {
   
   // Order type
   let orderTypeLabel = 'DELIVERY';
+  
   if (data.orderType === 'table') {
     orderTypeLabel = 'Consumidor Local';
   } else if (data.orderType === 'pickup') {
     orderTypeLabel = 'RETIRAR NO LOCAL';
+  } else if (isPDVOrder) {
+    orderTypeLabel = 'Consumidor Local';
   }
   addText(orderTypeLabel, fontSize.large, 'center', true);
   
@@ -819,13 +843,16 @@ export function generateThermalPDF(data: PrintOrderData): void {
     if (data.customerName) {
       addText(data.customerName, fontSize.normal, 'left');
     }
-    if (data.customerPhone) {
-      addText(`Tel: ${data.customerPhone}`, fontSize.normal, 'left');
+    
+    if (!isPDVOrder) {
+      if (data.customerPhone) {
+        addText(`Tel: ${data.customerPhone}`, fontSize.normal, 'left');
+      }
     }
   }
 
   // ========== 4. DELIVERY ADDRESS ==========
-  if (data.orderType === 'delivery' && data.address) {
+  if (data.orderType === 'delivery' && data.address && !isPDVOrder) {
     addSpacing(2);
     addText('ENDERECO DE ENTREGA', fontSize.normal, 'left', true);
     
@@ -941,6 +968,7 @@ export function generateOrderPDF(data: PrintOrderData): void {
   const margin = 15;
   const contentWidth = pageWidth - (margin * 2);
   const bottomMargin = 20;
+  const isPDVOrder = data.customerName?.startsWith('Comanda #');
   
   let y = margin;
   let currentPage = 1;
@@ -986,7 +1014,7 @@ export function generateOrderPDF(data: PrintOrderData): void {
   // Get order type label
   const getOrderTypeLabel = () => {
     switch (data.orderType) {
-      case 'delivery': return 'Delivery';
+      case 'delivery': return isPDVOrder ? 'Consumidor Local' : 'Delivery';
       case 'pickup': return 'Retirar no Local';
       case 'table': return 'Consumidor Local';
       default: return 'Pedido';
@@ -1063,6 +1091,13 @@ export function generateOrderPDF(data: PrintOrderData): void {
       doc.text(String(data.customerCount), margin + 25, y);
       y += 7;
     }
+    if (data.customerPhone && !isPDVOrder) {
+      doc.setFont('helvetica', 'bold');
+      doc.text('Telefone:', margin, y);
+      doc.setFont('helvetica', 'normal');
+      doc.text(data.customerPhone, margin + 28, y);
+      y += 7;
+    }
   } else {
     if (data.customerName) {
       doc.setFont('helvetica', 'bold');
@@ -1070,7 +1105,7 @@ export function generateOrderPDF(data: PrintOrderData): void {
       y += 7;
     }
     
-    if (data.customerPhone) {
+    if (data.customerPhone && !isPDVOrder) {
       doc.setFont('helvetica', 'bold');
       doc.text('Telefone:', margin, y);
       doc.setFont('helvetica', 'normal');
@@ -1082,7 +1117,7 @@ export function generateOrderPDF(data: PrintOrderData): void {
   y += 5;
   
   // ========== 4. DELIVERY ADDRESS (when applicable) ==========
-  if (data.orderType === 'delivery' && data.address) {
+  if (data.orderType === 'delivery' && data.address && !isPDVOrder) {
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(80, 80, 80);
