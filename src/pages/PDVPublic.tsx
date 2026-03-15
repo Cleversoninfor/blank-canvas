@@ -19,6 +19,7 @@ import { CloseSaleModal } from '@/components/pdv/CloseSaleModal';
 import { ProductSelectorModal } from '@/components/pdv/ProductSelectorModal';
 import { ComandaConsumoCard } from '@/components/pdv/ComandaConsumoCard';
 import { TransferComandaModal } from '@/components/pdv/TransferComandaModal';
+import { CloseComandaCard } from '@/components/pdv/CloseComandaCard';
 import { useStoreConfig } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -535,42 +536,14 @@ const PDVPublic = () => {
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {ocupadas.map(comanda => (
-                  <Card 
-                    key={comanda.id} 
-                    className="relative cursor-pointer hover:ring-2 hover:ring-primary/30 transition-all active:scale-[0.97]" 
-                    onClick={() => setCloseSaleComanda(comanda)}
-                  >
-                    <CardContent className="p-4 text-center">
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 z-10"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteComanda(comanda);
-                        }}
-                        title="Excluir comanda"
-                        disabled={deleteComanda.isPending}
-                      >
-                        {deleteComanda.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        className="absolute top-1 left-1 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 z-10"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setTransferSourceComanda(comanda);
-                        }}
-                        title="Transferir pedidos"
-                      >
-                        <ArrowRight className="h-3 w-3" />
-                      </Button>
-                      <Lock className="h-8 w-8 mx-auto mb-2 text-destructive" />
-                      <p className="font-bold text-lg">Comanda #{comanda.numero_comanda}</p>
-                      <Badge variant="destructive" className="mt-1">Ocupada</Badge>
-                    </CardContent>
-                  </Card>
+                  <CloseComandaCard
+                    key={comanda.id}
+                    comanda={comanda}
+                    onClose={() => setCloseSaleComanda(comanda)}
+                    onTransfer={() => setTransferSourceComanda(comanda)}
+                    onDelete={() => handleDeleteComanda(comanda)}
+                    deleteIsPending={deleteComanda.isPending}
+                  />
                 ))}
               </div>
             )}
@@ -582,7 +555,7 @@ const PDVPublic = () => {
               />
             )}
             {closeSaleComanda && (
-              <CloseSaleModal comanda={closeSaleComanda} open={!!closeSaleComanda} onClose={() => { setCloseSaleComanda(null); setView('main'); }} />
+              <CloseSaleModal comanda={closeSaleComanda} open={!!closeSaleComanda} onClose={() => setCloseSaleComanda(null)} />
             )}
           </div>
         </div>
