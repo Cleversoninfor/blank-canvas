@@ -47,24 +47,29 @@ export function CloseComandaCard({ comanda, onClose, onTransfer, onDelete, delet
         >
           {deleteIsPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
         </Button>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          className="absolute top-1 left-1 h-7 w-7 text-muted-foreground hover:text-primary hover:bg-primary/10 z-10"
-          onClick={(e) => { e.stopPropagation(); onTransfer(); }}
-          title="Transferir pedidos"
-        >
-          <ArrowRight className="h-3 w-3" />
-        </Button>
         <Lock className="h-8 w-8 mx-auto mb-2 text-destructive" />
         <p className="font-bold text-lg">Comanda #{comanda.numero_comanda}</p>
         <Badge variant="destructive" className="mt-1">Ocupada</Badge>
-        <div className="mt-2 pt-2 border-t border-border">
+        
+        <div className="mt-4 pt-4 border-t border-border space-y-4">
           {isLoading ? (
             <Loader2 className="h-4 w-4 animate-spin mx-auto text-muted-foreground" />
           ) : (
-            <p className="font-bold text-primary text-lg">{formatCurrency(total)}</p>
+            <p className="font-bold text-primary text-xl">{formatCurrency(total)}</p>
           )}
+
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full text-xs h-8"
+            onClick={(e) => {
+              e.stopPropagation();
+              onTransfer();
+            }}
+          >
+            <ArrowRight className="h-3 w-3 mr-2" />
+            Transferir Pedidos
+          </Button>
         </div>
       </CardContent>
     </Card>
