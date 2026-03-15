@@ -29,8 +29,26 @@ self.addEventListener('push', (event) => {
     data: { url: data.url },
   };
 
+  // Notify open clients to play alarm sound
+  const notifyClients = clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+    for (const client of clientList) {
+      client.postMessage({
+        type: 'PUSH_RECEIVED',
+        payload: {
+          title: data.title,
+          body: data.body,
+          tag: data.tag,
+          url: data.url,
+        },
+      });
+    }
+  });
+
   event.waitUntil(
-    self.registration.showNotification(data.title, options)
+    Promise.all([
+      self.registration.showNotification(data.title, options),
+      notifyClients,
+    ])
   );
 });
 
@@ -46,6 +64,7 @@ self.addEventListener('notificationclick', (event) => {
       for (const client of clientList) {
         const clientPath = new URL(client.url).pathname;
         if (clientPath.startsWith(url.split('/').slice(0, 2).join('/')) && 'focus' in client) {
+          client.navigate(url);
           return client.focus();
         }
       }

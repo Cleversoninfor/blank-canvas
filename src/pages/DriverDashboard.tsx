@@ -11,6 +11,8 @@ import { useTheme } from '@/hooks/useTheme';
 import { usePWAConfig } from '@/hooks/usePWAConfig';
 import { useDriverOrders, useDriverOrderItems } from '@/hooks/useDrivers';
 import { useDriverNotifications } from '@/hooks/useDriverNotifications';
+import { useServiceWorkerPush } from '@/hooks/useServiceWorkerPush';
+import { useAutoPromptPush } from '@/hooks/useAutoPromptPush';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -192,6 +194,12 @@ export default function DriverDashboard() {
 
   const { data: orders, isLoading } = useDriverOrders(driverId);
   const { newOrderIds, acknowledgeOrder, permissionGranted, requestPermission } = useDriverNotifications(orders);
+
+  // Listen for push notifications from SW to play alarm in foreground
+  useServiceWorkerPush();
+
+  // Auto-prompt push permission for driver
+  useAutoPromptPush('driver', driverId);
 
   useEffect(() => {
     if (!driverId || !driverName) {

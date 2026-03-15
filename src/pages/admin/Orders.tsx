@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Loader2, Calendar, TrendingUp, Package, DollarSign, CheckCircle2, GripVertical, Wifi, WifiOff, RefreshCw, Truck } from 'lucide-react';
 import { useTitleNotification } from '@/hooks/useTitleNotification';
+import { useAutoPromptPush } from '@/hooks/useAutoPromptPush';
 import { PushNotificationToggle } from '@/components/admin/PushNotificationToggle';
 import { SoundNotificationToggle } from '@/components/admin/SoundNotificationToggle';
 import { Button } from '@/components/ui/button';
@@ -357,7 +358,9 @@ const AdminOrders = () => {
   const { data: store } = useStoreConfig();
   const { data: orders, isLoading, refetch } = useAllOrders();
   const updateStatus = useUpdateUnifiedOrderStatus();
-  
+
+  // Auto-prompt push notification permission for admin
+  useAutoPromptPush('admin');
 
   const [autoRefresh, setAutoRefresh] = useState(() => {
     const saved = localStorage.getItem('orders-auto-refresh');

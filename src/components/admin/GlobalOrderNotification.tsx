@@ -12,6 +12,7 @@ import { useAllOrders } from '@/hooks/useAllOrders';
 import { useOrdersRealtime } from '@/hooks/useOrdersRealtime';
 import { useNotificationSound } from '@/hooks/useNotificationSound';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { useServiceWorkerPush } from '@/hooks/useServiceWorkerPush';
 
 export function GlobalOrderNotification() {
   const location = useLocation();
@@ -24,6 +25,9 @@ export function GlobalOrderNotification() {
   
   // Enable realtime updates
   useOrdersRealtime(true);
+
+  // Listen for push notifications from SW to play alarm in foreground
+  useServiceWorkerPush();
 
   // Don't show notifications on kitchen page
   const isKitchenPage = location.pathname === '/kitchen';
