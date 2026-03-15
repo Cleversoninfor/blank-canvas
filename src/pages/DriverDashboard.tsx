@@ -12,6 +12,7 @@ import { usePWAConfig } from '@/hooks/usePWAConfig';
 import { useDriverOrders, useDriverOrderItems } from '@/hooks/useDrivers';
 import { useDriverNotifications } from '@/hooks/useDriverNotifications';
 import { useServiceWorkerPush } from '@/hooks/useServiceWorkerPush';
+import { useAutoPromptPush } from '@/hooks/useAutoPromptPush';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
