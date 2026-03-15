@@ -49,7 +49,7 @@ export function ComandaConsumoCard({ comanda, onAddMore, onCloseSale, onDelete }
   const total = allItems.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="admin-card border-none shadow-lg overflow-hidden transition-all duration-300">
       <CardContent className="p-0">
         <button
           className="w-full flex items-center justify-between p-4 hover:bg-muted/30 transition-colors text-left"

@@ -22,6 +22,7 @@ import { TransferComandaModal } from '@/components/pdv/TransferComandaModal';
 import { CloseComandaCard } from '@/components/pdv/CloseComandaCard';
 import { useStoreConfig } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
+import { cn } from "@/lib/utils";
 
 type PDVView = 'main' | 'select-comanda' | 'venda' | 'select-close' | 'consumo';
 
@@ -297,10 +298,17 @@ const PDVPublic = () => {
   };
 
   const PDVHeader = ({ title }: { title: string }) => (
-    <div className="sticky top-0 z-30 flex items-center gap-3 px-4 sm:px-6 py-3 bg-primary text-primary-foreground shadow-md mb-4 -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 rounded-b-xl">
-      <Receipt className="h-5 w-5" />
-      <h1 className="font-semibold text-sm sm:text-base flex-1">{title}</h1>
-      <Button variant="ghost" size="sm" className="text-primary-foreground hover:text-primary-foreground/80" onClick={() => setAuthenticated(false)}>
+    <div className="sticky top-0 z-50 flex items-center gap-4 px-6 sm:px-10 py-5 bg-primary/95 backdrop-blur-md text-primary-foreground shadow-lg mb-8 -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 rounded-b-[2rem]">
+      <div className="bg-white/20 p-2 rounded-xl">
+        <Receipt className="h-6 w-6" />
+      </div>
+      <h1 className="font-bold text-lg sm:text-xl flex-1 tracking-tight">{title}</h1>
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        className="text-primary-foreground hover:bg-white/20 transition-colors" 
+        onClick={() => setAuthenticated(false)}
+      >
         Sair
       </Button>
     </div>
@@ -347,13 +355,16 @@ const PDVPublic = () => {
               </div>
 
               <div className="lg:col-span-1">
-                <Card className="sticky top-20">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-base">
-                      <ShoppingCart className="h-5 w-5" /> Pedido
+                <Card className="admin-card border-none shadow-xl sticky top-24">
+                  <CardHeader className="bg-primary/5 pb-4">
+                    <CardTitle className="flex items-center gap-3 text-lg font-bold">
+                      <div className="p-2 bg-primary/20 rounded-lg text-primary">
+                        <ShoppingCart className="h-5 w-5" />
+                      </div>
+                      Pedido
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-6 p-6">
                     {cart.length === 0 ? (
                       <p className="text-sm text-muted-foreground text-center py-4">Clique nos produtos para adicionar</p>
                     ) : (
@@ -412,60 +423,75 @@ const PDVPublic = () => {
     return (
       <>
         <Helmet><title>PDV - Abrir Venda</title></Helmet>
-        <div className="min-h-screen bg-background p-4 sm:p-6">
-          <PDVHeader title="PDV - Abrir Venda" />
-          <div className="space-y-4">
-            <Button variant="ghost" onClick={() => setView('main')}>
-              <ArrowLeft className="h-4 w-4 mr-2" /> Voltar ao PDV
-            </Button>
-            <h2 className="text-xl font-bold text-foreground">Selecione uma Comanda</h2>
-            {loadingComandas ? (
-              <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>
-            ) : comandas.length === 0 ? (
-              <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma comanda disponível. Crie uma comanda primeiro.</CardContent></Card>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {comandas.map(comanda => {
-                  const isLivre = comanda.status === 'livre';
-                  return (
-                    <Card
-                      key={comanda.id}
-                      className={`relative transition-all ${isLivre ? 'cursor-pointer hover:ring-2 hover:ring-primary/30 active:scale-[0.97]' : 'opacity-60 cursor-not-allowed'}`}
-                      onClick={() => isLivre && handleSelectComanda(comanda)}
-                    >
-                      <CardContent className="p-4 text-center">
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 z-10"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteComanda(comanda);
-                          }}
-                          title="Excluir comanda"
-                          disabled={deleteComanda.isPending}
-                        >
-                          {deleteComanda.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
-                        </Button>
-                        {isLivre ? <LockOpen className="h-8 w-8 mx-auto mb-2 text-green-500" /> : <Lock className="h-8 w-8 mx-auto mb-2 text-destructive" />}
-                        <p className="font-bold text-lg">Comanda #{comanda.numero_comanda}</p>
-                        <Badge variant={isLivre ? 'default' : 'destructive'} className="mt-1">{isLivre ? 'Livre' : 'Ocupada'}</Badge>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
+        <div className="min-h-screen bg-background p-6 sm:p-10">
+          <div className="max-w-7xl mx-auto space-y-10">
+            <PDVHeader title="PDV - Abrir Venda" />
+            <div className="space-y-8">
+              <Button variant="ghost" onClick={() => setView('main')}>
+                <ArrowLeft className="h-4 w-4 mr-2" /> Voltar ao PDV
+              </Button>
+              <h2 className="text-xl font-bold text-foreground">Selecione uma Comanda</h2>
+              {loadingComandas ? (
+                <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>
+              ) : comandas.length === 0 ? (
+                <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma comanda disponível. Crie uma comanda primeiro.</CardContent></Card>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+                  {comandas.map(comanda => {
+                    const isLivre = comanda.status === 'livre';
+                    return (
+                      <Card
+                        key={comanda.id}
+                        className={cn(
+                          "admin-card border-none shadow-lg relative transition-all duration-300",
+                          isLivre ? "cursor-pointer hover:ring-4 hover:ring-primary/20 active:scale-[0.98]" : "opacity-60 grayscale-[0.5] cursor-not-allowed"
+                        )}
+                        onClick={() => isLivre && handleSelectComanda(comanda)}
+                      >
+                        <CardContent className="p-8 text-center">
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            className="absolute top-2 right-2 h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 z-10"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteComanda(comanda);
+                            }}
+                            title="Excluir comanda"
+                            disabled={deleteComanda.isPending}
+                          >
+                            {deleteComanda.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                          </Button>
+                          {isLivre ? (
+                            <div className="bg-green-100 p-3 rounded-full w-fit mx-auto mb-4">
+                              <LockOpen className="h-8 w-8 text-green-600" />
+                            </div>
+                          ) : (
+                            <div className="bg-red-100 p-3 rounded-full w-fit mx-auto mb-4">
+                              <Lock className="h-8 w-8 text-red-600" />
+                            </div>
+                          )}
+                          <p className="font-bold text-xl mb-1">Comanda #{comanda.numero_comanda}</p>
+                          <Badge variant={isLivre ? 'default' : 'destructive'} className="px-4 py-0.5 mt-2 rounded-full font-bold">
+                            {isLivre ? 'Livre' : 'Ocupada'}
+                          </Badge>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
 
-            {selectorComanda && (
-              <ProductSelectorModal
-                open={!!selectorComanda}
-                comandaNumero={selectorComanda.numero_comanda}
-                onClose={() => setSelectorComanda(null)}
-                onConfirm={handleSelectorConfirm}
-                isLoading={createOrder.isPending}
-              />
-            )}
+              {selectorComanda && (
+                <ProductSelectorModal
+                  open={!!selectorComanda}
+                  comandaNumero={selectorComanda.numero_comanda}
+                  onClose={() => setSelectorComanda(null)}
+                  onConfirm={handleSelectorConfirm}
+                  isLoading={createOrder.isPending}
+                />
+              )}
+            </div>
           </div>
         </div>
       </>
@@ -567,18 +593,22 @@ const PDVPublic = () => {
   return (
     <>
       <Helmet><title>PDV</title></Helmet>
-      <div className="min-h-screen bg-background p-4 sm:p-6">
-        <PDVHeader title="PDV" />
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="min-h-screen bg-background p-6 sm:p-10">
+        <div className="max-w-7xl mx-auto space-y-10">
+          <PDVHeader title="PDV Central" />
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Criar Comanda */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Hash className="h-5 w-5" /> Criar Comanda
+            <Card className="admin-card border-none shadow-xl overflow-hidden">
+              <CardHeader className="bg-primary/5 pb-2">
+                <CardTitle className="flex items-center gap-3 text-lg font-bold">
+                  <div className="p-2 bg-primary/20 rounded-lg text-primary">
+                    <Hash className="h-5 w-5" />
+                  </div>
+                  Criar Comanda
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6 p-6">
                 {!showCreateForm ? (
                   <Button onClick={() => setShowCreateForm(true)} className="w-full">
                     <Plus className="h-4 w-4 mr-2" /> Nova Comanda
@@ -620,55 +650,73 @@ const PDVPublic = () => {
             </Card>
 
             {/* Abrir Venda */}
-            <Card className="cursor-pointer hover:ring-2 hover:ring-primary/30 transition-all" onClick={() => setView('select-comanda')}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ShoppingCart className="h-5 w-5" /> Abrir Venda
+            <Card 
+              className="admin-card border-none shadow-xl cursor-pointer hover:ring-4 hover:ring-primary/20 transition-all group" 
+              onClick={() => setView('select-comanda')}
+            >
+              <CardHeader className="bg-green-500/5 pb-2">
+                <CardTitle className="flex items-center gap-3 text-lg font-bold group-hover:text-primary transition-colors">
+                  <div className="p-2 bg-green-500/10 rounded-lg text-green-600">
+                    <ShoppingCart className="h-5 w-5" />
+                  </div>
+                  Abrir Venda
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">Selecione uma comanda livre para iniciar uma venda.</p>
+              <CardContent className="p-6">
+                <p className="text-sm text-muted-foreground mb-6 leading-relaxed">Selecione uma comanda livre para iniciar o atendimento.</p>
                 <div className="flex gap-4 text-center">
-                  <div className="flex-1 p-3 bg-muted/50 rounded-lg">
-                    <p className="text-2xl font-bold text-primary">{livres.length}</p>
-                    <p className="text-xs text-muted-foreground">Livres</p>
+                  <div className="flex-1 p-4 bg-muted/40 rounded-2xl border border-border/50">
+                    <p className="text-3xl font-black text-primary">{livres.length}</p>
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-tighter">Livres</p>
                   </div>
-                  <div className="flex-1 p-3 bg-muted/50 rounded-lg">
-                    <p className="text-2xl font-bold text-destructive">{ocupadas.length}</p>
-                    <p className="text-xs text-muted-foreground">Ocupadas</p>
+                  <div className="flex-1 p-4 bg-muted/40 rounded-2xl border border-border/50">
+                    <p className="text-3xl font-black text-destructive">{ocupadas.length}</p>
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-tighter">Ocupadas</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Consumo Comandas */}
-            <Card className="cursor-pointer hover:ring-2 hover:ring-primary/30 transition-all" onClick={() => setView('consumo')}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ClipboardList className="h-5 w-5" /> Consumo Comandas
+            <Card 
+              className="admin-card border-none shadow-xl cursor-pointer hover:ring-4 hover:ring-primary/20 transition-all group" 
+              onClick={() => setView('consumo')}
+            >
+              <CardHeader className="bg-blue-500/5 pb-2">
+                <CardTitle className="flex items-center gap-3 text-lg font-bold group-hover:text-primary transition-colors">
+                  <div className="p-2 bg-blue-500/10 rounded-lg text-blue-600">
+                    <ClipboardList className="h-5 w-5" />
+                  </div>
+                  Consumo
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">Veja os itens das comandas ocupadas, adicione ou remova produtos.</p>
-                <div className="p-3 bg-muted/50 rounded-lg text-center">
-                  <p className="text-2xl font-bold text-primary">{ocupadas.length}</p>
-                  <p className="text-xs text-muted-foreground">Comandas em consumo</p>
+              <CardContent className="p-6">
+                <p className="text-sm text-muted-foreground mb-6 leading-relaxed">Gerencie itens, adicione produtos ou remova pedidos das comandas.</p>
+                <div className="p-4 bg-muted/40 rounded-2xl border border-border/50 text-center">
+                  <p className="text-3xl font-black text-blue-600">{ocupadas.length}</p>
+                  <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-tighter">Em atendimento</p>
                 </div>
               </CardContent>
             </Card>
 
             {/* Fechar Venda */}
-            <Card className="cursor-pointer hover:ring-2 hover:ring-primary/30 transition-all" onClick={() => setView('select-close')}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5" /> Fechar Venda
+            <Card 
+              className="admin-card border-none shadow-xl cursor-pointer hover:ring-4 hover:ring-primary/20 transition-all group" 
+              onClick={() => setView('select-close')}
+            >
+              <CardHeader className="bg-amber-500/5 pb-2">
+                <CardTitle className="flex items-center gap-3 text-lg font-bold group-hover:text-primary transition-colors">
+                  <div className="p-2 bg-amber-500/10 rounded-lg text-amber-600">
+                    <DollarSign className="h-5 w-5" />
+                  </div>
+                  Fechar Venda
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">Finalize uma venda e libere a comanda.</p>
-                <div className="p-3 bg-muted/50 rounded-lg text-center">
-                  <p className="text-2xl font-bold text-foreground">{ocupadas.length}</p>
-                  <p className="text-xs text-muted-foreground">Comandas para fechar</p>
+              <CardContent className="p-6">
+                <p className="text-sm text-muted-foreground mb-6 leading-relaxed">Finalize pagamentos e libere as comandas para novos clientes.</p>
+                <div className="p-4 bg-muted/40 rounded-2xl border border-border/50 text-center">
+                  <p className="text-3xl font-black text-amber-600">{ocupadas.length}</p>
+                  <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-tighter">Para finalizar</p>
                 </div>
               </CardContent>
             </Card>

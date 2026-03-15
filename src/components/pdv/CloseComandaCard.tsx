@@ -33,10 +33,10 @@ export function CloseComandaCard({ comanda, onClose, onTransfer, onDelete, delet
 
   return (
     <Card
-      className="relative cursor-pointer hover:ring-2 hover:ring-primary/30 transition-all active:scale-[0.97]"
+      className="admin-card border-none shadow-lg relative cursor-pointer hover:ring-4 hover:ring-primary/20 transition-all active:scale-[0.98] group overflow-hidden"
       onClick={onClose}
     >
-      <CardContent className="p-4 text-center">
+      <CardContent className="p-8 text-center">
         <Button
           variant="ghost"
           size="icon-sm"
