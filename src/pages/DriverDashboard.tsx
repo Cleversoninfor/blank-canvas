@@ -194,6 +194,9 @@ export default function DriverDashboard() {
   const { data: orders, isLoading } = useDriverOrders(driverId);
   const { newOrderIds, acknowledgeOrder, permissionGranted, requestPermission } = useDriverNotifications(orders);
 
+  // Listen for push notifications from SW to play alarm in foreground
+  useServiceWorkerPush();
+
   useEffect(() => {
     if (!driverId || !driverName) {
       navigate('/driver');
