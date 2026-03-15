@@ -157,14 +157,14 @@ export function generateReceiptBytes(data: PrintOrderData): Uint8Array {
   bytes.push(...LEFT);
   if (data.orderType === 'table' && data.tableName) {
     bytes.push(...BOLD_ON);
-    addLine(bytes, `Mesa: ${data.tableName}`);
+    addLine(bytes, data.tableName);
     bytes.push(...BOLD_OFF);
     if (data.waiterName) {
       addLine(bytes, `Garcom: ${data.waiterName}`);
     }
   } else if (data.orderType === 'delivery') {
     bytes.push(...BOLD_ON);
-    addLine(bytes, `Cliente: ${data.customerName || ''}`);
+    addLine(bytes, data.customerName || '');
     bytes.push(...BOLD_OFF);
     if (data.customerPhone) {
       addLine(bytes, `Tel: ${data.customerPhone}`);
@@ -267,14 +267,14 @@ export function generateReceiptText(data: PrintOrderData): string {
   receipt += ESC_T + 'a\x00'; // Left
   if (data.orderType === 'table' && data.tableName) {
     receipt += ESC_T + 'E\x01'; // Bold
-    receipt += `Mesa: ${data.tableName}\n`;
+    receipt += `${data.tableName}\n`;
     receipt += ESC_T + 'E\x00';
     if (data.waiterName) {
       receipt += `Garcom: ${data.waiterName}\n`;
     }
   } else if (data.orderType === 'delivery') {
     receipt += ESC_T + 'E\x01';
-    receipt += `Cliente: ${data.customerName}\n`;
+    receipt += `${data.customerName}\n`;
     receipt += ESC_T + 'E\x00';
     if (data.customerPhone) {
       receipt += `Tel: ${data.customerPhone}\n`;
@@ -421,11 +421,11 @@ export function printReceiptBrowser(data: PrintOrderData): void {
       <div class="center bold">#${data.orderNumber}</div>
       <br>
       ${data.orderType === 'table' && data.tableName ? `
-        <div class="bold">Mesa: ${data.tableName}</div>
+        <div class="bold">${data.tableName}</div>
         ${data.waiterName ? `<div>Garçom: ${data.waiterName}</div>` : ''}
       ` : ''}
       ${data.orderType === 'delivery' ? `
-        <div class="bold">Cliente: ${data.customerName || ''}</div>
+        <div class="bold">${data.customerName || ''}</div>
         ${data.customerPhone ? `<div>Tel: ${data.customerPhone}</div>` : ''}
         ${data.address ? `
           <div>${data.address.street}, ${data.address.number}</div>
@@ -500,7 +500,7 @@ export function generatePrintableText(data: PrintOrderData): string {
   // Order type centered
   let orderTypeLabel = 'DELIVERY';
   if (data.orderType === 'table') {
-    orderTypeLabel = 'CONSUMIR NO LOCAL';
+    orderTypeLabel = 'Consumidor Local';
   } else if (data.orderType === 'pickup') {
     orderTypeLabel = 'RETIRAR NO LOCAL';
   }
@@ -517,8 +517,6 @@ export function generatePrintableText(data: PrintOrderData): string {
   text += `Hora: ${timeStr}\n`;
   text += '-'.repeat(width) + '\n';
 
-  // ========== 3. CUSTOMER INFO ==========
-  text += 'CLIENTE\n';
   if (data.customerName) {
     text += `${data.customerName}\n`;
   }
@@ -790,7 +788,7 @@ export function generateThermalPDF(data: PrintOrderData): void {
   // Order type
   let orderTypeLabel = 'DELIVERY';
   if (data.orderType === 'table') {
-    orderTypeLabel = 'CONSUMIR NO LOCAL';
+    orderTypeLabel = 'Consumidor Local';
   } else if (data.orderType === 'pickup') {
     orderTypeLabel = 'RETIRAR NO LOCAL';
   }
@@ -809,11 +807,8 @@ export function generateThermalPDF(data: PrintOrderData): void {
   
   addSpacing(2);
 
-  // ========== 3. CUSTOMER INFO ==========
-  addText('CLIENTE', fontSize.normal, 'left', true);
-  
   if (data.orderType === 'table' && data.tableName) {
-    addText(`Mesa: ${data.tableName}`, fontSize.normal, 'left');
+    addText(data.tableName, fontSize.normal, 'left');
     if (data.waiterName) {
       addText(`Garcom: ${data.waiterName}`, fontSize.normal, 'left');
     }
@@ -993,7 +988,7 @@ export function generateOrderPDF(data: PrintOrderData): void {
     switch (data.orderType) {
       case 'delivery': return 'Delivery';
       case 'pickup': return 'Retirar no Local';
-      case 'table': return 'Consumir no Local';
+      case 'table': return 'Consumidor Local';
       default: return 'Pedido';
     }
   };
@@ -1038,7 +1033,7 @@ export function generateOrderPDF(data: PrintOrderData): void {
   doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(80, 80, 80);
-  doc.text('INFORMAÇÕES DO CLIENTE', margin, y);
+  // doc.text('INFORMAÇÕES DO CLIENTE', margin, y);
   
   y += 2;
   doc.setDrawColor(200, 200, 200);
@@ -1050,9 +1045,7 @@ export function generateOrderPDF(data: PrintOrderData): void {
   
   if (data.orderType === 'table' && data.tableName) {
     doc.setFont('helvetica', 'bold');
-    doc.text('Mesa:', margin, y);
-    doc.setFont('helvetica', 'normal');
-    doc.text(data.tableName, margin + 20, y);
+    doc.text(data.tableName, margin, y);
     y += 7;
     
     if (data.waiterName) {
@@ -1073,9 +1066,7 @@ export function generateOrderPDF(data: PrintOrderData): void {
   } else {
     if (data.customerName) {
       doc.setFont('helvetica', 'bold');
-      doc.text('Nome:', margin, y);
-      doc.setFont('helvetica', 'normal');
-      doc.text(data.customerName, margin + 22, y);
+      doc.text(data.customerName, margin, y);
       y += 7;
     }
     
