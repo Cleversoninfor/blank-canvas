@@ -521,8 +521,6 @@ const PDVPublic = () => {
                     onAddMore={(c) => {
                       setSelectorComanda(c);
                     }}
-                    onCloseSale={(c) => setCloseSaleComanda(c)}
-                    onDelete={(c) => handleDeleteComanda(c)}
                   />
                 ))}
               </div>

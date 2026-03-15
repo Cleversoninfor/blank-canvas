@@ -14,11 +14,9 @@ const formatCurrency = (v: number) => {
 interface ComandaConsumoCardProps {
   comanda: Comanda;
   onAddMore: (comanda: Comanda) => void;
-  onCloseSale: (comanda: Comanda) => void;
-  onDelete?: (comanda: Comanda) => void;
 }
 
-export function ComandaConsumoCard({ comanda, onAddMore, onCloseSale, onDelete }: ComandaConsumoCardProps) {
+export function ComandaConsumoCard({ comanda, onAddMore }: ComandaConsumoCardProps) {
   const [expanded, setExpanded] = useState(false);
   const { data: orders = [], isLoading } = useComandaOrderDetails(comanda.id);
 
@@ -100,17 +98,9 @@ export function ComandaConsumoCard({ comanda, onAddMore, onCloseSale, onDelete }
             )}
 
             <div className="flex gap-2 pt-2">
-              <Button variant="outline" className="flex-1" onClick={() => onAddMore(comanda)}>
+              <Button variant="outline" className="w-full" onClick={() => onAddMore(comanda)}>
                 <Plus className="h-4 w-4 mr-2" /> Produtos
               </Button>
-              <Button variant="default" className="flex-1" onClick={() => onCloseSale(comanda)}>
-                Fechar Venda
-              </Button>
-              {onDelete && (
-                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive hover:bg-destructive/10" onClick={() => onDelete(comanda)} title="Excluir Comanda">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
             </div>
           </div>
         )}
