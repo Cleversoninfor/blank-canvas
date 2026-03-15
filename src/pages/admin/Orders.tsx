@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Loader2, Calendar, TrendingUp, Package, DollarSign, CheckCircle2, GripVertical, Wifi, WifiOff, RefreshCw, Truck } from 'lucide-react';
 import { useTitleNotification } from '@/hooks/useTitleNotification';
+import { useAutoPromptPush } from '@/hooks/useAutoPromptPush';
 import { PushNotificationToggle } from '@/components/admin/PushNotificationToggle';
 import { SoundNotificationToggle } from '@/components/admin/SoundNotificationToggle';
 import { Button } from '@/components/ui/button';
