@@ -37,6 +37,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useStoreConfig } from '@/hooks/useStore';
 import { useStoreStatus } from '@/hooks/useStoreStatus';
 import { useTheme } from '@/hooks/useTheme';
+import { supabase } from '@/integrations/supabase/client';
 import { usePWAConfig } from '@/hooks/usePWAConfig';
 import { cn } from '@/lib/utils';
 import { GlobalOrderNotification } from './GlobalOrderNotification';
