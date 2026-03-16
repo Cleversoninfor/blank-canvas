@@ -229,7 +229,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
 
           {/* Navigation */}
           <nav className="flex-1 p-3 space-y-4 overflow-y-auto scrollbar-hide">
-            {navGroups.map((group) => (
+            {filteredNavGroups.map((group) => (
               <div key={group.label}>
                 <p className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-widest text-white/40">
                   {group.label}
