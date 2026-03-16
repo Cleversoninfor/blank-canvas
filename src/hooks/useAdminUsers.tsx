@@ -18,6 +18,7 @@ export function useAdminUsers() {
         .from('admin_users')
         .select('id, usuario, acesso_operacoes, acesso_gestao, acesso_sistema, created_at')
         .order('created_at', { ascending: true });
+      // Never return senha field
       if (error) throw error;
       return data as AdminUser[];
     },
