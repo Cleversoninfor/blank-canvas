@@ -100,6 +100,32 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
   useTheme();
   usePWAConfig();
 
+  // Fetch admin_users permissions for current user email/username
+  const { data: adminUserPerms } = useQuery({
+    queryKey: ['admin-user-perms', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return null;
+      // Try to match by email or username
+      const { data } = await supabase
+        .from('admin_users')
+        .select('acesso_operacoes, acesso_gestao, acesso_sistema')
+        .or(`usuario.eq.${user.email},usuario.eq.${user.email?.split('@')[0]}`)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user?.email && isAdmin,
+  });
+
+  // Filter nav groups based on permissions
+  // If no admin_users record found, show all (backwards compatible for existing admins)
+  const filteredNavGroups = navGroups.filter(group => {
+    if (!adminUserPerms) return true; // No restrictions if no record
+    if (group.label === 'Operações') return adminUserPerms.acesso_operacoes;
+    if (group.label === 'Gestão') return adminUserPerms.acesso_gestao;
+    if (group.label === 'Sistema') return adminUserPerms.acesso_sistema;
+    return true; // Always show 'Visualizar'
+  });
+
   useEffect(() => {
     if (!isLoading && !user) {
       navigate('/auth');
