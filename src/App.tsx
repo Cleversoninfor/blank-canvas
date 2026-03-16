@@ -73,6 +73,7 @@ const App = () => (
                 <Route path="/admin/drivers" element={<AdminDrivers />} />
                 <Route path="/admin/driver-reports" element={<AdminDriverReports />} />
                 <Route path="/admin/pdv" element={<AdminPDV />} />
+                <Route path="/admin/users" element={<AdminUsers />} />
                 <Route path="/pdv" element={<PDVPublic />} />
                 <Route path="/driver" element={<DriverAccess />} />
                 <Route path="/driver/dashboard" element={<DriverDashboard />} />
