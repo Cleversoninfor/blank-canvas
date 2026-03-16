@@ -85,6 +85,39 @@ export type Database = {
           },
         ]
       }
+      admin_users: {
+        Row: {
+          acesso_gestao: boolean
+          acesso_operacoes: boolean
+          acesso_sistema: boolean
+          created_at: string
+          id: string
+          senha: string
+          updated_at: string
+          usuario: string
+        }
+        Insert: {
+          acesso_gestao?: boolean
+          acesso_operacoes?: boolean
+          acesso_sistema?: boolean
+          created_at?: string
+          id?: string
+          senha: string
+          updated_at?: string
+          usuario: string
+        }
+        Update: {
+          acesso_gestao?: boolean
+          acesso_operacoes?: boolean
+          acesso_sistema?: boolean
+          created_at?: string
+          id?: string
+          senha?: string
+          updated_at?: string
+          usuario?: string
+        }
+        Relationships: []
+      }
       business_hours: {
         Row: {
           close_time: string
@@ -1083,6 +1116,16 @@ export type Database = {
           id: string
           is_valid: boolean
           min_order_value: number
+        }[]
+      }
+      verify_admin_login: {
+        Args: { _senha: string; _usuario: string }
+        Returns: {
+          acesso_gestao: boolean
+          acesso_operacoes: boolean
+          acesso_sistema: boolean
+          id: string
+          usuario: string
         }[]
       }
     }

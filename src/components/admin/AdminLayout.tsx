@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
 import { 
   ChefHat, 
@@ -24,7 +25,8 @@ import {
   DatabaseBackup,
   QrCode,
   Truck,
-  Monitor
+  Monitor,
+  Users as UsersIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -35,6 +37,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useStoreConfig } from '@/hooks/useStore';
 import { useStoreStatus } from '@/hooks/useStoreStatus';
 import { useTheme } from '@/hooks/useTheme';
+import { supabase } from '@/integrations/supabase/client';
 import { usePWAConfig } from '@/hooks/usePWAConfig';
 import { cn } from '@/lib/utils';
 import { GlobalOrderNotification } from './GlobalOrderNotification';
@@ -73,6 +76,7 @@ const navGroups = [
       { id: 'hours', label: 'Horários', icon: Clock, path: '/admin/hours' },
       { id: 'settings', label: 'Configurações', icon: Settings, path: '/admin/settings' },
       { id: 'qrcodes', label: 'QR Codes', icon: QrCode, path: '/admin/qrcodes' },
+      { id: 'users', label: 'Usuários', icon: UsersIcon, path: '/admin/users' },
       { id: 'backup', label: 'Backup', icon: DatabaseBackup, path: '/admin/backup' },
     ]
   },
@@ -95,6 +99,32 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
 
   useTheme();
   usePWAConfig();
+
+  // Fetch admin_users permissions for current user email/username
+  const { data: adminUserPerms } = useQuery({
+    queryKey: ['admin-user-perms', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return null;
+      // Try to match by email or username
+      const { data } = await supabase
+        .from('admin_users')
+        .select('acesso_operacoes, acesso_gestao, acesso_sistema')
+        .or(`usuario.eq.${user.email},usuario.eq.${user.email?.split('@')[0]}`)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user?.email && isAdmin,
+  });
+
+  // Filter nav groups based on permissions
+  // If no admin_users record found, show all (backwards compatible for existing admins)
+  const filteredNavGroups = navGroups.filter(group => {
+    if (!adminUserPerms) return true; // No restrictions if no record
+    if (group.label === 'Operações') return adminUserPerms.acesso_operacoes;
+    if (group.label === 'Gestão') return adminUserPerms.acesso_gestao;
+    if (group.label === 'Sistema') return adminUserPerms.acesso_sistema;
+    return true; // Always show 'Visualizar'
+  });
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -199,7 +229,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
 
           {/* Navigation */}
           <nav className="flex-1 p-3 space-y-4 overflow-y-auto scrollbar-hide">
-            {navGroups.map((group) => (
+            {filteredNavGroups.map((group) => (
               <div key={group.label}>
                 <p className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-widest text-white/40">
                   {group.label}
