@@ -76,6 +76,7 @@ const navGroups = [
       { id: 'hours', label: 'Horários', icon: Clock, path: '/admin/hours' },
       { id: 'settings', label: 'Configurações', icon: Settings, path: '/admin/settings' },
       { id: 'qrcodes', label: 'QR Codes', icon: QrCode, path: '/admin/qrcodes' },
+      { id: 'users', label: 'Usuários', icon: UsersIcon, path: '/admin/users' },
       { id: 'backup', label: 'Backup', icon: DatabaseBackup, path: '/admin/backup' },
     ]
   },
