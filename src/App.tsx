@@ -32,6 +32,7 @@ import DriverDashboard from "./pages/DriverDashboard";
 import AdminDrivers from "./pages/admin/Drivers";
 import AdminDriverReports from "./pages/admin/DriverReports";
 import AdminPDV from "./pages/admin/PDV";
+import AdminUsers from "./pages/admin/Users";
 import PDVPublic from "./pages/PDVPublic";
 import CardapioLocal from "./pages/CardapioLocal";
 import NotFound from "./pages/NotFound";
