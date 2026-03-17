@@ -100,20 +100,20 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
   useTheme();
   usePWAConfig();
 
-  // Fetch admin_users permissions for current user email/username
+  // Fetch admin_users permissions for current user
   const { data: adminUserPerms } = useQuery({
-    queryKey: ['admin-user-perms', user?.email],
+    queryKey: ['admin-user-perms', user?.id],
     queryFn: async () => {
-      if (!user?.email) return null;
-      // Try to match by email or username
+      if (!user?.id) return null;
+      // Match by auth_user_id (linked account) or by email/username
       const { data } = await supabase
         .from('admin_users')
         .select('acesso_operacoes, acesso_gestao, acesso_sistema')
-        .or(`usuario.eq.${user.email},usuario.eq.${user.email?.split('@')[0]}`)
+        .or(`auth_user_id.eq.${user.id},usuario.eq.${user.email},usuario.eq.${user.email?.split('@')[0]}`)
         .maybeSingle();
       return data;
     },
-    enabled: !!user?.email && isAdmin,
+    enabled: !!user?.id && isAdmin,
   });
 
   // Filter nav groups based on permissions
@@ -285,15 +285,15 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
               <PWAInstallButton appName="Administração" />
             </div>
             
-            <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-3 mb-3">
               <div className="h-9 w-9 rounded-full bg-white/10 flex items-center justify-center">
                 <span className="text-sm font-medium text-white">
-                  {user.email?.charAt(0).toUpperCase()}
+                  {(user.user_metadata?.admin_usuario || user.email)?.charAt(0).toUpperCase()}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">
-                  {user.user_metadata?.name || user.email}
+                  {user.user_metadata?.admin_usuario || user.user_metadata?.name || user.email}
                 </p>
                 <p className="text-xs text-white/50">
                   {isAdmin ? 'Administrador' : 'Usuário'}

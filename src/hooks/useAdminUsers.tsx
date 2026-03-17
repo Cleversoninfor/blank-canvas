@@ -8,6 +8,27 @@ export interface AdminUser {
   acesso_gestao: boolean;
   acesso_sistema: boolean;
   created_at: string;
+  login_email?: string;
+}
+
+async function callManageAdminUser(body: Record<string, unknown>) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) throw new Error('Não autenticado');
+
+  const res = await supabase.functions.invoke('manage-admin-user', {
+    body,
+  });
+
+  if (res.error) {
+    throw new Error(res.error.message || 'Erro na operação');
+  }
+
+  // Check for application-level error in response
+  if (res.data?.error) {
+    throw new Error(res.data.error);
+  }
+
+  return res.data;
 }
 
 export function useAdminUsers() {
@@ -16,9 +37,8 @@ export function useAdminUsers() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('admin_users')
-        .select('id, usuario, acesso_operacoes, acesso_gestao, acesso_sistema, created_at')
+        .select('id, usuario, acesso_operacoes, acesso_gestao, acesso_sistema, created_at, login_email')
         .order('created_at', { ascending: true });
-      // Never return senha field
       if (error) throw error;
       return data as AdminUser[];
     },
@@ -35,19 +55,10 @@ export function useCreateAdminUser() {
       acesso_gestao: boolean;
       acesso_sistema: boolean;
     }) => {
-      const { data, error } = await supabase
-        .from('admin_users')
-        .insert({
-          usuario: params.usuario,
-          senha: params.senha,
-          acesso_operacoes: params.acesso_operacoes,
-          acesso_gestao: params.acesso_gestao,
-          acesso_sistema: params.acesso_sistema,
-        })
-        .select('id, usuario, acesso_operacoes, acesso_gestao, acesso_sistema, created_at')
-        .single();
-      if (error) throw error;
-      return data;
+      return callManageAdminUser({
+        action: 'create',
+        ...params,
+      });
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-users'] }),
   });
@@ -64,16 +75,21 @@ export function useUpdateAdminUser() {
       acesso_gestao?: boolean;
       acesso_sistema?: boolean;
     }) => {
-      const { id, ...update } = params;
-      // Remove undefined values
-      const cleanUpdate = Object.fromEntries(
-        Object.entries(update).filter(([_, v]) => v !== undefined)
-      );
-      const { error } = await supabase
-        .from('admin_users')
-        .update(cleanUpdate)
-        .eq('id', id);
-      if (error) throw error;
+      // If senha is provided, use change_password action
+      if (params.senha) {
+        return callManageAdminUser({
+          action: 'change_password',
+          id: params.id,
+          senha: params.senha,
+        });
+      }
+
+      const { id, senha, ...rest } = params;
+      return callManageAdminUser({
+        action: 'update',
+        id,
+        ...rest,
+      });
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-users'] }),
   });
@@ -83,11 +99,10 @@ export function useDeleteAdminUser() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('admin_users')
-        .delete()
-        .eq('id', id);
-      if (error) throw error;
+      return callManageAdminUser({
+        action: 'delete',
+        id,
+      });
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-users'] }),
   });

@@ -90,8 +90,10 @@ export type Database = {
           acesso_gestao: boolean
           acesso_operacoes: boolean
           acesso_sistema: boolean
+          auth_user_id: string | null
           created_at: string
           id: string
+          login_email: string | null
           senha: string
           updated_at: string
           usuario: string
@@ -100,8 +102,10 @@ export type Database = {
           acesso_gestao?: boolean
           acesso_operacoes?: boolean
           acesso_sistema?: boolean
+          auth_user_id?: string | null
           created_at?: string
           id?: string
+          login_email?: string | null
           senha: string
           updated_at?: string
           usuario: string
@@ -110,8 +114,10 @@ export type Database = {
           acesso_gestao?: boolean
           acesso_operacoes?: boolean
           acesso_sistema?: boolean
+          auth_user_id?: string | null
           created_at?: string
           id?: string
+          login_email?: string | null
           senha?: string
           updated_at?: string
           usuario?: string
@@ -1124,7 +1130,9 @@ export type Database = {
           acesso_gestao: boolean
           acesso_operacoes: boolean
           acesso_sistema: boolean
+          auth_user_id: string
           id: string
+          login_email: string
           usuario: string
         }[]
       }
