@@ -100,20 +100,20 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
   useTheme();
   usePWAConfig();
 
-  // Fetch admin_users permissions for current user email/username
+  // Fetch admin_users permissions for current user
   const { data: adminUserPerms } = useQuery({
-    queryKey: ['admin-user-perms', user?.email],
+    queryKey: ['admin-user-perms', user?.id],
     queryFn: async () => {
-      if (!user?.email) return null;
-      // Try to match by email or username
+      if (!user?.id) return null;
+      // Match by auth_user_id (linked account) or by email/username
       const { data } = await supabase
         .from('admin_users')
         .select('acesso_operacoes, acesso_gestao, acesso_sistema')
-        .or(`usuario.eq.${user.email},usuario.eq.${user.email?.split('@')[0]}`)
+        .or(`auth_user_id.eq.${user.id},usuario.eq.${user.email},usuario.eq.${user.email?.split('@')[0]}`)
         .maybeSingle();
       return data;
     },
-    enabled: !!user?.email && isAdmin,
+    enabled: !!user?.id && isAdmin,
   });
 
   // Filter nav groups based on permissions
