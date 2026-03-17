@@ -285,15 +285,15 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
               <PWAInstallButton appName="Administração" />
             </div>
             
-            <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-3 mb-3">
               <div className="h-9 w-9 rounded-full bg-white/10 flex items-center justify-center">
                 <span className="text-sm font-medium text-white">
-                  {user.email?.charAt(0).toUpperCase()}
+                  {(user.user_metadata?.admin_usuario || user.email)?.charAt(0).toUpperCase()}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">
-                  {user.user_metadata?.name || user.email}
+                  {user.user_metadata?.admin_usuario || user.user_metadata?.name || user.email}
                 </p>
                 <p className="text-xs text-white/50">
                   {isAdmin ? 'Administrador' : 'Usuário'}

@@ -241,6 +241,9 @@ export default function Users() {
                 <CardContent className="flex items-center justify-between py-3 px-4">
                   <div className="space-y-1">
                     <p className="font-medium text-sm">{user.usuario}</p>
+                    {user.login_email && (
+                      <p className="text-xs text-muted-foreground">Login: {user.login_email}</p>
+                    )}
                     <PermissionBadges user={user} />
                   </div>
                   <div className="flex gap-1">
