@@ -63,11 +63,6 @@ const PDV = () => {
   // Open product selector modal immediately, mark as ocupada in background
   const handleSelectComanda = (comanda: Comanda) => {
     setSelectorComanda(comanda);
-    if (comanda.status === 'livre') {
-      updateStatus.mutateAsync({ id: comanda.id, status: 'ocupada' }).catch((err: any) => {
-        toast({ title: 'Aviso', description: 'Não foi possível atualizar status: ' + err.message, variant: 'destructive' });
-      });
-    }
   };
 
   const handleSelectorConfirm = async (items: CartItem[]) => {
@@ -82,6 +77,12 @@ const PDV = () => {
           unit_price: i.product.price,
         })),
       });
+
+      // Mark comanda as occupied only after creating the order
+      if (selectorComanda.status === 'livre') {
+        await updateStatus.mutateAsync({ id: selectorComanda.id, status: 'ocupada' });
+      }
+
       toast({
         title: '✅ Pedido enviado!',
         description: `${items.reduce((s, i) => s + i.quantity, 0)} item(s) enviados para a cozinha — Comanda #${selectorComanda.numero_comanda}.`,

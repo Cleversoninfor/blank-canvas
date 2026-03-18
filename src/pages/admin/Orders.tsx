@@ -300,12 +300,6 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
                 Cobrar PIX
               </Button>
             )}
-            {order.status === 'preparing' && (
-              <Button size="sm" variant="outline" className="h-10 py-0 gap-2 text-xs sm:text-base border-[#25D366] text-[#25D366] hover:bg-[#25D366]/10 w-full" onClick={sendStatusWhatsApp}>
-                <MessageSquare className="h-4 w-4" />
-                WhatsApp Cliente
-              </Button>
-            )}
           </div>
         </div>
 
