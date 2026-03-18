@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { jsPDF } from "jspdf";
-import { Download, ChefHat, Menu, QrCode, RefreshCw } from "lucide-react";
+import { Download, ChefHat, Menu, QrCode, RefreshCw, Truck } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -86,6 +86,13 @@ const QRCodes = () => {
       description: "Cardápio digital para clientes visualizarem os produtos no restaurante via QR Code",
       path: "/cardapio-local",
       icon: Menu,
+    },
+    {
+      id: "drivers",
+      title: "Painel de Entregadores",
+      description: "Acesso rápido para entregadores visualizarem e gerenciarem suas entregas",
+      path: "/driver",
+      icon: Truck,
     },
   ];
 
@@ -345,7 +352,7 @@ const QRCodes = () => {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary font-bold">•</span>
-                <span><strong>Garçons:</strong> Cada garçom pode escanear para acessar seu painel de atendimento.</span>
+                <span><strong>Entregadores:</strong> Disponibilize este QR Code para que sua equipe de entrega acesse o painel sem login complexo.</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary font-bold">•</span>
