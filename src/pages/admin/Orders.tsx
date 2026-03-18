@@ -75,15 +75,26 @@ function DroppableColumn({ id, children, color, label, count }: { id: string; ch
   const { isOver, setNodeRef } = useDroppable({ id });
 
   return (
-    <div ref={setNodeRef} className={`rounded-xl sm:rounded-2xl ${color} p-3 sm:p-4 min-w-0 transition-all ${isOver ? 'ring-2 ring-primary ring-offset-2' : ''}`}>
-      <div className="flex items-center justify-between mb-3 sm:mb-4">
-        <h2 className="font-bold text-foreground text-sm sm:text-base">{label}</h2>
-        <Badge variant="secondary" className="text-xs">
-          {count}
+    <div ref={setNodeRef} className={`rounded-2xl ${color} p-4 sm:p-6 transition-all ${isOver ? 'ring-2 ring-primary ring-offset-2' : ''} border border-border/50`}>
+      <div className="flex items-center justify-between mb-6 border-b border-border/20 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="h-3 w-3 rounded-full bg-primary" />
+          <h2 className="font-bold text-foreground text-lg sm:text-2xl">{label}</h2>
+        </div>
+        <Badge variant="secondary" className="text-sm px-4 py-1">
+          {count} {count === 1 ? 'pedido' : 'pedidos'}
         </Badge>
       </div>
 
-      <div className="space-y-3 sm:space-y-4 max-h-[400px] sm:max-h-[600px] overflow-y-auto min-h-[100px]">{children}</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6 min-h-[50px]">
+        {children}
+      </div>
+      
+      {count === 0 && (
+        <div className="py-12 text-center opacity-40">
+          <p className="text-muted-foreground text-base">Nenhum pedido nesta etapa</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -232,7 +243,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
   const isCompleted = order.status === 'completed';
 
   return (
-    <div className="rounded-xl bg-card p-3 sm:p-4 shadow-card animate-slide-up min-w-0 cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all" onClick={() => onOpenDetails(order)}>
+    <div className="rounded-2xl bg-card p-5 sm:p-6 shadow-card animate-slide-up min-w-0 cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all border border-border/40" onClick={() => onOpenDetails(order)}>
       {/* Order Header */}
       <div className="mb-3">
         <div className="flex items-center gap-2 mb-1">
@@ -245,7 +256,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
               <GripVertical className="h-4 w-4" />
             </div>
           )}
-          <p className="font-bold text-base sm:text-lg text-foreground">{order.type === 'table' ? `Mesa #${order.table_number}` : `#${order.id}`}</p>
+          <p className="font-bold text-lg sm:text-2xl text-foreground">{order.type === 'table' ? `\uD83C\uDF7D\uFE0F Mesa #${order.table_number}` : `#${order.id}`}</p>
         </div>
         <div className="flex flex-wrap items-center gap-1.5 mb-1">
           <Badge variant="outline" className="text-[10px]">
@@ -257,14 +268,13 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
             </Badge>
           )}
         </div>
-        <p className="text-xs sm:text-sm text-muted-foreground truncate">{order.customer_name}</p>
+        <p className="text-sm sm:text-base font-medium text-foreground">{order.customer_name}</p>
         {isCompleted && (
           <p className="text-xs text-muted-foreground mt-1">{format(new Date(order.updated_at), "dd/MM 'às' HH:mm", { locale: ptBR })}</p>
         )}
       </div>
 
-      {/* Order Items */}
-      <div className="space-y-1 mb-3 text-sm">
+      <div className="space-y-2 mb-4 text-base sm:text-lg border-y border-border/20 py-4 my-4">
         {items?.map((item) => (
           <div key={item.id}>
             <span className="text-foreground">
@@ -277,8 +287,8 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
 
       {/* Order Footer */}
       <div className="border-t border-border pt-3 space-y-2">
-        <div className="flex items-center justify-between gap-1 sm:gap-2">
-          <p className="font-bold text-base sm:text-lg text-foreground whitespace-nowrap">{formatCurrency(order.total_amount)}</p>
+        <div className="flex items-center justify-between gap-2 mb-4">
+          <p className="font-bold text-xl sm:text-3xl text-foreground whitespace-nowrap">{formatCurrency(order.total_amount)}</p>
           <div className="flex gap-1.5">
             {order.payment_method === 'pix' && !isComanda && (
               <Button size="sm" variant="outline" className="h-8 py-0 gap-1.5 text-[10px] sm:text-xs" onClick={sendPixCharge}>
@@ -296,8 +306,8 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
         </div>
 
         {!isCompleted && getNextStatus(order.status) && (
-          <Button size="sm" className="w-full h-9 sm:h-10 text-[10px] sm:text-xs" onClick={handleStatusUpdate} disabled={updateStatusMutation.isPending}>
-            {updateStatusMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : getNextStatusLabel(order.status)}
+          <Button size="lg" className="w-full h-12 sm:h-16 text-base sm:text-2xl font-bold uppercase tracking-tight" onClick={handleStatusUpdate} disabled={updateStatusMutation.isPending}>
+            {updateStatusMutation.isPending ? <Loader2 className="h-6 w-6 animate-spin" /> : getNextStatusLabel(order.status)}
           </Button>
         )}
 
@@ -762,7 +772,7 @@ const AdminOrders = () => {
       {/* Kanban View with Drag and Drop */}
       {viewMode === 'kanban' && (
         <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3 sm:gap-6">
+          <div className="flex flex-col gap-10">
             {columns.map((column) => {
               const columnOrders = filteredOrders.filter((o) => o.status === column.id);
 
@@ -776,12 +786,6 @@ const AdminOrders = () => {
                       onOpenDetails={setSelectedOrder}
                     />
                   ))}
-
-                  {columnOrders.length === 0 && (
-                    <div className="py-8 sm:py-12 text-center">
-                      <p className="text-muted-foreground text-sm">Nenhum pedido</p>
-                    </div>
-                  )}
                 </DroppableColumn>
               );
             })}
