@@ -965,38 +965,6 @@ export default function Dashboard() {
               </Card>
             </div>
 
-
-            {/* Quick Stats Footer */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Card className="bg-muted/50 animate-fade-in">
-                <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-bold text-foreground">{stats.deliveryCount}</p>
-                  <p className="text-xs text-muted-foreground">Entregas Concluídas</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-muted/50 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-                <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-bold text-foreground">{stats.pdvCount}</p>
-                  <p className="text-xs text-muted-foreground">Mesas Fechadas</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-muted/50 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                <CardContent className="p-4 text-center">
-                  <p className={`text-2xl font-bold ${stats.cancellationRate > 10 ? 'text-red-500' : 'text-foreground'}`}>
-                    {stats.cancellationRate.toFixed(1)}%
-                  </p>
-                  <p className="text-xs text-muted-foreground">Taxa Cancelamento</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-muted/50 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-                <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-bold text-foreground">
-                    {deliveryItems.length + pdvItems.length}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Itens Vendidos</p>
-                </CardContent>
-              </Card>
-            </div>
           </>
         )}
       </div>
