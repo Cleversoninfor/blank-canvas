@@ -76,7 +76,7 @@ const AdminEnvios = () => {
               <Textarea 
                 value={checkoutMessage} 
                 onChange={e => setCheckoutMessage(e.target.value)} 
-                placeholder="Olá {nome}! 👋&#10;&#10;Recebemos seu pedido #{pedido}!&#10;&#10;📋 *Resumo:*&#10;{itens}&#10;&#10;📍 *Entrega:* {endereco}&#10;💳 *Pagamento:* {pagamento}&#10;💰 *Total:* {total}&#10;&#10;🚀 Acompanhe seu pedido aqui:&#10;{link}"
+                placeholder={"Ol\u00E1 {nome}! \uD83D\uDC4B\n\nRecebemos seu pedido #{pedido}!\n\n\uD83D\uDCCB *Resumo:*\n{itens}\n\n\uD83D\uDCCD *Entrega:* {endereco}\n\uD83D\uDCB3 *Pagamento:* {pagamento}\n\uD83D\uDCB0 *Total:* {total}\n\n\uD83D\uDE80 Acompanhe seu pedido aqui:\n{link}"}
                 className="mt-1 min-h-[180px] font-mono text-sm leading-relaxed bg-muted/20 border-border focus:border-primary transition-all"
                 rows={8}
               />
@@ -102,7 +102,7 @@ const AdminEnvios = () => {
               <Textarea 
                 value={pixMessage} 
                 onChange={e => setPixMessage(e.target.value)} 
-                placeholder="Olá {nome}! 🍔&#10;&#10;Pedido #{pedido} recebido!&#10;&#10;Total: {total}&#10;&#10;💠 Chave Pix: {chave_pix} ({tipo_chave})&#10;&#10;Aguardamos o comprovante para iniciar o preparo!"
+                placeholder={"Ol\u00E1 {nome}! \uD83C\uDF54\n\nPedido #{pedido} recebido!\n\nTotal: {total}\n\n\uD83D\uDCA0 Chave Pix: {chave_pix} ({tipo_chave})\n\nAguardamos o comprovante para iniciar o preparo!"}
                 className="mt-1 min-h-[180px] font-mono text-sm leading-relaxed bg-muted/20 border-border focus:border-primary transition-all"
                 rows={8}
               />
