@@ -14,6 +14,11 @@ const loginSchema = z.object({
   password: z.string().min(6, { message: 'Senha deve ter pelo menos 6 caracteres' }),
 });
 
+const adminLoginSchema = z.object({
+  email: z.string().trim().min(1, { message: 'Digite seu email ou usuário' }),
+  password: z.string().min(6, { message: 'Senha deve ter pelo menos 6 caracteres' }),
+});
+
 type AuthMode = 'login' | 'signup' | 'forgot';
 
 const Auth = () => {
@@ -103,20 +108,40 @@ const Auth = () => {
 
     setIsLoading(true);
     try {
-      const validation = loginSchema.safeParse(formData);
+      const validation = adminLoginSchema.safeParse(formData);
       if (!validation.success) {
         toast({ title: 'Dados inválidos', description: validation.error.errors[0].message, variant: 'destructive' });
         setIsLoading(false);
         return;
       }
-      const { error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
+
+      const loginValue = formData.email.trim().toLowerCase();
+      let { error } = await supabase.auth.signInWithPassword({
+        email: loginValue,
         password: formData.password,
       });
+
+      if (error?.message.includes('Invalid login credentials')) {
+        const { data: adminMatch, error: adminLookupError } = await supabase
+          .rpc('verify_admin_login', {
+            _usuario: formData.email.trim(),
+            _senha: formData.password,
+          })
+          .maybeSingle();
+
+        if (!adminLookupError && adminMatch?.login_email) {
+          const retry = await supabase.auth.signInWithPassword({
+            email: adminMatch.login_email,
+            password: formData.password,
+          });
+          error = retry.error;
+        }
+      }
+
       if (error) {
         toast({
           title: 'Erro ao entrar',
-          description: error.message.includes('Invalid login credentials') ? 'Email ou senha incorretos' : error.message,
+          description: error.message.includes('Invalid login credentials') ? 'Usuário, email ou senha incorretos' : error.message,
           variant: 'destructive',
         });
         setIsLoading(false);
@@ -183,7 +208,7 @@ const Auth = () => {
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
                     type="email"
-                    placeholder="seu@email.com"
+                    placeholder={mode === 'login' ? 'Seu email ou usuário interno' : 'seu@email.com'}
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="pl-10 h-12 bg-muted/50 border-0 rounded-xl"

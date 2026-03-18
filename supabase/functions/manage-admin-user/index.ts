@@ -60,16 +60,24 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Generate a unique email for this admin user
-      const slug = usuario.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-");
-      const loginEmail = `${slug}@admin.internal`;
+      // Generate or preserve the internal login email for this admin user
+      const normalizedUsuario = usuario.trim();
+      const normalizedLower = normalizedUsuario.toLowerCase();
+      const internalDomain = "@admin.internal";
+      const slugSource = normalizedLower.endsWith(internalDomain)
+        ? normalizedLower.slice(0, -internalDomain.length)
+        : normalizedLower.split("@")[0];
+      const slug = slugSource.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "admin";
+      const loginEmail = normalizedLower.endsWith(internalDomain)
+        ? normalizedLower
+        : `${slug}@admin.internal`;
 
       // Create Supabase Auth user
       const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
         email: loginEmail,
         password: senha,
         email_confirm: true,
-        user_metadata: { admin_usuario: usuario, is_admin_user: true },
+        user_metadata: { admin_usuario: normalizedUsuario, is_admin_user: true },
       });
 
       if (authError) {
@@ -90,7 +98,7 @@ Deno.serve(async (req) => {
       const { data: adminUser, error: insertError } = await supabaseAdmin
         .from("admin_users")
         .insert({
-          usuario: usuario.trim(),
+          usuario: normalizedUsuario,
           senha, // Will be hashed by trigger
           acesso_operacoes: acesso_operacoes ?? false,
           acesso_gestao: acesso_gestao ?? false,
