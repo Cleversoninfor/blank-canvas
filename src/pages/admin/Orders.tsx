@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Loader2, Calendar, TrendingUp, Package, DollarSign, CheckCircle2, GripVertical, Wifi, WifiOff, RefreshCw, Truck } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { useTitleNotification } from '@/hooks/useTitleNotification';
 import { useAutoPromptPush } from '@/hooks/useAutoPromptPush';
 import { PushNotificationToggle } from '@/components/admin/PushNotificationToggle';
@@ -209,16 +210,14 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
           .replace(/{pagamento}/g, getPaymentLabel(order.payment_method))
           .replace(/{link}/g, orderLink);
 
-        import('@/integrations/supabase/client').then(({ supabase }) => {
-          supabase.functions.invoke('send-whatsapp-notification', {
-            body: {
-              orderId: order.id,
-              customerName: order.customer_name,
-              customerPhone: order.customer_phone,
-              message: message,
-              type: 'order_accepted'
-            }
-          });
+        supabase.functions.invoke('send-whatsapp-notification', {
+          body: {
+            orderId: order.id,
+            customerName: order.customer_name,
+            customerPhone: order.customer_phone,
+            message: message,
+            type: 'order_accepted'
+          }
         });
       }
 
