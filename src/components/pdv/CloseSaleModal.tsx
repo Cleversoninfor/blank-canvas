@@ -28,7 +28,8 @@ const formatCurrency = (v: number) => v.toLocaleString('pt-BR', { style: 'curren
 
 export function CloseSaleModal({ comanda, open, onClose }: CloseSaleModalProps) {
   const { toast } = useToast();
-  const { data: orders = [], isLoading } = useComandaOrderDetails(comanda.id);
+  const { data: ordersData, isLoading } = useComandaOrderDetails(comanda?.id);
+  const orders = Array.isArray(ordersData) ? ordersData : [];
   const closeSale = useCloseSale();
   const { data: activeSession } = useOpenedSession();
   const addMovimentacao = useAddMovimentacao();
@@ -41,6 +42,7 @@ export function CloseSaleModal({ comanda, open, onClose }: CloseSaleModalProps) 
     const itemMap = new Map<string, { product_name: string; quantity: number; unit_price: number; observation?: string }>();
     
     orders.forEach(order => {
+      if (!order) return;
       (order.items || []).forEach((item: any) => {
         const name = (item.product_name || '').trim();
         const price = Number(item.unit_price) || 0;
