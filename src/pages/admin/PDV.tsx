@@ -26,9 +26,10 @@ interface CartItem {
   quantity: number;
 }
 
-const formatCurrency = (v: number) => {
-  const safe = Number.isFinite(v) ? v : 0;
-  return safe.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const formatCurrency = (v: unknown) => {
+  const parsed = typeof v === 'number' ? v : Number(v);
+  const safeValue = Number.isFinite(parsed) ? parsed : 0;
+  return safeValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 };
 
 const PDV = () => {
