@@ -289,15 +289,15 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
       <div className="border-t border-border pt-3 space-y-2">
         <div className="flex flex-col gap-4 mb-4">
           <p className="font-bold text-2xl sm:text-4xl text-foreground">{formatCurrency(order.total_amount)}</p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col gap-2">
             {order.payment_method === 'pix' && !isComanda && (
-              <Button size="sm" variant="outline" className="h-10 py-0 gap-2 text-xs sm:text-base flex-1 min-w-[140px]" onClick={sendPixCharge}>
+              <Button size="sm" variant="outline" className="h-10 py-0 gap-2 text-xs sm:text-base w-full" onClick={sendPixCharge}>
                 <MessageSquare className="h-4 w-4" />
                 Cobrar PIX
               </Button>
             )}
             {order.status === 'preparing' && (
-              <Button size="sm" variant="outline" className="h-10 py-0 gap-2 text-xs sm:text-base border-[#25D366] text-[#25D366] hover:bg-[#25D366]/10 flex-1 min-w-[140px]" onClick={sendStatusWhatsApp}>
+              <Button size="sm" variant="outline" className="h-10 py-0 gap-2 text-xs sm:text-base border-[#25D366] text-[#25D366] hover:bg-[#25D366]/10 w-full" onClick={sendStatusWhatsApp}>
                 <MessageSquare className="h-4 w-4" />
                 WhatsApp Cliente
               </Button>
