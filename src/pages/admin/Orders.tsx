@@ -118,6 +118,10 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
         return `💵 Troco p/ R$ ${order.change_for || ''}`;
       case 'card':
         return '💳 Levar Máquina';
+      case 'credit':
+        return '💳 Crédito';
+      case 'debit':
+        return '💳 Débito';
       default:
         return method || 'Não definido';
     }
@@ -259,11 +263,11 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
           <p className="font-bold text-lg sm:text-2xl text-foreground">{order.type === 'table' ? `\uD83C\uDF7D\uFE0F Mesa #${order.table_number}` : `#${order.id}`}</p>
         </div>
         <div className="flex flex-wrap items-center gap-1.5 mb-1">
-          <Badge variant="outline" className="text-[10px]">
+          <Badge variant="outline" className="text-xs px-2.5 py-0.5 whitespace-nowrap">
             {getOrderTypeLabel()}
           </Badge>
           {!isComanda && order.payment_method && (
-            <Badge variant={order.payment_method as any} className="text-[10px] sm:text-xs">
+            <Badge variant={order.payment_method as any} className="text-xs px-2.5 py-0.5 whitespace-nowrap">
               {getPaymentLabel(order.payment_method)}
             </Badge>
           )}
