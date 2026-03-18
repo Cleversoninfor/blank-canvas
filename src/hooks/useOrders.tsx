@@ -54,9 +54,11 @@ export function useOrders() {
   return useQuery({
     queryKey: ['orders'],
     queryFn: async () => {
+      const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
       const { data, error } = await supabase
         .from('orders')
         .select('*')
+        .or(`status.not.in.(completed,cancelled),created_at.gte.${last24h}`)
         .order('created_at', { ascending: false });
       
       if (error) throw error;

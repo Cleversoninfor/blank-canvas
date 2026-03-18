@@ -35,17 +35,19 @@ export function GlobalOrderNotification() {
   const pendingCount = orders?.filter((o) => o.status === 'pending').length || 0;
 
   useEffect(() => {
-    // Skip if on kitchen page
-    if (isKitchenPage) return;
+    // Skip if on kitchen page OR if orders are still loading for the first time
+    if (isKitchenPage || orders === undefined) return;
 
-    // Initialize on first load
+    // Initialize on first successful load
     if (lastPendingCountRef.current === null) {
+      console.log('[GlobalOrderNotification] Initializing lastPendingCount:', pendingCount);
       lastPendingCountRef.current = pendingCount;
       return;
     }
 
     // Check for new pending orders
     if (pendingCount > lastPendingCountRef.current) {
+      console.log('[GlobalOrderNotification] New order detected! Pending:', pendingCount, 'Last:', lastPendingCountRef.current);
       // New order detected!
       setNewOrderDialogOpen(true);
       if (soundEnabled) {
@@ -55,7 +57,7 @@ export function GlobalOrderNotification() {
     }
 
     lastPendingCountRef.current = pendingCount;
-  }, [pendingCount, soundEnabled, startAlarm, notifyNewOrder, isKitchenPage]);
+  }, [pendingCount, soundEnabled, startAlarm, notifyNewOrder, isKitchenPage, orders]);
 
   // Stop alarm if sound is disabled while playing
   useEffect(() => {

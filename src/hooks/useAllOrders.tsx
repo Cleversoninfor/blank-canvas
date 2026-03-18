@@ -64,15 +64,19 @@ export function useAllOrders() {
   return useQuery({
     queryKey: ['all-orders'],
     queryFn: async () => {
-      // Fetch delivery orders
+      const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+      // Fetch delivery orders: active status OR created in last 24h
       const { data: deliveryOrders, error: deliveryError } = await supabase
         .from('orders')
         .select('*')
+        .or(`status.not.in.(completed,cancelled),created_at.gte.${last24h}`)
         .order('created_at', { ascending: false });
 
       if (deliveryError) throw deliveryError;
 
       // Fetch table orders with table info + item statuses (specify FK to avoid ambiguity)
+      // Kitchen flow uses open/requesting_bill; paid is kept for history
       const { data: tableOrders, error: tableError } = await supabase
         .from('table_orders')
         .select(`
@@ -80,8 +84,7 @@ export function useAllOrders() {
           table:tables!table_orders_table_id_fkey(id, number, name),
           items:table_order_items(status)
         `)
-        // Kitchen flow uses open/requesting_bill; paid is kept for history
-        .in('status', ['open', 'requesting_bill', 'paid', 'cancelled'])
+        .or(`status.in.(open,requesting_bill),opened_at.gte.${last24h},created_at.gte.${last24h}`)
         .order('opened_at', { ascending: false });
 
       if (tableError) throw tableError;
