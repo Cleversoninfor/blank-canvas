@@ -8,6 +8,7 @@ export interface StoreConfig {
   pix_key: string | null;
   pix_key_type: string | null;
   pix_message: string | null;
+  checkout_whatsapp_message: string | null;
   logo_url: string | null;
   cover_url: string | null;
   cover_url_mobile: string | null;
@@ -67,6 +68,7 @@ export function useStoreConfig() {
           pix_key: null,
           pix_key_type: null,
           pix_message: null,
+          checkout_whatsapp_message: null,
           logo_url: null,
           cover_url: null,
           cover_url_mobile: null,

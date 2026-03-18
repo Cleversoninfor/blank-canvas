@@ -308,11 +308,33 @@ const Checkout = () => {
       // Send WhatsApp notification (non-blocking)
       try {
         console.log('[Checkout] Sending WhatsApp notification...');
+        
+        // Prepare custom message from template
+        const itemsList = items.map((item) => `${item.quantity}x ${item.product.name}`).join('\n');
+        const paymentLabel = paymentOptions.find(p => p.id === selectedPayment)?.label || '';
+        const address = deliveryType === 'delivery' 
+          ? `${deliveryData.street}, ${deliveryData.number}${deliveryData.neighborhood ? ` - ${deliveryData.neighborhood}` : ''}`
+          : 'Retirada no local';
+        const orderLink = `${window.location.origin}/order/${order.id}`;
+
+        const template = store?.checkout_whatsapp_message || 
+          "Olá {nome}! 👋\n\nRecebemos seu pedido #{pedido}!\n\n📋 *Resumo:* \n{itens}\n\n📍 *Entrega:* {endereco}\n💳 *Pagamento:* {pagamento}\n💰 *Total:* {total}\n\n🚀 Acompanhe seu pedido aqui:\n{link}";
+        
+        const renderedMessage = template
+          .replace(/{nome}/g, deliveryData.name)
+          .replace(/{pedido}/g, String(order.id))
+          .replace(/{total}/g, formatCurrency(finalTotal))
+          .replace(/{itens}/g, itemsList)
+          .replace(/{endereco}/g, address)
+          .replace(/{pagamento}/g, paymentLabel)
+          .replace(/{link}/g, orderLink);
+
         supabase.functions.invoke('send-whatsapp-notification', {
           body: {
             orderId: order.id,
             customerName: deliveryData.name,
             customerPhone: deliveryData.phone,
+            message: renderedMessage,
             items: items.map((item) => ({
               product_name: item.product.name,
               quantity: item.quantity,

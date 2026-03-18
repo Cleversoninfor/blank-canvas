@@ -682,6 +682,7 @@ export type Database = {
         Row: {
           accent_color: string | null
           address: string | null
+          checkout_whatsapp_message: string | null
           cover_url: string | null
           cover_url_mobile: string | null
           created_at: string
@@ -729,6 +730,7 @@ export type Database = {
         Insert: {
           accent_color?: string | null
           address?: string | null
+          checkout_whatsapp_message?: string | null
           cover_url?: string | null
           cover_url_mobile?: string | null
           created_at?: string
@@ -776,6 +778,7 @@ export type Database = {
         Update: {
           accent_color?: string | null
           address?: string | null
+          checkout_whatsapp_message?: string | null
           cover_url?: string | null
           cover_url_mobile?: string | null
           created_at?: string

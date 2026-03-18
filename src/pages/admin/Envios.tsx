@@ -12,10 +12,12 @@ const AdminEnvios = () => {
   const { toast } = useToast();
   
   const [pixMessage, setPixMessage] = useState('');
+  const [checkoutMessage, setCheckoutMessage] = useState('');
 
   useEffect(() => {
     if (store) {
       setPixMessage(store.pix_message || '');
+      setCheckoutMessage(store.checkout_whatsapp_message || '');
     }
   }, [store]);
 
@@ -23,7 +25,8 @@ const AdminEnvios = () => {
     e.preventDefault();
     
     updateStore.mutate({
-      pix_message: pixMessage
+      pix_message: pixMessage,
+      checkout_whatsapp_message: checkoutMessage
     }, {
       onSuccess: () => {
         toast({
@@ -62,6 +65,32 @@ const AdminEnvios = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="bg-card rounded-xl p-4 sm:p-6 shadow-card space-y-4 border border-border/50">
+            <h3 className="font-semibold text-foreground flex items-center gap-2 text-sm sm:text-base">
+              <Send className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              Mensagem Automática de Checkout (WhatsApp)
+            </h3>
+
+            <div>
+              <label className="text-xs sm:text-sm text-muted-foreground block mb-2 font-medium">Enviada automaticamente ao finalizar o pedido</label>
+              <Textarea 
+                value={checkoutMessage} 
+                onChange={e => setCheckoutMessage(e.target.value)} 
+                placeholder="Olá {nome}! 👋&#10;&#10;Recebemos seu pedido #{pedido}!&#10;&#10;📋 *Resumo:*&#10;{itens}&#10;&#10;📍 *Entrega:* {endereco}&#10;💳 *Pagamento:* {pagamento}&#10;💰 *Total:* {total}&#10;&#10;🚀 Acompanhe seu pedido aqui:&#10;{link}"
+                className="mt-1 min-h-[180px] font-mono text-sm leading-relaxed bg-muted/20 border-border focus:border-primary transition-all"
+                rows={8}
+              />
+              
+              <div className="mt-4 p-4 rounded-xl bg-primary/5 border border-primary/10">
+                <p className="text-[10px] text-primary font-bold uppercase tracking-wider mb-1">Dica de Variável Extra:</p>
+                <div className="flex items-center gap-1.5">
+                  <code className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">{'{pagamento}'}</code>
+                  <span className="text-[10px] text-muted-foreground font-medium">Exibe a forma de pagamento escolhida</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="bg-card rounded-xl p-4 sm:p-6 shadow-card space-y-4 border border-border/50">
             <h3 className="font-semibold text-foreground flex items-center gap-2 text-sm sm:text-base">
               <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
