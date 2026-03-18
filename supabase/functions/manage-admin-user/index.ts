@@ -50,8 +50,20 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { action } = body;
 
+    // Helper to extract granular permissions
+    const extractPermissions = (source: any) => {
+      const perms: Record<string, boolean> = {};
+      for (const key in source) {
+        if (key.startsWith("perm_")) {
+          perms[key] = Boolean(source[key]);
+        }
+      }
+      return perms;
+    };
+
     if (action === "create") {
       const { usuario, senha, acesso_operacoes, acesso_gestao, acesso_sistema } = body;
+      const permissions = extractPermissions(body);
 
       if (!usuario || !senha) {
         return new Response(JSON.stringify({ error: "Usuário e senha são obrigatórios" }), {
@@ -105,8 +117,9 @@ Deno.serve(async (req) => {
           acesso_sistema: acesso_sistema ?? false,
           auth_user_id: authUser.user.id,
           login_email: loginEmail,
+          ...permissions,
         })
-        .select("id, usuario, acesso_operacoes, acesso_gestao, acesso_sistema, created_at, login_email")
+        .select("*")
         .single();
 
       if (insertError) {
@@ -126,8 +139,9 @@ Deno.serve(async (req) => {
 
     } else if (action === "update") {
       const { id, usuario, acesso_operacoes, acesso_gestao, acesso_sistema } = body;
+      const permissions = extractPermissions(body);
 
-      const updateFields: Record<string, unknown> = {};
+      const updateFields: Record<string, unknown> = { ...permissions };
       if (usuario !== undefined) updateFields.usuario = usuario;
       if (acesso_operacoes !== undefined) updateFields.acesso_operacoes = acesso_operacoes;
       if (acesso_gestao !== undefined) updateFields.acesso_gestao = acesso_gestao;
