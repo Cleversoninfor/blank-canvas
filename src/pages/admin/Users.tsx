@@ -4,12 +4,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { useAdminUsers, useCreateAdminUser, useUpdateAdminUser, useDeleteAdminUser, AdminUser } from '@/hooks/useAdminUsers';
+import {
+  useAdminUsers, useCreateAdminUser, useUpdateAdminUser, useDeleteAdminUser,
+  AdminUser, PERM_KEYS, PERM_LABELS, PermKey, PermMap,
+} from '@/hooks/useAdminUsers';
 import { Plus, Pencil, Trash2, Key, Loader2, Users as UsersIcon } from 'lucide-react';
+
+const defaultPerms = (): PermMap =>
+  Object.fromEntries(PERM_KEYS.map(k => [k, false])) as PermMap;
 
 export default function Users() {
   const { toast } = useToast();
@@ -22,15 +28,11 @@ export default function Users() {
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
   const [showPasswordDialog, setShowPasswordDialog] = useState<string | null>(null);
 
-  // Form state
   const [usuario, setUsuario] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
-  const [acessoOperacoes, setAcessoOperacoes] = useState(false);
-  const [acessoGestao, setAcessoGestao] = useState(false);
-  const [acessoSistema, setAcessoSistema] = useState(false);
+  const [permissions, setPermissions] = useState<PermMap>(defaultPerms());
 
-  // Password change state
   const [novaSenha, setNovaSenha] = useState('');
   const [confirmarNovaSenha, setConfirmarNovaSenha] = useState('');
 
@@ -38,9 +40,7 @@ export default function Users() {
     setUsuario('');
     setSenha('');
     setConfirmarSenha('');
-    setAcessoOperacoes(false);
-    setAcessoGestao(false);
-    setAcessoSistema(false);
+    setPermissions(defaultPerms());
     setEditingUser(null);
     setShowForm(false);
   };
@@ -48,12 +48,24 @@ export default function Users() {
   const openEdit = (user: AdminUser) => {
     setEditingUser(user);
     setUsuario(user.usuario);
-    setAcessoOperacoes(user.acesso_operacoes);
-    setAcessoGestao(user.acesso_gestao);
-    setAcessoSistema(user.acesso_sistema);
+    const perms = {} as PermMap;
+    PERM_KEYS.forEach(k => { perms[k] = user[k]; });
+    setPermissions(perms);
     setSenha('');
     setConfirmarSenha('');
     setShowForm(true);
+  };
+
+  const togglePerm = (key: PermKey) => {
+    setPermissions(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const selectAll = () => {
+    setPermissions(Object.fromEntries(PERM_KEYS.map(k => [k, true])) as PermMap);
+  };
+
+  const deselectAll = () => {
+    setPermissions(defaultPerms());
   };
 
   const handleSubmit = async () => {
@@ -75,9 +87,7 @@ export default function Users() {
         await createUser.mutateAsync({
           usuario: usuario.trim(),
           senha,
-          acesso_operacoes: acessoOperacoes,
-          acesso_gestao: acessoGestao,
-          acesso_sistema: acessoSistema,
+          permissions,
         });
         toast({ title: 'Sucesso', description: 'Usuário criado com sucesso.' });
         resetForm();
@@ -89,9 +99,7 @@ export default function Users() {
         await updateUser.mutateAsync({
           id: editingUser.id,
           usuario: usuario.trim(),
-          acesso_operacoes: acessoOperacoes,
-          acesso_gestao: acessoGestao,
-          acesso_sistema: acessoSistema,
+          permissions,
         });
         toast({ title: 'Sucesso', description: 'Usuário atualizado.' });
         resetForm();
@@ -131,21 +139,26 @@ export default function Users() {
     }
   };
 
-  const PermissionBadges = ({ user }: { user: AdminUser }) => (
-    <div className="flex flex-wrap gap-1">
-      {user.acesso_operacoes && <Badge variant="secondary" className="text-xs">Operações</Badge>}
-      {user.acesso_gestao && <Badge variant="secondary" className="text-xs">Gestão</Badge>}
-      {user.acesso_sistema && <Badge variant="secondary" className="text-xs">Sistema</Badge>}
-      {!user.acesso_operacoes && !user.acesso_gestao && !user.acesso_sistema && (
-        <Badge variant="outline" className="text-xs text-muted-foreground">Sem permissões</Badge>
-      )}
-    </div>
-  );
+  const PermissionBadges = ({ user }: { user: AdminUser }) => {
+    const activePerms = PERM_KEYS.filter(k => user[k]);
+    if (activePerms.length === 0) {
+      return <Badge variant="outline" className="text-xs text-muted-foreground">Sem permissões</Badge>;
+    }
+    if (activePerms.length === PERM_KEYS.length) {
+      return <Badge variant="secondary" className="text-xs">Acesso total</Badge>;
+    }
+    return (
+      <div className="flex flex-wrap gap-1">
+        {activePerms.map(k => (
+          <Badge key={k} variant="secondary" className="text-xs">{PERM_LABELS[k]}</Badge>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <AdminLayout title="Usuários">
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <UsersIcon className="h-5 w-5 text-primary" />
@@ -156,7 +169,6 @@ export default function Users() {
           </Button>
         </div>
 
-        {/* Create/Edit Form */}
         {showForm && (
           <Card className="admin-card">
             <CardHeader>
@@ -184,31 +196,28 @@ export default function Users() {
                 )}
               </div>
 
-              {/* Permissions */}
+              {/* Per-menu permissions */}
               <div className="space-y-3">
-                <Label className="text-sm font-semibold">Permissões de acesso</Label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="flex items-center justify-between rounded-lg border p-3">
-                    <div>
-                      <p className="text-sm font-medium">Operações</p>
-                      <p className="text-xs text-muted-foreground">Dashboard, Cozinha, Entregadores, PDV</p>
-                    </div>
-                    <Switch checked={acessoOperacoes} onCheckedChange={setAcessoOperacoes} />
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-semibold">Permissões de acesso</Label>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" type="button" onClick={selectAll}>Selecionar todos</Button>
+                    <Button variant="outline" size="sm" type="button" onClick={deselectAll}>Desmarcar todos</Button>
                   </div>
-                  <div className="flex items-center justify-between rounded-lg border p-3">
-                    <div>
-                      <p className="text-sm font-medium">Gestão</p>
-                      <p className="text-xs text-muted-foreground">Pedidos, Produtos, Categorias, Cupons</p>
-                    </div>
-                    <Switch checked={acessoGestao} onCheckedChange={setAcessoGestao} />
-                  </div>
-                  <div className="flex items-center justify-between rounded-lg border p-3">
-                    <div>
-                      <p className="text-sm font-medium">Sistema</p>
-                      <p className="text-xs text-muted-foreground">Configurações, Horários, QR Codes</p>
-                    </div>
-                    <Switch checked={acessoSistema} onCheckedChange={setAcessoSistema} />
-                  </div>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                  {PERM_KEYS.map(key => (
+                    <label
+                      key={key}
+                      className="flex items-center gap-2 rounded-lg border p-3 cursor-pointer hover:bg-accent/50 transition-colors"
+                    >
+                      <Checkbox
+                        checked={permissions[key]}
+                        onCheckedChange={() => togglePerm(key)}
+                      />
+                      <span className="text-sm font-medium">{PERM_LABELS[key]}</span>
+                    </label>
+                  ))}
                 </div>
               </div>
 
@@ -223,7 +232,6 @@ export default function Users() {
           </Card>
         )}
 
-        {/* Users List */}
         {isLoading ? (
           <div className="flex justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -264,7 +272,6 @@ export default function Users() {
         )}
       </div>
 
-      {/* Change Password Dialog */}
       <Dialog open={!!showPasswordDialog} onOpenChange={() => setShowPasswordDialog(null)}>
         <DialogContent>
           <DialogHeader>

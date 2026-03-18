@@ -13,9 +13,7 @@ import {
   Loader2,
   Menu,
   X,
-  Store,
   LayoutDashboard,
-  Users,
   ClipboardList,
   PlusCircle,
   ExternalLink,
@@ -42,48 +40,50 @@ import { usePWAConfig } from '@/hooks/usePWAConfig';
 import { cn } from '@/lib/utils';
 import { GlobalOrderNotification } from './GlobalOrderNotification';
 import { InfornexaHeader } from './InfornexaHeader';
+import type { PermKey } from '@/hooks/useAdminUsers';
 
 interface AdminLayoutProps {
   children: ReactNode;
   title?: string;
 }
 
+// Each nav item now has a permKey linking to the per-menu permission column
 const navGroups = [
   {
     label: 'Operações',
     items: [
-      { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
-      { id: 'kitchen', label: 'Cozinha', icon: ChefHat, path: '/kitchen', external: true },
-      { id: 'drivers', label: 'Entregadores', icon: Truck, path: '/admin/drivers' },
-      { id: 'pdv', label: 'PDV', icon: Monitor, path: '/pdv', external: true },
+      { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/admin', permKey: 'perm_dashboard' as PermKey },
+      { id: 'kitchen', label: 'Cozinha', icon: ChefHat, path: '/kitchen', external: true, permKey: 'perm_cozinha' as PermKey },
+      { id: 'drivers', label: 'Entregadores', icon: Truck, path: '/admin/drivers', permKey: 'perm_entregadores' as PermKey },
+      { id: 'pdv', label: 'PDV', icon: Monitor, path: '/pdv', external: true, permKey: 'perm_pdv' as PermKey },
     ]
   },
   {
     label: 'Gestão',
     items: [
-      { id: 'orders', label: 'Pedidos', icon: ClipboardList, path: '/admin/orders' },
-      { id: 'products', label: 'Produtos', icon: ShoppingBag, path: '/admin/products' },
-      { id: 'categories', label: 'Categorias', icon: Tag, path: '/admin/categories' },
-      { id: 'addons', label: 'Acréscimos', icon: PlusCircle, path: '/admin/addons' },
-      { id: 'coupons', label: 'Cupons', icon: Ticket, path: '/admin/coupons' },
-      { id: 'reports', label: 'Relatórios', icon: BarChart3, path: '/admin/reports' },
+      { id: 'orders', label: 'Pedidos', icon: ClipboardList, path: '/admin/orders', permKey: 'perm_pedidos' as PermKey },
+      { id: 'products', label: 'Produtos', icon: ShoppingBag, path: '/admin/products', permKey: 'perm_produtos' as PermKey },
+      { id: 'categories', label: 'Categorias', icon: Tag, path: '/admin/categories', permKey: 'perm_categorias' as PermKey },
+      { id: 'addons', label: 'Acréscimos', icon: PlusCircle, path: '/admin/addons', permKey: 'perm_acrescimos' as PermKey },
+      { id: 'coupons', label: 'Cupons', icon: Ticket, path: '/admin/coupons', permKey: 'perm_cupons' as PermKey },
+      { id: 'reports', label: 'Relatórios', icon: BarChart3, path: '/admin/reports', permKey: 'perm_relatorios' as PermKey },
     ]
   },
   {
     label: 'Sistema',
     items: [
-      { id: 'delivery-zones', label: 'Taxas de Entrega', icon: MapPin, path: '/admin/delivery-zones' },
-      { id: 'hours', label: 'Horários', icon: Clock, path: '/admin/hours' },
-      { id: 'settings', label: 'Configurações', icon: Settings, path: '/admin/settings' },
-      { id: 'qrcodes', label: 'QR Codes', icon: QrCode, path: '/admin/qrcodes' },
-      { id: 'users', label: 'Usuários', icon: UsersIcon, path: '/admin/users' },
-      { id: 'backup', label: 'Backup', icon: DatabaseBackup, path: '/admin/backup' },
+      { id: 'delivery-zones', label: 'Taxas de Entrega', icon: MapPin, path: '/admin/delivery-zones', permKey: 'perm_taxas_entrega' as PermKey },
+      { id: 'hours', label: 'Horários', icon: Clock, path: '/admin/hours', permKey: 'perm_horarios' as PermKey },
+      { id: 'settings', label: 'Configurações', icon: Settings, path: '/admin/settings', permKey: 'perm_configuracoes' as PermKey },
+      { id: 'qrcodes', label: 'QR Codes', icon: QrCode, path: '/admin/qrcodes', permKey: 'perm_qrcode' as PermKey },
+      { id: 'users', label: 'Usuários', icon: UsersIcon, path: '/admin/users', permKey: 'perm_usuarios' as PermKey },
+      { id: 'backup', label: 'Backup', icon: DatabaseBackup, path: '/admin/backup', permKey: 'perm_backup' as PermKey },
     ]
   },
   {
     label: 'Visualizar',
     items: [
-      { id: 'menu', label: 'Ver Cardápio', icon: Eye, path: '/', external: true },
+      { id: 'menu', label: 'Ver Cardápio', icon: Eye, path: '/', external: true, permKey: undefined },
     ]
   }
 ];
@@ -100,15 +100,14 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
   useTheme();
   usePWAConfig();
 
-  // Fetch admin_users permissions for current user
+  // Fetch per-menu permissions for current user
   const { data: adminUserPerms } = useQuery({
     queryKey: ['admin-user-perms', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
-      // Match by auth_user_id (linked account) or by email/username
       const { data } = await supabase
         .from('admin_users')
-        .select('acesso_operacoes, acesso_gestao, acesso_sistema')
+        .select('perm_dashboard, perm_cozinha, perm_entregadores, perm_pdv, perm_pedidos, perm_produtos, perm_categorias, perm_acrescimos, perm_cupons, perm_relatorios, perm_taxas_entrega, perm_horarios, perm_configuracoes, perm_qrcode, perm_usuarios, perm_backup')
         .or(`auth_user_id.eq.${user.id},usuario.eq.${user.email},usuario.eq.${user.email?.split('@')[0]}`)
         .maybeSingle();
       return data;
@@ -116,15 +115,17 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
     enabled: !!user?.id && isAdmin,
   });
 
-  // Filter nav groups based on permissions
-  // If no admin_users record found, show all (backwards compatible for existing admins)
-  const filteredNavGroups = navGroups.filter(group => {
-    if (!adminUserPerms) return true; // No restrictions if no record
-    if (group.label === 'Operações') return adminUserPerms.acesso_operacoes;
-    if (group.label === 'Gestão') return adminUserPerms.acesso_gestao;
-    if (group.label === 'Sistema') return adminUserPerms.acesso_sistema;
-    return true; // Always show 'Visualizar'
-  });
+  // Filter nav: show item if no record found (backwards compat) or if perm is true
+  const filteredNavGroups = navGroups
+    .map(group => ({
+      ...group,
+      items: group.items.filter(item => {
+        if (!item.permKey) return true; // e.g. "Ver Cardápio"
+        if (!adminUserPerms) return true; // no record = show all
+        return (adminUserPerms as any)[item.permKey] === true;
+      }),
+    }))
+    .filter(group => group.items.length > 0);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -192,7 +193,6 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
       <InfornexaHeader />
 
       <div className="min-h-screen flex" style={{ backgroundColor: 'hsl(var(--admin-bg))' }}>
-        {/* Mobile Sidebar Overlay */}
         {sidebarOpen && (
           <div 
             className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
@@ -200,12 +200,10 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
           />
         )}
 
-        {/* Sidebar */}
         <aside className={cn(
           "fixed lg:static inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 lg:translate-x-0 flex flex-col",
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )} style={{ backgroundColor: 'hsl(var(--sidebar-background))' }}>
-          {/* Sidebar Header */}
           <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center overflow-hidden">
@@ -227,7 +225,6 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
             </button>
           </div>
 
-          {/* Navigation */}
           <nav className="flex-1 p-3 space-y-4 overflow-y-auto scrollbar-hide">
             {filteredNavGroups.map((group) => (
               <div key={group.label}>
@@ -279,13 +276,12 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
             ))}
           </nav>
 
-          {/* User Section */}
           <div className="p-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
             <div className="hidden lg:block mb-3">
               <PWAInstallButton appName="Administração" />
             </div>
             
-          <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-3 mb-3">
               <div className="h-9 w-9 rounded-full bg-white/10 flex items-center justify-center">
                 <span className="text-sm font-medium text-white">
                   {(user.user_metadata?.admin_usuario || user.email)?.charAt(0).toUpperCase()}
@@ -313,9 +309,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
           </div>
         </aside>
 
-        {/* Main Content */}
         <div className="flex-1 flex flex-col min-h-screen min-w-0 overflow-x-hidden">
-          {/* Top Bar */}
           <header className="sticky top-0 z-30 flex items-center gap-3 px-4 sm:px-6 py-3 shadow-sm" 
             style={{ backgroundColor: 'hsl(var(--admin-topbar))' }}>
             <button 
@@ -328,7 +322,6 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
             <PWAInstallButton appName="Administração" />
           </header>
 
-          {/* Content */}
           <main className="flex-1 p-4 sm:p-6 overflow-x-hidden">
             {children}
           </main>
