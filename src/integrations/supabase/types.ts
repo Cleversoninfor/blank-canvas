@@ -94,6 +94,22 @@ export type Database = {
           created_at: string
           id: string
           login_email: string | null
+          perm_acrescimos: boolean
+          perm_backup: boolean
+          perm_categorias: boolean
+          perm_configuracoes: boolean
+          perm_cozinha: boolean
+          perm_cupons: boolean
+          perm_dashboard: boolean
+          perm_entregadores: boolean
+          perm_horarios: boolean
+          perm_pdv: boolean
+          perm_pedidos: boolean
+          perm_produtos: boolean
+          perm_qrcode: boolean
+          perm_relatorios: boolean
+          perm_taxas_entrega: boolean
+          perm_usuarios: boolean
           senha: string
           updated_at: string
           usuario: string
@@ -106,6 +122,22 @@ export type Database = {
           created_at?: string
           id?: string
           login_email?: string | null
+          perm_acrescimos?: boolean
+          perm_backup?: boolean
+          perm_categorias?: boolean
+          perm_configuracoes?: boolean
+          perm_cozinha?: boolean
+          perm_cupons?: boolean
+          perm_dashboard?: boolean
+          perm_entregadores?: boolean
+          perm_horarios?: boolean
+          perm_pdv?: boolean
+          perm_pedidos?: boolean
+          perm_produtos?: boolean
+          perm_qrcode?: boolean
+          perm_relatorios?: boolean
+          perm_taxas_entrega?: boolean
+          perm_usuarios?: boolean
           senha: string
           updated_at?: string
           usuario: string
@@ -118,6 +150,22 @@ export type Database = {
           created_at?: string
           id?: string
           login_email?: string | null
+          perm_acrescimos?: boolean
+          perm_backup?: boolean
+          perm_categorias?: boolean
+          perm_configuracoes?: boolean
+          perm_cozinha?: boolean
+          perm_cupons?: boolean
+          perm_dashboard?: boolean
+          perm_entregadores?: boolean
+          perm_horarios?: boolean
+          perm_pdv?: boolean
+          perm_pedidos?: boolean
+          perm_produtos?: boolean
+          perm_qrcode?: boolean
+          perm_relatorios?: boolean
+          perm_taxas_entrega?: boolean
+          perm_usuarios?: boolean
           senha?: string
           updated_at?: string
           usuario?: string
