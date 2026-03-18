@@ -65,8 +65,8 @@ export function StoreInfo({ store }: StoreInfoProps) {
         {/* Status */}
         <div className="flex items-center justify-between rounded-xl bg-card p-4 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className={`flex h-10 w-10 items-center justify-center rounded-full ${storeStatus.isOpen ? 'bg-secondary/20' : 'bg-destructive/20'}`}>
-              <Clock className={`h-5 w-5 ${storeStatus.isOpen ? 'text-secondary' : 'text-destructive'}`} />
+            <div className={`flex h-10 w-10 items-center justify-center rounded-full ${storeStatus.isOpen ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
+              <Clock className={`h-5 w-5 ${storeStatus.isOpen ? 'text-green-500' : 'text-red-500'}`} />
             </div>
             <div>
               <p className={`text-sm font-semibold ${storeStatus.isOpen ? 'text-green-500' : 'text-red-500'}`}>
