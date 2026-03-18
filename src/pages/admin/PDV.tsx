@@ -42,7 +42,8 @@ const PDVHeader = ({ title }: { title: string }) => (
 
 const PDV = () => {
   const { toast } = useToast();
-  const { data: comandas = [], isLoading: loadingComandas } = useComandas();
+  const { data: comandasData, isLoading: loadingComandas } = useComandas();
+  const comandas = Array.isArray(comandasData) ? comandasData : [];
   const createOrder = useCreateComandaOrder();
   const updateStatus = useUpdateComandaStatus();
   const { data: activeSession, isLoading: loadingSession } = useOpenedSession();

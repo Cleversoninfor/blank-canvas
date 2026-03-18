@@ -18,7 +18,8 @@ interface ComandaConsumoCardProps {
 
 export function ComandaConsumoCard({ comanda, onAddMore }: ComandaConsumoCardProps) {
   const [expanded, setExpanded] = useState(false);
-  const { data: orders = [], isLoading } = useComandaOrderDetails(comanda.id);
+  const { data: ordersData, isLoading } = useComandaOrderDetails(comanda.id);
+  const orders = Array.isArray(ordersData) ? ordersData : [];
 
   const allItems = useMemo(() => {
     const itemMap = new Map<string, { product_name: string; quantity: number; unit_price: number; observation?: string }>();

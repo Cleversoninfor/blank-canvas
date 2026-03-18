@@ -42,6 +42,15 @@ const formatCurrency = (v: unknown) => {
   return safeValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 };
 
+const PDVHeader = ({ title }: { title: string }) => (
+  <div className="sticky top-0 z-50 flex items-center gap-4 px-6 sm:px-10 py-5 bg-primary/95 backdrop-blur-md text-primary-foreground shadow-lg mb-8 -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 rounded-b-[2rem]">
+    <div className="bg-white/20 p-2 rounded-xl">
+      <Receipt className="h-6 w-6" />
+    </div>
+    <h1 className="font-bold text-lg sm:text-xl flex-1 tracking-tight">{title}</h1>
+  </div>
+);
+
 const PDVPublic = () => {
   const { toast } = useToast();
   const { data: store, isLoading: loadingStore } = useStoreConfig();
@@ -52,7 +61,8 @@ const PDVPublic = () => {
   useTheme();
 
   // PDV state
-  const { data: comandas = [], isLoading: loadingComandas } = useComandas();
+  const { data: comandasData, isLoading: loadingComandas } = useComandas();
+  const comandas = Array.isArray(comandasData) ? comandasData : [];
   const { data: productsData, isLoading: loadingProducts, error: productsError } = useProducts();
   const products = Array.isArray(productsData) ? productsData : [];
   const { data: categoriesData, isLoading: loadingCategories } = useCategories();
@@ -231,22 +241,6 @@ const PDVPublic = () => {
     ));
   };
 
-  const PDVHeader = ({ title }: { title: string }) => (
-    <div className="sticky top-0 z-50 flex items-center gap-4 px-6 sm:px-10 py-5 bg-primary/95 backdrop-blur-md text-primary-foreground shadow-lg mb-8 -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 rounded-b-[2rem]">
-      <div className="bg-white/20 p-2 rounded-xl">
-        <Receipt className="h-6 w-6" />
-      </div>
-      <h1 className="font-bold text-lg sm:text-xl flex-1 tracking-tight">{title}</h1>
-      <Button 
-        variant="ghost" 
-        size="sm" 
-        className="text-primary-foreground hover:bg-white/20 transition-colors" 
-        onClick={() => setAuthenticated(false)}
-      >
-        Sair
-      </Button>
-    </div>
-  );
 
   // === LOGIN SCREEN ===
   if (!authenticated) {

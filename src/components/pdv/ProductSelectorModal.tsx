@@ -29,8 +29,10 @@ export function ProductSelectorModal({ open, comandaNumero, onClose, onConfirm, 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  const { data: allProducts = [], isLoading: loadingProducts } = useProducts();
-  const { data: categories = [] } = useCategories();
+  const { data: allProductsData, isLoading: loadingProducts } = useProducts();
+  const allProducts = Array.isArray(allProductsData) ? allProductsData : [];
+  const { data: categoriesData } = useCategories();
+  const categories = Array.isArray(categoriesData) ? categoriesData : [];
 
   const filteredProducts = allProducts.filter(p => {
     const matchesSearch = !searchTerm ||

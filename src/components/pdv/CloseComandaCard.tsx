@@ -22,7 +22,8 @@ interface CloseComandaCardProps {
 }
 
 export function CloseComandaCard({ comanda, onClose, onTransfer, onDelete, deleteIsPending }: CloseComandaCardProps) {
-  const { data: orders = [], isLoading } = useComandaOrderDetails(comanda.id);
+  const { data: ordersData, isLoading } = useComandaOrderDetails(comanda.id);
+  const orders = Array.isArray(ordersData) ? ordersData : [];
   const { data: store } = useStoreConfig();
 
   const total = useMemo(() => {

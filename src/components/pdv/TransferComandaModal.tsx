@@ -15,7 +15,8 @@ interface TransferComandaModalProps {
 
 export function TransferComandaModal({ sourceComanda, open, onClose }: TransferComandaModalProps) {
   const { toast } = useToast();
-  const { data: comandas = [], isLoading } = useComandas();
+  const { data: comandasData, isLoading } = useComandas();
+  const comandas = Array.isArray(comandasData) ? comandasData : [];
   const transferOrders = useTransferOrders();
   const [targetComanda, setTargetComanda] = useState<Comanda | null>(null);
 
