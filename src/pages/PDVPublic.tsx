@@ -302,15 +302,14 @@ const PDVPublic = () => {
             <PDVHeader title="Fechar Venda" onLogout={() => setAuthenticated(false)} />
             <Button variant="ghost" onClick={() => setView('main')}><ArrowLeft className="h-4 w-4 mr-2" /> Voltar</Button>
             <h2 className="text-xl font-bold">Selecione a Comanda para Fechar</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {ocupadas.map(c => (
-                <Card key={c.id} className="cursor-pointer hover:ring-4 hover:ring-destructive/20 transition-all p-2" onClick={() => setCloseSaleComanda(c)}>
-                  <CardContent className="p-6 text-center">
-                    <div className="bg-red-100 p-3 rounded-full w-fit mx-auto mb-4 text-red-600"><Lock className="h-6 w-6" /></div>
-                    <p className="font-bold text-xl">#{c.numero_comanda}</p>
-                    <Badge variant="destructive" className="mt-2 text-[10px]">Ocupada</Badge>
-                  </CardContent>
-                </Card>
+                <CloseComandaCard 
+                  key={c.id} 
+                  comanda={c} 
+                  onClose={() => setCloseSaleComanda(c)}
+                  onTransfer={() => setTransferSourceComanda(c)}
+                />
               ))}
             </div>
           </div>

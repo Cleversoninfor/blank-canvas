@@ -20,6 +20,7 @@ import { SangriaModal } from '@/components/pdv/SangriaModal';
 import { Product } from '@/hooks/useProducts';
 import { CloseSaleModal } from '@/components/pdv/CloseSaleModal';
 import { ProductSelectorModal } from '@/components/pdv/ProductSelectorModal';
+import { CloseComandaCard } from '@/components/pdv/CloseComandaCard';
 
 interface CartItem {
   product: Product;
@@ -131,13 +132,12 @@ const PDV = () => {
             {ocupadas.length === 0 ? <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma comanda ocupada.</CardContent></Card> : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {ocupadas.map(comanda => (
-                  <Card key={comanda.id} className="cursor-pointer hover:ring-2 hover:ring-destructive/30 transition-all active:scale-[0.97]" onClick={() => setCloseSaleComanda(comanda)}>
-                    <CardContent className="p-4 text-center">
-                      <Lock className="h-8 w-8 mx-auto mb-2 text-destructive" />
-                      <p className="font-bold text-lg">Comanda #{comanda.numero_comanda}</p>
-                      <Badge variant="destructive" className="mt-1">Ocupada</Badge>
-                    </CardContent>
-                  </Card>
+                  <CloseComandaCard 
+                    key={comanda.id} 
+                    comanda={comanda} 
+                    onClose={() => setCloseSaleComanda(comanda)}
+                    onTransfer={() => setView('main')} // Simplificado para admin
+                  />
                 ))}
               </div>
             )}
