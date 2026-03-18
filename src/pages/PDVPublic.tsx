@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  Plus, Trash2, ShoppingCart, Hash, ArrowLeft, Search, ArrowRight,
+  Trash2, ShoppingCart, ArrowLeft, Search, ArrowRight,
   Loader2, Receipt, Package, LockOpen, Lock, KeyRound, ClipboardList,
 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import {
-  useComandas, useCreateComanda, useDeleteComanda,
+  useComandas,
   useCreateComandaOrder, useUpdateComandaStatus, Comanda,
 } from '@/hooks/useComandas';
 import { useProducts, Product } from '@/hooks/useProducts';
@@ -53,14 +53,10 @@ const PDVPublic = () => {
   const products = Array.isArray(productsData) ? productsData : [];
   const { data: categoriesData, isLoading: loadingCategories } = useCategories();
   const categories = Array.isArray(categoriesData) ? categoriesData : [];
-  const createComanda = useCreateComanda();
-  const deleteComanda = useDeleteComanda();
   const createOrder = useCreateComandaOrder();
   const updateStatus = useUpdateComandaStatus();
 
   const [view, setView] = useState<PDVView>('main');
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newNumero, setNewNumero] = useState('');
   const [selectedComanda, setSelectedComanda] = useState<Comanda | null>(null);
   const [selectorComanda, setSelectorComanda] = useState<Comanda | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -129,30 +125,6 @@ const PDVPublic = () => {
   }
 
   // === PDV HANDLERS (same as admin PDV) ===
-  const handleCreateComanda = async () => {
-    const num = parseInt(newNumero);
-    if (isNaN(num) || num <= 0) {
-      toast({ title: 'Número inválido', description: 'Informe um número válido para a comanda.', variant: 'destructive' });
-      return;
-    }
-    try {
-      await createComanda.mutateAsync(num);
-      toast({ title: 'Comanda criada', description: `Comanda #${num} criada com sucesso.` });
-      setNewNumero('');
-      setShowCreateForm(false);
-    } catch (err: any) {
-      toast({ title: 'Erro', description: err.message?.includes('unique') ? 'Já existe uma comanda com esse número.' : err.message, variant: 'destructive' });
-    }
-  };
-
-  const handleDeleteComanda = async (comanda: Comanda) => {
-    try {
-      await deleteComanda.mutateAsync(comanda.id);
-      toast({ title: 'Comanda excluída', description: `Comanda #${comanda.numero_comanda} foi removida.` });
-    } catch (err: any) {
-      toast({ title: 'Erro', description: err.message, variant: 'destructive' });
-    }
-  };
 
   const handleSelectComanda = (comanda: Comanda) => {
     setSelectorComanda(comanda);
@@ -449,19 +421,6 @@ const PDVPublic = () => {
                         onClick={() => isLivre && handleSelectComanda(comanda)}
                       >
                         <CardContent className="p-8 text-center">
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            className="absolute top-2 right-2 h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 z-10"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteComanda(comanda);
-                            }}
-                            title="Excluir comanda"
-                            disabled={deleteComanda.isPending}
-                          >
-                            {deleteComanda.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                          </Button>
                           {isLivre ? (
                             <div className="bg-green-100 p-3 rounded-full w-fit mx-auto mb-4">
                               <LockOpen className="h-8 w-8 text-green-600" />
@@ -565,8 +524,6 @@ const PDVPublic = () => {
                     comanda={comanda}
                     onClose={() => setCloseSaleComanda(comanda)}
                     onTransfer={() => setTransferSourceComanda(comanda)}
-                    onDelete={() => handleDeleteComanda(comanda)}
-                    deleteIsPending={deleteComanda.isPending}
                   />
                 ))}
               </div>
@@ -595,58 +552,7 @@ const PDVPublic = () => {
         <div className="max-w-7xl mx-auto space-y-10">
           <PDVHeader title="PDV Central" />
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Criar Comanda */}
-            <Card className="admin-card border-none shadow-xl overflow-hidden">
-              <CardHeader className="bg-primary/5 pb-2">
-                <CardTitle className="flex items-center gap-3 text-lg font-bold">
-                  <div className="p-2 bg-primary/20 rounded-lg text-primary">
-                    <Hash className="h-5 w-5" />
-                  </div>
-                  Criar Comanda
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6 p-6">
-                {!showCreateForm ? (
-                  <Button onClick={() => setShowCreateForm(true)} className="w-full">
-                    <Plus className="h-4 w-4 mr-2" /> Nova Comanda
-                  </Button>
-                ) : (
-                  <div className="flex gap-2">
-                    <Input type="number" placeholder="Nº da Comanda" value={newNumero} onChange={e => setNewNumero(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleCreateComanda()} />
-                    <Button onClick={handleCreateComanda} disabled={createComanda.isPending}>
-                      {createComanda.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Criar'}
-                    </Button>
-                    <Button variant="ghost" onClick={() => { setShowCreateForm(false); setNewNumero(''); }}>Cancelar</Button>
-                  </div>
-                )}
-                {loadingComandas ? (
-                  <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin" /></div>
-                ) : comandas.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">Nenhuma comanda criada</p>
-                ) : (
-                  <div className="space-y-2 max-h-60 overflow-y-auto">
-                    {comandas.map(comanda => (
-                      <div key={comanda.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                        <div className="flex items-center gap-2">
-                          <Receipt className="h-4 w-4 text-primary" />
-                          <span className="font-medium">#{comanda.numero_comanda}</span>
-                          <Badge variant={comanda.status === 'livre' ? 'default' : 'destructive'} className="text-xs">
-                            {comanda.status === 'livre' ? 'Livre' : 'Ocupada'}
-                          </Badge>
-                        </div>
-                        {comanda.status === 'livre' && (
-                          <Button variant="action-icon-destructive" size="icon-sm" onClick={() => handleDeleteComanda(comanda)}>
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Abrir Venda */}
             <Card 
               className="admin-card border-none shadow-xl cursor-pointer hover:ring-4 hover:ring-primary/20 transition-all group" 

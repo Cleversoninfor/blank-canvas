@@ -17,8 +17,8 @@ interface CloseComandaCardProps {
   comanda: Comanda;
   onClose: () => void;
   onTransfer: () => void;
-  onDelete: () => void;
-  deleteIsPending: boolean;
+  onDelete?: () => void;
+  deleteIsPending?: boolean;
 }
 
 export function CloseComandaCard({ comanda, onClose, onTransfer, onDelete, deleteIsPending }: CloseComandaCardProps) {
@@ -96,16 +96,18 @@ export function CloseComandaCard({ comanda, onClose, onTransfer, onDelete, delet
       onClick={onClose}
     >
       <CardContent className="p-8 text-center">
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 z-10"
-          onClick={(e) => { e.stopPropagation(); onDelete(); }}
-          title="Excluir comanda"
-          disabled={deleteIsPending}
-        >
-          {deleteIsPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
-        </Button>
+        {onDelete && (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="absolute top-1 right-1 h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 z-10"
+            onClick={(e) => { e.stopPropagation(); onDelete(); }}
+            title="Excluir comanda"
+            disabled={deleteIsPending}
+          >
+            {deleteIsPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
+          </Button>
+        )}
         
         <Lock className="h-8 w-8 mx-auto mb-2 text-destructive" />
         <p className="font-bold text-lg">Comanda #{comanda.numero_comanda}</p>
