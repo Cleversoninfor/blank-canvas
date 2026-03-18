@@ -14,6 +14,11 @@ const loginSchema = z.object({
   password: z.string().min(6, { message: 'Senha deve ter pelo menos 6 caracteres' }),
 });
 
+const adminLoginSchema = z.object({
+  email: z.string().trim().min(1, { message: 'Digite seu email ou usuário' }),
+  password: z.string().min(6, { message: 'Senha deve ter pelo menos 6 caracteres' }),
+});
+
 type AuthMode = 'login' | 'signup' | 'forgot';
 
 const Auth = () => {
