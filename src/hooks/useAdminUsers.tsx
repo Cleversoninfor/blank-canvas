@@ -89,18 +89,16 @@ async function callManageAdminUser(body: Record<string, unknown>) {
   return res.data;
 }
 
-const PERM_SELECT = PERM_KEYS.join(', ');
-
 export function useAdminUsers() {
   return useQuery({
     queryKey: ['admin-users'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('admin_users')
-        .select(`id, usuario, acesso_operacoes, acesso_gestao, acesso_sistema, created_at, login_email, ${PERM_SELECT}`)
+        .select('id, usuario, acesso_operacoes, acesso_gestao, acesso_sistema, created_at, login_email, perm_dashboard, perm_cozinha, perm_entregadores, perm_pdv, perm_pedidos, perm_produtos, perm_categorias, perm_acrescimos, perm_cupons, perm_relatorios, perm_taxas_entrega, perm_horarios, perm_configuracoes, perm_qrcode, perm_usuarios, perm_backup')
         .order('created_at', { ascending: true });
       if (error) throw error;
-      return data as AdminUser[];
+      return data as unknown as AdminUser[];
     },
   });
 }
