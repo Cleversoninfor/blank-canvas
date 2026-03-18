@@ -75,7 +75,7 @@ function DroppableColumn({ id, children, color, label, count }: { id: string; ch
   const { isOver, setNodeRef } = useDroppable({ id });
 
   return (
-    <div ref={setNodeRef} className={`rounded-2xl ${color} p-4 sm:p-6 transition-all ${isOver ? 'ring-2 ring-primary ring-offset-2' : ''} border border-border/50`}>
+    <div ref={setNodeRef} className={`rounded-2xl ${color} p-6 sm:p-8 transition-all ${isOver ? 'ring-2 ring-primary ring-offset-2' : ''} border border-border/50`}>
       <div className="flex items-center justify-between mb-6 border-b border-border/20 pb-4">
         <div className="flex items-center gap-3">
           <div className="h-3 w-3 rounded-full bg-primary" />
@@ -86,7 +86,7 @@ function DroppableColumn({ id, children, color, label, count }: { id: string; ch
         </Badge>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6 min-h-[50px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4 sm:gap-6 min-h-[50px]">
         {children}
       </div>
       
@@ -243,7 +243,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
   const isCompleted = order.status === 'completed';
 
   return (
-    <div className="rounded-2xl bg-card p-5 sm:p-6 shadow-card animate-slide-up min-w-0 cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all border border-border/40" onClick={() => onOpenDetails(order)}>
+    <div className="rounded-2xl bg-card p-6 sm:p-7 shadow-card animate-slide-up min-w-0 cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all border border-border/40" onClick={() => onOpenDetails(order)}>
       {/* Order Header */}
       <div className="mb-3">
         <div className="flex items-center gap-2 mb-1">
@@ -287,18 +287,18 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
 
       {/* Order Footer */}
       <div className="border-t border-border pt-3 space-y-2">
-        <div className="flex items-center justify-between gap-2 mb-4">
-          <p className="font-bold text-xl sm:text-3xl text-foreground whitespace-nowrap">{formatCurrency(order.total_amount)}</p>
-          <div className="flex gap-1.5">
+        <div className="flex flex-col gap-4 mb-4">
+          <p className="font-bold text-2xl sm:text-4xl text-foreground">{formatCurrency(order.total_amount)}</p>
+          <div className="flex flex-wrap gap-2">
             {order.payment_method === 'pix' && !isComanda && (
-              <Button size="sm" variant="outline" className="h-8 py-0 gap-1.5 text-[10px] sm:text-xs" onClick={sendPixCharge}>
-                <MessageSquare className="h-3.5 w-3.5" />
+              <Button size="sm" variant="outline" className="h-10 py-0 gap-2 text-xs sm:text-base flex-1 min-w-[140px]" onClick={sendPixCharge}>
+                <MessageSquare className="h-4 w-4" />
                 Cobrar PIX
               </Button>
             )}
             {order.status === 'preparing' && (
-              <Button size="sm" variant="outline" className="h-8 py-0 gap-1.5 text-[10px] sm:text-xs border-[#25D366] text-[#25D366] hover:bg-[#25D366]/10" onClick={sendStatusWhatsApp}>
-                <MessageSquare className="h-3.5 w-3.5" />
+              <Button size="sm" variant="outline" className="h-10 py-0 gap-2 text-xs sm:text-base border-[#25D366] text-[#25D366] hover:bg-[#25D366]/10 flex-1 min-w-[140px]" onClick={sendStatusWhatsApp}>
+                <MessageSquare className="h-4 w-4" />
                 WhatsApp Cliente
               </Button>
             )}
