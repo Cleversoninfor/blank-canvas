@@ -477,31 +477,6 @@ const AdminSettings = () => {
             </div>
           </div>
 
-          {/* PIX Message */}
-          <div className="bg-card rounded-xl p-4 sm:p-6 shadow-card space-y-4">
-            <h3 className="font-semibold text-foreground flex items-center gap-2 text-sm sm:text-base">
-              <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-              Mensagem de Cobrança PIX
-            </h3>
-
-            <div>
-              <label className="text-xs sm:text-sm text-muted-foreground">Mensagem personalizada</label>
-              <Textarea 
-                value={formData.pix_message} 
-                onChange={e => setFormData({
-                  ...formData,
-                  pix_message: e.target.value
-                })} 
-                placeholder="Olá {nome}! 🍔&#10;&#10;Pedido #{pedido} recebido!&#10;&#10;Total: {total}&#10;&#10;💠 Chave Pix: {chave_pix} ({tipo_chave})&#10;&#10;Aguardamos o comprovante para iniciar o preparo!"
-                className="mt-1 min-h-[120px] font-mono text-sm"
-                rows={6}
-              />
-              <p className="text-xs text-muted-foreground mt-2">
-                Use as variáveis: <code className="bg-muted px-1 rounded">{'{nome}'}</code>, <code className="bg-muted px-1 rounded">{'{pedido}'}</code>, <code className="bg-muted px-1 rounded">{'{total}'}</code>, <code className="bg-muted px-1 rounded">{'{chave_pix}'}</code>, <code className="bg-muted px-1 rounded">{'{tipo_chave}'}</code>
-              </p>
-            </div>
-          </div>
-
 
           {/* Submit Button */}
           <Button type="submit" size="lg" className="w-full" disabled={updateStore.isPending}>

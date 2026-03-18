@@ -26,6 +26,7 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import AdminReports from "./pages/admin/Reports";
 import AdminBackup from "./pages/admin/Backup";
 import AdminQRCodes from "./pages/admin/QRCodes";
+import AdminEnvios from "./pages/admin/Envios";
 import Kitchen from "./pages/Kitchen";
 import DriverAccess from "./pages/DriverAccess";
 import DriverDashboard from "./pages/DriverDashboard";
@@ -70,6 +71,7 @@ const App = () => (
                 <Route path="/admin/reports" element={<AdminReports />} />
                 <Route path="/admin/backup" element={<AdminBackup />} />
                 <Route path="/admin/qrcodes" element={<AdminQRCodes />} />
+                <Route path="/admin/envios" element={<AdminEnvios />} />
                 <Route path="/admin/drivers" element={<AdminDrivers />} />
                 <Route path="/admin/driver-reports" element={<AdminDriverReports />} />
                 <Route path="/admin/pdv" element={<AdminPDV />} />

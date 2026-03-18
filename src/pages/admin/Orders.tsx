@@ -128,15 +128,24 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
     const defaultMessage = `Olá {nome}! 🍔\n\nPedido #{pedido} recebido!\n\nTotal: {total}\n\n💠 Chave Pix: {chave_pix} ({tipo_chave})\n\nAguardamos o comprovante para iniciar o preparo!`;
     const template = store?.pix_message || defaultMessage;
 
+    const itemsList = items?.map(it => `${it.quantity}x ${it.product_name}`).join('\n') || '';
+    const address = order.type === 'delivery' 
+      ? `${order.address_street || ''}, ${order.address_number || ''}${order.address_neighborhood ? ` - ${order.address_neighborhood}` : ''}`
+      : (order.type === 'table' ? `Mesa #${order.table_number}` : 'No Local');
+    const orderLink = `${window.location.origin}/order/${order.id}`;
+
     // Replace placeholders
     const message = template
       .replace(/{nome}/g, order.customer_name)
       .replace(/{pedido}/g, String(order.id))
       .replace(/{total}/g, formatCurrency(order.total_amount))
+      .replace(/{itens}/g, itemsList)
+      .replace(/{endereco}/g, address)
+      .replace(/{link}/g, orderLink)
       .replace(/{chave_pix}/g, store?.pix_key || '')
       .replace(/{tipo_chave}/g, store?.pix_key_type || 'Chave');
 
-    window.open(`https://wa.me/55${order.customer_phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
+    window.open(`https://wa.me/55${order.customer_phone?.replace(/\D/g, '') || ''}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   const getNextStatus = (status: UnifiedOrder['status']): UnifiedOrder['status'] | null => {

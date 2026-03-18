@@ -24,7 +24,8 @@ import {
   QrCode,
   Truck,
   Monitor,
-  Users as UsersIcon
+  Users as UsersIcon,
+  Send
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -62,6 +63,7 @@ const navGroups = [
     label: 'Gestão',
     items: [
       { id: 'orders', label: 'Pedidos', icon: ClipboardList, path: '/admin/orders', permKey: 'perm_pedidos' as PermKey },
+      { id: 'envios', label: 'Envios', icon: Send, path: '/admin/envios', permKey: 'perm_pedidos' as PermKey },
       { id: 'products', label: 'Produtos', icon: ShoppingBag, path: '/admin/products', permKey: 'perm_produtos' as PermKey },
       { id: 'categories', label: 'Categorias', icon: Tag, path: '/admin/categories', permKey: 'perm_categorias' as PermKey },
       { id: 'addons', label: 'Acréscimos', icon: PlusCircle, path: '/admin/addons', permKey: 'perm_acrescimos' as PermKey },
