@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Loader2, Calendar, TrendingUp, Package, DollarSign, CheckCircle2, GripVertical, Wifi, WifiOff, RefreshCw, Truck } from 'lucide-react';
+import { Loader2, Calendar, TrendingUp, Package, DollarSign, CheckCircle2, GripVertical, Wifi, WifiOff, RefreshCw, Truck, MessageSquare } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useTitleNotification } from '@/hooks/useTitleNotification';
 import { useAutoPromptPush } from '@/hooks/useAutoPromptPush';
@@ -149,6 +149,28 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
     window.open(`https://wa.me/55${order.customer_phone?.replace(/\D/g, '') || ''}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
+  const sendStatusWhatsApp = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    const template = store?.checkout_whatsapp_message || 
+      "Olá {nome}! 👋\n\nSeu pedido #{pedido} foi aceito e já está em preparo!\n\n📋 *Resumo:* \n{itens}\n\n📍 *Entrega:* {endereco}\n💳 *Pagamento:* {pagamento}\n💰 *Total:* {total}\n\n🚀 Acompanhe aqui:\n{link}";
+    
+    const itemsList = items?.map(it => `${it.quantity}x ${it.product_name}`).join('\n') || '';
+    const address = `${order.address_street || ''}, ${order.address_number || ''}${order.address_neighborhood ? ` - ${order.address_neighborhood}` : ''}`;
+    const orderLink = `${window.location.origin}/order/${order.id}`;
+
+    const message = template
+      .replace(/{nome}/g, order.customer_name)
+      .replace(/{pedido}/g, String(order.id))
+      .replace(/{total}/g, formatCurrency(order.total_amount))
+      .replace(/{itens}/g, itemsList)
+      .replace(/{endereco}/g, address)
+      .replace(/{pagamento}/g, getPaymentLabel(order.payment_method))
+      .replace(/{link}/g, orderLink);
+
+    window.open(`https://wa.me/55${order.customer_phone?.replace(/\D/g, '') || ''}?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
   const getNextStatus = (status: UnifiedOrder['status']): UnifiedOrder['status'] | null => {
     // For table orders or comanda orders, skip 'delivery' step
     if (order.type === 'table' || isComanda) {
@@ -193,34 +215,6 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
     e.stopPropagation();
     const next = getNextStatus(order.status);
     if (next) {
-      if (order.status === 'pending' && next === 'preparing' && order.type === 'delivery') {
-        const itemsList = items?.map(it => `${it.quantity}x ${it.product_name}`).join('\n') || '';
-        const address = `${order.address_street || ''}, ${order.address_number || ''}${order.address_neighborhood ? ` - ${order.address_neighborhood}` : ''}`;
-        const orderLink = `${window.location.origin}/order/${order.id}`;
-        
-        const template = store?.checkout_whatsapp_message || 
-          "Olá {nome}! 👋\n\nSeu pedido #{pedido} foi aceito e já está em preparo!\n\n📋 *Resumo:* \n{itens}\n\n📍 *Entrega:* {endereco}\n💳 *Pagamento:* {pagamento}\n💰 *Total:* {total}\n\n🚀 Acompanhe aqui:\n{link}";
-        
-        const message = template
-          .replace(/{nome}/g, order.customer_name)
-          .replace(/{pedido}/g, String(order.id))
-          .replace(/{total}/g, formatCurrency(order.total_amount))
-          .replace(/{itens}/g, itemsList)
-          .replace(/{endereco}/g, address)
-          .replace(/{pagamento}/g, getPaymentLabel(order.payment_method))
-          .replace(/{link}/g, orderLink);
-
-        supabase.functions.invoke('send-whatsapp-notification', {
-          body: {
-            orderId: order.id,
-            customerName: order.customer_name,
-            customerPhone: order.customer_phone,
-            message: message,
-            type: 'order_accepted'
-          }
-        });
-      }
-
       updateStatusMutation.mutate({ orderId: order.id, status: next, orderType: order.type });
     }
   };
@@ -283,26 +277,32 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
 
       {/* Order Footer */}
       <div className="border-t border-border pt-3 space-y-2">
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Total</span>
-          <span className="font-bold text-foreground">{formatCurrency(order.total_amount)}</span>
+        <div className="flex items-center justify-between gap-1 sm:gap-2">
+          <p className="font-bold text-base sm:text-lg text-foreground whitespace-nowrap">{formatCurrency(order.total_amount)}</p>
+          <div className="flex gap-1.5">
+            {order.payment_method === 'pix' && !isComanda && (
+              <Button size="sm" variant="outline" className="h-8 py-0 gap-1.5 text-[10px] sm:text-xs" onClick={sendPixCharge}>
+                <MessageSquare className="h-3.5 w-3.5" />
+                Cobrar PIX
+              </Button>
+            )}
+            {order.status === 'preparing' && (
+              <Button size="sm" variant="outline" className="h-8 py-0 gap-1.5 text-[10px] sm:text-xs border-[#25D366] text-[#25D366] hover:bg-[#25D366]/10" onClick={sendStatusWhatsApp}>
+                <MessageSquare className="h-3.5 w-3.5" />
+                WhatsApp Cliente
+              </Button>
+            )}
+          </div>
         </div>
+
+        {!isCompleted && getNextStatus(order.status) && (
+          <Button size="sm" className="w-full h-9 sm:h-10 text-[10px] sm:text-xs" onClick={handleStatusUpdate} disabled={updateStatusMutation.isPending}>
+            {updateStatusMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : getNextStatusLabel(order.status)}
+          </Button>
+        )}
 
         {!isCompleted && (
           <div className="space-y-2">
-            <div className="flex gap-2">
-              {order.type === 'delivery' && !isComanda && order.payment_method === 'pix' && order.status === 'pending' && (
-                <Button variant="whatsapp" size="sm" className="flex-1" onClick={sendPixCharge}>
-                  Cobrar PIX
-                </Button>
-              )}
-              {getNextStatus(order.status) && (
-                <Button size="sm" className="flex-1" onClick={handleStatusUpdate} disabled={updateStatusMutation.isPending}>
-                  {updateStatusMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : getNextStatusLabel(order.status)}
-                </Button>
-              )}
-            </div>
-
             {/* Driver selector for delivery orders with status "ready" or "delivery" */}
             {order.type === 'delivery' && !isComanda && (order.status === 'ready' || order.status === 'delivery') && !order.driver_id && (
               <div onClick={(e) => e.stopPropagation()}>
