@@ -208,7 +208,7 @@ const Auth = () => {
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
                     type="email"
-                    placeholder="seu@email.com"
+                    placeholder={mode === 'login' ? 'Seu email ou usuário interno' : 'seu@email.com'}
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="pl-10 h-12 bg-muted/50 border-0 rounded-xl"

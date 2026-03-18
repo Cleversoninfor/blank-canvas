@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
       const { data: adminUser, error: insertError } = await supabaseAdmin
         .from("admin_users")
         .insert({
-          usuario: usuario.trim(),
+          usuario: normalizedUsuario,
           senha, // Will be hashed by trigger
           acesso_operacoes: acesso_operacoes ?? false,
           acesso_gestao: acesso_gestao ?? false,
