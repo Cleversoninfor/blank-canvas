@@ -262,16 +262,6 @@ export function HeroHeader({ store }: HeroHeaderProps) {
           />
         )}
 
-        {/* Decorative dots pattern */}
-        <div className="absolute right-4 sm:right-12 bottom-20 md:bottom-20 flex flex-col gap-2 opacity-40">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex gap-2">
-              {[...Array(3)].map((_, j) => (
-                <div key={j} className="w-1.5 h-1.5 rounded-full bg-white/60" />
-              ))}
-            </div>
-          ))}
-        </div>
 
         {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
