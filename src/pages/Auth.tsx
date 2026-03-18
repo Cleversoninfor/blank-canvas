@@ -108,20 +108,40 @@ const Auth = () => {
 
     setIsLoading(true);
     try {
-      const validation = loginSchema.safeParse(formData);
+      const validation = adminLoginSchema.safeParse(formData);
       if (!validation.success) {
         toast({ title: 'Dados inválidos', description: validation.error.errors[0].message, variant: 'destructive' });
         setIsLoading(false);
         return;
       }
-      const { error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
+
+      const loginValue = formData.email.trim().toLowerCase();
+      let { error } = await supabase.auth.signInWithPassword({
+        email: loginValue,
         password: formData.password,
       });
+
+      if (error?.message.includes('Invalid login credentials')) {
+        const { data: adminMatch, error: adminLookupError } = await supabase
+          .rpc('verify_admin_login', {
+            _usuario: formData.email.trim(),
+            _senha: formData.password,
+          })
+          .maybeSingle();
+
+        if (!adminLookupError && adminMatch?.login_email) {
+          const retry = await supabase.auth.signInWithPassword({
+            email: adminMatch.login_email,
+            password: formData.password,
+          });
+          error = retry.error;
+        }
+      }
+
       if (error) {
         toast({
           title: 'Erro ao entrar',
-          description: error.message.includes('Invalid login credentials') ? 'Email ou senha incorretos' : error.message,
+          description: error.message.includes('Invalid login credentials') ? 'Usuário, email ou senha incorretos' : error.message,
           variant: 'destructive',
         });
         setIsLoading(false);
