@@ -10,7 +10,6 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { BrandSettings } from '@/components/admin/BrandSettings';
 import { BannerSettings } from '@/components/admin/BannerSettings';
-import { SubdomainSettings } from '@/components/admin/SubdomainSettings';
 import { OperationModes } from '@/components/admin/OperationModes';
 import { MenuLayoutSettings } from '@/components/admin/MenuLayoutSettings';
 import { useStoreConfig, useUpdateStoreConfig } from '@/hooks/useStore';
@@ -267,8 +266,6 @@ const AdminSettings = () => {
         {/* Banner Customization */}
         <BannerSettings />
 
-        {/* Subdomain Settings */}
-        <SubdomainSettings />
 
         {/* Settings Form */}
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
