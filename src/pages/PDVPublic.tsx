@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   Trash2, ShoppingCart, ArrowLeft, Search, ArrowRight,
   Loader2, Receipt, Package, LockOpen, Lock, KeyRound, ClipboardList,
+  Banknote, ArrowDownCircle, Info,
 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,9 @@ import {
 } from '@/hooks/useComandas';
 import { useProducts, Product } from '@/hooks/useProducts';
 import { useCategories } from '@/hooks/useCategories';
+import { useOpenedSession, useCaixaBalance, useCloseCaixa } from '@/hooks/useCaixa';
+import { AbrirCaixaModal } from '@/components/pdv/AbrirCaixaModal';
+import { SangriaModal } from '@/components/pdv/SangriaModal';
 import { CloseSaleModal } from '@/components/pdv/CloseSaleModal';
 import { ProductSelectorModal } from '@/components/pdv/ProductSelectorModal';
 import { ComandaConsumoCard } from '@/components/pdv/ComandaConsumoCard';
@@ -25,6 +29,15 @@ import { useTheme } from '@/hooks/useTheme';
 import { cn } from "@/lib/utils";
 
 type PDVView = 'main' | 'select-comanda' | 'venda' | 'select-close' | 'consumo';
+
+const PDVHeader = ({ title }: { title: string }) => (
+  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+    <div>
+      <h1 className="text-4xl font-black text-foreground tracking-tight">{title}</h1>
+      <p className="text-muted-foreground mt-2 font-medium">Gestão de pedidos e comandas em tempo real.</p>
+    </div>
+  </div>
+);
 
 interface CartItem {
   product: Product;
@@ -54,6 +67,9 @@ const PDVPublic = () => {
   const { data: categoriesData, isLoading: loadingCategories } = useCategories();
   const categories = Array.isArray(categoriesData) ? categoriesData : [];
   const createOrder = useCreateComandaOrder();
+  const { data: activeSession, isLoading: loadingSession } = useOpenedSession();
+  const { data: balance } = useCaixaBalance(activeSession?.id);
+  const closeCaixa = useCloseCaixa();
   const updateStatus = useUpdateComandaStatus();
 
   const [view, setView] = useState<PDVView>('main');
@@ -64,6 +80,7 @@ const PDVPublic = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [closeSaleComanda, setCloseSaleComanda] = useState<Comanda | null>(null);
   const [transferSourceComanda, setTransferSourceComanda] = useState<Comanda | null>(null);
+  const [sangriaOpen, setSangriaOpen] = useState(false);
 
   const livres = comandas.filter(c => c.status === 'livre');
   const ocupadas = comandas.filter(c => c.status === 'ocupada');
@@ -208,7 +225,18 @@ const PDVPublic = () => {
       toast({ title: 'Pedido enviado!', description: `Pedido da Comanda #${selectedComanda.numero_comanda} enviado para a cozinha.` });
       setCart([]);
     } catch (err: any) {
-      toast({ title: 'Erro ao enviar pedido', description: err.message, variant: 'destructive' });
+      toast({ title: 'Erro ao criar pedido', description: err.message, variant: 'destructive' });
+    }
+  };
+
+  const handleCloseCaixa = async () => {
+    if (!activeSession) return;
+    if (!confirm('Deseja realmente fechar o caixa?')) return;
+    try {
+      await closeCaixa.mutateAsync(activeSession.id);
+      toast({ title: 'Caixa fechado!', description: 'O caixa foi encerrado com sucesso.' });
+    } catch (err: any) {
+      toast({ title: 'Erro ao fechar caixa', description: err.message, variant: 'destructive' });
     }
   };
 
@@ -551,8 +579,59 @@ const PDVPublic = () => {
       <div className="min-h-screen bg-[#F1F5F9] p-6 sm:p-10">
         <div className="max-w-7xl mx-auto space-y-10">
           <PDVHeader title="PDV Central" />
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        
+        {/* Caixa Summary Area */}
+        {activeSession && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card className="bg-white border-none shadow-md overflow-hidden">
+              <div className="p-5 flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Saldo em Caixa</p>
+                  <h3 className="text-2xl font-black text-primary">
+                    {balance?.current.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) || 'R$ 0,00'}
+                  </h3>
+                </div>
+                <div className="p-3 bg-primary/10 rounded-2xl text-primary">
+                  <Banknote className="h-6 w-6" />
+                </div>
+              </div>
+              <div className="px-5 py-3 bg-muted/30 flex justify-between text-[10px] font-bold text-muted-foreground uppercase">
+                <span>Inicial: {balance?.initial.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                <span className="text-green-600">Entradas: {balance?.entradas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                <span className="text-red-500">Sangrias: {balance?.saidas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+              </div>
+            </Card>
+
+            <div className="flex gap-4 md:col-span-2">
+              <Button 
+                variant="outline" 
+                className="h-full flex-1 border-dashed border-2 hover:border-destructive hover:text-destructive flex flex-col gap-2 p-6 transition-all bg-white"
+                onClick={() => setSangriaOpen(true)}
+              >
+                <ArrowDownCircle className="h-6 w-6" />
+                <div className="text-left">
+                  <p className="font-bold text-sm">Realizar Sangria</p>
+                  <p className="text-[10px] opacity-70">Retirada de valor do caixa</p>
+                </div>
+              </Button>
+
+              <Button 
+                variant="outline" 
+                className="h-full flex-1 border-dashed border-2 hover:border-primary hover:text-primary flex flex-col gap-2 p-6 transition-all bg-white"
+                onClick={handleCloseCaixa}
+                disabled={closeCaixa.isPending}
+              >
+                <Info className="h-6 w-6" />
+                <div className="text-left">
+                  <p className="font-bold text-sm">Fechar Caixa</p>
+                  <p className="text-[10px] opacity-70">Encerra o turno atual</p>
+                </div>
+              </Button>
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Abrir Venda */}
             <Card 
               className="admin-card border-none shadow-xl cursor-pointer hover:ring-4 hover:ring-primary/20 transition-all group" 
@@ -627,6 +706,15 @@ const PDVPublic = () => {
           </div>
         </div>
       </div>
+
+      <AbrirCaixaModal open={!loadingSession && !activeSession} />
+      {activeSession && (
+        <SangriaModal 
+          open={sangriaOpen} 
+          onClose={() => setSangriaOpen(false)} 
+          sessionId={activeSession.id} 
+        />
+      )}
     </>
   );
 };

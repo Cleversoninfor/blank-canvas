@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useComandaOrderDetails, useCloseSale, Comanda } from '@/hooks/useComandas';
 import { useToast } from '@/hooks/use-toast';
+import { useOpenedSession, useAddMovimentacao } from '@/hooks/useCaixa';
 
 interface CloseSaleModalProps {
   comanda: Comanda;
@@ -29,6 +30,8 @@ export function CloseSaleModal({ comanda, open, onClose }: CloseSaleModalProps) 
   const { toast } = useToast();
   const { data: orders = [], isLoading } = useComandaOrderDetails(comanda.id);
   const closeSale = useCloseSale();
+  const { data: activeSession } = useOpenedSession();
+  const addMovimentacao = useAddMovimentacao();
 
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(null);
   const [valorRecebido, setValorRecebido] = useState('');
@@ -75,6 +78,17 @@ export function CloseSaleModal({ comanda, open, onClose }: CloseSaleModalProps) 
         valorTotal: total,
         formaPagamento: selectedPayment,
       });
+
+      // Se for dinheiro e tiver um caixa aberto, registra a entrada
+      if (selectedPayment === 'money' && activeSession) {
+        await addMovimentacao.mutateAsync({
+          sessionId: activeSession.id,
+          type: 'entrada',
+          amount: total,
+          description: `Venda Comanda #${comanda.numero_comanda}`,
+        });
+      }
+
       toast({ title: 'Venda fechada!', description: `Comanda #${comanda.numero_comanda} finalizada com sucesso.` });
       onClose();
     } catch (err: any) {
