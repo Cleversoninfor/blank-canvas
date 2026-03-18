@@ -192,6 +192,36 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
     e.stopPropagation();
     const next = getNextStatus(order.status);
     if (next) {
+      if (order.status === 'pending' && next === 'preparing' && order.type === 'delivery') {
+        const itemsList = items?.map(it => `${it.quantity}x ${it.product_name}`).join('\n') || '';
+        const address = `${order.address_street || ''}, ${order.address_number || ''}${order.address_neighborhood ? ` - ${order.address_neighborhood}` : ''}`;
+        const orderLink = `${window.location.origin}/order/${order.id}`;
+        
+        const template = store?.checkout_whatsapp_message || 
+          "Olá {nome}! 👋\n\nSeu pedido #{pedido} foi aceito e já está em preparo!\n\n📋 *Resumo:* \n{itens}\n\n📍 *Entrega:* {endereco}\n💳 *Pagamento:* {pagamento}\n💰 *Total:* {total}\n\n🚀 Acompanhe aqui:\n{link}";
+        
+        const message = template
+          .replace(/{nome}/g, order.customer_name)
+          .replace(/{pedido}/g, String(order.id))
+          .replace(/{total}/g, formatCurrency(order.total_amount))
+          .replace(/{itens}/g, itemsList)
+          .replace(/{endereco}/g, address)
+          .replace(/{pagamento}/g, getPaymentLabel(order.payment_method))
+          .replace(/{link}/g, orderLink);
+
+        import('@/integrations/supabase/client').then(({ supabase }) => {
+          supabase.functions.invoke('send-whatsapp-notification', {
+            body: {
+              orderId: order.id,
+              customerName: order.customer_name,
+              customerPhone: order.customer_phone,
+              message: message,
+              type: 'order_accepted'
+            }
+          });
+        });
+      }
+
       updateStatusMutation.mutate({ orderId: order.id, status: next, orderType: order.type });
     }
   };
