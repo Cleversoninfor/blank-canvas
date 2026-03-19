@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Loader2, Calendar, TrendingUp, Package, DollarSign, CheckCircle2, GripVertical, Wifi, WifiOff, RefreshCw, Truck, MessageSquare } from 'lucide-react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { Loader2, Calendar, TrendingUp, Package, DollarSign, CheckCircle2, GripVertical, Wifi, WifiOff, RefreshCw, Truck, MessageSquare, Timer } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useTitleNotification } from '@/hooks/useTitleNotification';
 import { useAutoPromptPush } from '@/hooks/useAutoPromptPush';
@@ -46,6 +46,80 @@ const columns: { id: OrderStatus; label: string; color: string }[] = [
 
 const COLORS = ['hsl(var(--warning))', 'hsl(var(--primary))', 'hsl(24, 100%, 50%)', 'hsl(var(--secondary))', 'hsl(142, 76%, 36%)'];
 const AUTO_REFRESH_INTERVAL = 30000; // 30 seconds
+
+// --- Prep Timer Helpers ---
+const TIMER_STORAGE_KEY = 'order-prep-timers';
+
+function getTimerStore(): Record<string, { startedAt: string; stoppedAt?: string }> {
+  try {
+    return JSON.parse(localStorage.getItem(TIMER_STORAGE_KEY) || '{}');
+  } catch { return {}; }
+}
+
+function saveTimerStore(store: Record<string, { startedAt: string; stoppedAt?: string }>) {
+  localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(store));
+}
+
+function startTimer(orderKey: string) {
+  const store = getTimerStore();
+  if (!store[orderKey]) {
+    store[orderKey] = { startedAt: new Date().toISOString() };
+    saveTimerStore(store);
+  }
+}
+
+function stopTimer(orderKey: string) {
+  const store = getTimerStore();
+  if (store[orderKey] && !store[orderKey].stoppedAt) {
+    store[orderKey].stoppedAt = new Date().toISOString();
+    saveTimerStore(store);
+  }
+}
+
+function formatTimer(seconds: number): string {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function getTimerColor(seconds: number): string {
+  if (seconds < 600) return 'text-green-600'; // < 10 min
+  if (seconds < 1200) return 'text-amber-500'; // < 20 min
+  return 'text-red-600'; // >= 20 min
+}
+
+function PrepTimer({ orderKey, isRunning }: { orderKey: string; isRunning: boolean }) {
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    const store = getTimerStore();
+    const timer = store[orderKey];
+    if (!timer) { setElapsed(0); return; }
+
+    const calcElapsed = () => {
+      const start = new Date(timer.startedAt).getTime();
+      const end = timer.stoppedAt ? new Date(timer.stoppedAt).getTime() : Date.now();
+      return Math.max(0, Math.floor((end - start) / 1000));
+    };
+
+    setElapsed(calcElapsed());
+
+    if (!isRunning) return;
+
+    const interval = setInterval(() => setElapsed(calcElapsed()), 1000);
+    return () => clearInterval(interval);
+  }, [orderKey, isRunning]);
+
+  if (elapsed === 0 && !getTimerStore()[orderKey]) return null;
+
+  return (
+    <span className={`flex items-center gap-1 text-xs sm:text-sm font-mono font-semibold ${getTimerColor(elapsed)}`}>
+      <Timer className="h-3 w-3 sm:h-4 sm:w-4" />
+      {formatTimer(elapsed)}
+    </span>
+  );
+}
 
 // Draggable Order Card Wrapper
 function DraggableOrderCard({ order, store, onOpenDetails }: { order: UnifiedOrder; store: any; onOpenDetails: (order: UnifiedOrder) => void }) {
@@ -226,10 +300,39 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
     return labels[status];
   };
 
+  const orderTimerKey = `${order.type}-${order.id}`;
+  const isTimerRunning = order.status === 'preparing' || order.status === 'ready' || order.status === 'delivery';
+  const isTimerVisible = order.status !== 'pending';
+
+  // Start/stop timer based on current status (for persistence on reload)
+  useEffect(() => {
+    if (order.status !== 'pending') {
+      // Ensure timer exists (covers page reload case)
+      const store = getTimerStore();
+      if (!store[orderTimerKey] && order.status !== 'completed' && order.status !== 'cancelled') {
+        // Use updated_at as approximate start time
+        const s = getTimerStore();
+        s[orderTimerKey] = { startedAt: order.updated_at };
+        saveTimerStore(s);
+      }
+    }
+    if (order.status === 'completed' || order.status === 'cancelled') {
+      stopTimer(orderTimerKey);
+    }
+  }, [order.status, orderTimerKey, order.updated_at]);
+
   const handleStatusUpdate = (e: React.MouseEvent) => {
     e.stopPropagation();
     const next = getNextStatus(order.status);
     if (next) {
+      // Start timer when accepting
+      if (order.status === 'pending' && next === 'preparing') {
+        startTimer(orderTimerKey);
+      }
+      // Stop timer when completing
+      if (next === 'completed') {
+        stopTimer(orderTimerKey);
+      }
       updateStatusMutation.mutate({ orderId: order.id, status: next, orderType: order.type });
     }
   };
@@ -261,6 +364,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
             </div>
           )}
           <p className="font-bold text-lg sm:text-2xl text-foreground">{order.type === 'table' ? `\uD83C\uDF7D\uFE0F Mesa #${order.table_number}` : `#${order.id}`}</p>
+          {isTimerVisible && <PrepTimer orderKey={orderTimerKey} isRunning={isTimerRunning} />}
         </div>
         <div className="flex flex-wrap items-center gap-1.5 mb-1">
           <Badge variant="outline" className="text-xs px-2.5 py-0.5 whitespace-nowrap">
