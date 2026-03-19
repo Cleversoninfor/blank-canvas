@@ -51,13 +51,14 @@ const AdminProducts = () => {
     category_id: '',
     image_url: '',
     is_available: true,
-    stock_mode: 'simple' as 'simple' | 'ingredients',
+    stock_type: 'unit' as 'unit' | 'ingredient',
     stock_quantity: '',
+    unit: 'un',
     min_stock: '',
   });
   const [selectedAddonGroups, setSelectedAddonGroups] = useState<string[]>([]);
   const [initialAddonGroups, setInitialAddonGroups] = useState<string[]>([]);
-  const [composition, setComposition] = useState<{ ingredient_id: string; quantity_used: string }[]>([]);
+  const [composition, setComposition] = useState<{ ingredient_id: string; quantity_used: string; unit: string }[]>([]);
   const [loadingAddons, setLoadingAddons] = useState(false);
   const [loadingComposition, setLoadingComposition] = useState(false);
 
@@ -77,8 +78,9 @@ const AdminProducts = () => {
       category_id: '',
       image_url: '',
       is_available: true,
-      stock_mode: 'simple' as 'simple' | 'ingredients',
+      stock_type: 'unit',
       stock_quantity: '0',
+      unit: 'un',
       min_stock: '0',
     });
     setSelectedAddonGroups([]);
@@ -95,8 +97,9 @@ const AdminProducts = () => {
       category_id: product.category_id || '',
       image_url: product.image_url || '',
       is_available: product.is_available,
-      stock_mode: product.stock_mode === 'ingredients' ? 'ingredients' : 'simple',
+      stock_type: product.stock_type === 'ingredient' ? 'ingredient' : 'unit',
       stock_quantity: (product.stock_quantity || 0).toString(),
+      unit: product.unit || 'un',
       min_stock: (product.min_stock || 0).toString(),
     });
     setIsModalOpen(true);
@@ -120,13 +123,14 @@ const AdminProducts = () => {
       // Composition
       const { data: compData, error: compError } = await supabase
         .from('product_ingredients')
-        .select('ingredient_id, quantity_used')
+        .select('ingredient_id, quantity_used, unit')
         .eq('product_id', product.id);
       
       if (compError) throw compError;
       setComposition(compData?.map(c => ({ 
         ingredient_id: c.ingredient_id, 
-        quantity_used: c.quantity_used.toString() 
+        quantity_used: c.quantity_used.toString(),
+        unit: c.unit || 'un'
       })) || []);
 
     } catch (error) {
@@ -151,7 +155,7 @@ const AdminProducts = () => {
       return;
     }
 
-    if (formData.stock_mode === 'ingredients' && composition.length === 0) {
+    if (formData.stock_type === 'ingredient' && composition.length === 0) {
       toast({ title: 'Adicione pelo menos 1 ingrediente à composição', variant: 'destructive' });
       return;
     }
@@ -164,8 +168,9 @@ const AdminProducts = () => {
         category_id: formData.category_id || null,
         image_url: formData.image_url || null,
         is_available: formData.is_available,
-        stock_mode: formData.stock_mode,
+        stock_type: formData.stock_type,
         stock_quantity: parseFloat(formData.stock_quantity.replace(',', '.')) || 0,
+        unit: formData.stock_type === 'unit' ? formData.unit : 'un',
         min_stock: parseFloat(formData.min_stock.replace(',', '.')) || 0,
       };
 
@@ -191,7 +196,8 @@ const AdminProducts = () => {
           productId,
           ingredients: composition.map(c => ({
             ingredient_id: c.ingredient_id,
-            quantity_used: parseFloat(c.quantity_used.replace(',', '.')) || 0
+            quantity_used: parseFloat(c.quantity_used.replace(',', '.')) || 0,
+            unit: c.unit,
           }))
         });
         
@@ -210,7 +216,8 @@ const AdminProducts = () => {
           productId,
           ingredients: composition.map(c => ({
             ingredient_id: c.ingredient_id,
-            quantity_used: parseFloat(c.quantity_used.replace(',', '.')) || 0
+            quantity_used: parseFloat(c.quantity_used.replace(',', '.')) || 0,
+            unit: c.unit,
           }))
         });
         
@@ -427,20 +434,20 @@ const AdminProducts = () => {
               
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { id: 'simple', label: 'Unidade Simples' },
-                  { id: 'ingredients', label: 'Ingredientes' }
+                  { id: 'unit', label: 'Unidade Simples' },
+                  { id: 'ingredient', label: 'Ingredientes' }
                 ].map((mode) => (
                   <Button
                     key={mode.id}
                     type="button"
-                    variant={formData.stock_mode === mode.id ? 'default' : 'outline'}
+                    variant={formData.stock_type === mode.id ? 'default' : 'outline'}
                     className="text-xs h-9"
                     onClick={() => {
-                      if (mode.id === 'simple' && formData.stock_mode !== 'simple') {
-                        setFormData({ ...formData, stock_mode: 'simple' });
+                      if (mode.id === 'unit' && formData.stock_type !== 'unit') {
+                        setFormData({ ...formData, stock_type: 'unit' });
                         setComposition([]);
-                      } else if (mode.id === 'ingredients' && formData.stock_mode !== 'ingredients') {
-                        setFormData({ ...formData, stock_mode: 'ingredients', stock_quantity: '0', min_stock: '0' });
+                      } else if (mode.id === 'ingredient' && formData.stock_type !== 'ingredient') {
+                        setFormData({ ...formData, stock_type: 'ingredient', stock_quantity: '0', min_stock: '0', unit: 'un' });
                       }
                     }}
                   >
@@ -449,8 +456,8 @@ const AdminProducts = () => {
                 ))}
               </div>
 
-              {formData.stock_mode === 'simple' && (
-                <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
+              {formData.stock_type === 'unit' && (
+                <div className="grid grid-cols-3 gap-4 animate-in fade-in slide-in-from-top-2">
                   <div>
                     <label className="text-sm text-muted-foreground">Qtd em Estoque</label>
                     <Input
@@ -461,6 +468,24 @@ const AdminProducts = () => {
                       placeholder="0.000"
                       className="mt-1"
                     />
+                  </div>
+                  <div>
+                    <label className="text-sm text-muted-foreground">Unidade</label>
+                    <Select
+                      value={formData.unit}
+                      onValueChange={(val) => setFormData({ ...formData, unit: val })}
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="un">Unidade (un)</SelectItem>
+                        <SelectItem value="kg">Quilograma (kg)</SelectItem>
+                        <SelectItem value="g">Grama (g)</SelectItem>
+                        <SelectItem value="L">Litro (L)</SelectItem>
+                        <SelectItem value="ml">Mililitro (ml)</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <label className="text-sm text-muted-foreground">Estoque Mínimo</label>
@@ -476,7 +501,7 @@ const AdminProducts = () => {
                 </div>
               )}
 
-              {formData.stock_mode === 'ingredients' && (
+              {formData.stock_type === 'ingredient' && (
                 <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
                   <div className="flex items-center justify-between">
                     <label className="text-sm text-muted-foreground">Composição do Produto</label>
@@ -485,7 +510,7 @@ const AdminProducts = () => {
                       variant="ghost" 
                       size="sm" 
                       className="h-8 text-xs text-primary"
-                      onClick={() => setComposition([...composition, { ingredient_id: '', quantity_used: '0' }])}
+                      onClick={() => setComposition([...composition, { ingredient_id: '', quantity_used: '0', unit: 'un' }])}
                     >
                       <Plus className="h-3 w-3 mr-1" /> Adicionar Ingrediente
                     </Button>
@@ -531,6 +556,28 @@ const AdminProducts = () => {
                               placeholder="0.000"
                               className="h-8 text-xs bg-background"
                             />
+                          </div>
+                          <div className="w-24">
+                            <label className="text-[10px] uppercase text-muted-foreground select-none">Unidade</label>
+                            <Select
+                              value={comp.unit}
+                              onValueChange={(val) => {
+                                const newComp = [...composition];
+                                newComp[idx].unit = val;
+                                setComposition(newComp);
+                              }}
+                            >
+                              <SelectTrigger className="h-8 text-xs bg-background">
+                                <SelectValue placeholder="Un" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="un" className="text-xs">un</SelectItem>
+                                <SelectItem value="kg" className="text-xs">kg</SelectItem>
+                                <SelectItem value="g" className="text-xs">g</SelectItem>
+                                <SelectItem value="L" className="text-xs">L</SelectItem>
+                                <SelectItem value="ml" className="text-xs">ml</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
                           <Button 
                             type="button" 
