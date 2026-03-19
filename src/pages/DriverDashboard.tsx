@@ -232,7 +232,7 @@ export default function DriverDashboard() {
   return (
     <>
       <Helmet>
-        <title>{`Entregas - ${store?.name || 'Restaurante'}`}</title>
+        <title>{`Entregadores - ${store?.name || 'Restaurante'}`}</title>
       </Helmet>
 
       <div className="min-h-screen bg-background">

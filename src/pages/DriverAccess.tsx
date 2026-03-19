@@ -60,7 +60,7 @@ export default function DriverAccess() {
 
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="fixed top-4 right-4 z-50">
-          <PWAInstallButton appName="Entregas" />
+          <PWAInstallButton appName="Entregadores" />
         </div>
 
         <Card className="w-full max-w-md">

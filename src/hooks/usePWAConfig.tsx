@@ -63,6 +63,15 @@ function getPWAConfig(pathname: string): PWAConfig {
     };
   }
   
+  if (pathname.startsWith('/driver')) {
+    return {
+      name: 'Entregadores',
+      shortName: 'Entregadores',
+      startUrl: '/driver',
+      description: 'Painel de Entregadores - Gerenciamento de entregas'
+    };
+  }
+  
   if (pathname.startsWith('/waiter')) {
     return {
       name: 'Garçons',
