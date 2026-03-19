@@ -47,6 +47,80 @@ const columns: { id: OrderStatus; label: string; color: string }[] = [
 const COLORS = ['hsl(var(--warning))', 'hsl(var(--primary))', 'hsl(24, 100%, 50%)', 'hsl(var(--secondary))', 'hsl(142, 76%, 36%)'];
 const AUTO_REFRESH_INTERVAL = 30000; // 30 seconds
 
+// --- Prep Timer Helpers ---
+const TIMER_STORAGE_KEY = 'order-prep-timers';
+
+function getTimerStore(): Record<string, { startedAt: string; stoppedAt?: string }> {
+  try {
+    return JSON.parse(localStorage.getItem(TIMER_STORAGE_KEY) || '{}');
+  } catch { return {}; }
+}
+
+function saveTimerStore(store: Record<string, { startedAt: string; stoppedAt?: string }>) {
+  localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(store));
+}
+
+function startTimer(orderKey: string) {
+  const store = getTimerStore();
+  if (!store[orderKey]) {
+    store[orderKey] = { startedAt: new Date().toISOString() };
+    saveTimerStore(store);
+  }
+}
+
+function stopTimer(orderKey: string) {
+  const store = getTimerStore();
+  if (store[orderKey] && !store[orderKey].stoppedAt) {
+    store[orderKey].stoppedAt = new Date().toISOString();
+    saveTimerStore(store);
+  }
+}
+
+function formatTimer(seconds: number): string {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function getTimerColor(seconds: number): string {
+  if (seconds < 600) return 'text-green-600'; // < 10 min
+  if (seconds < 1200) return 'text-amber-500'; // < 20 min
+  return 'text-red-600'; // >= 20 min
+}
+
+function PrepTimer({ orderKey, isRunning }: { orderKey: string; isRunning: boolean }) {
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    const store = getTimerStore();
+    const timer = store[orderKey];
+    if (!timer) { setElapsed(0); return; }
+
+    const calcElapsed = () => {
+      const start = new Date(timer.startedAt).getTime();
+      const end = timer.stoppedAt ? new Date(timer.stoppedAt).getTime() : Date.now();
+      return Math.max(0, Math.floor((end - start) / 1000));
+    };
+
+    setElapsed(calcElapsed());
+
+    if (!isRunning) return;
+
+    const interval = setInterval(() => setElapsed(calcElapsed()), 1000);
+    return () => clearInterval(interval);
+  }, [orderKey, isRunning]);
+
+  if (elapsed === 0 && !getTimerStore()[orderKey]) return null;
+
+  return (
+    <span className={`flex items-center gap-1 text-xs sm:text-sm font-mono font-semibold ${getTimerColor(elapsed)}`}>
+      <Timer className="h-3 w-3 sm:h-4 sm:w-4" />
+      {formatTimer(elapsed)}
+    </span>
+  );
+}
+
 // Draggable Order Card Wrapper
 function DraggableOrderCard({ order, store, onOpenDetails }: { order: UnifiedOrder; store: any; onOpenDetails: (order: UnifiedOrder) => void }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
