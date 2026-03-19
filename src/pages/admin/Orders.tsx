@@ -300,10 +300,39 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
     return labels[status];
   };
 
+  const orderTimerKey = `${order.type}-${order.id}`;
+  const isTimerRunning = order.status === 'preparing' || order.status === 'ready' || order.status === 'delivery';
+  const isTimerVisible = order.status !== 'pending';
+
+  // Start/stop timer based on current status (for persistence on reload)
+  useEffect(() => {
+    if (order.status !== 'pending') {
+      // Ensure timer exists (covers page reload case)
+      const store = getTimerStore();
+      if (!store[orderTimerKey] && order.status !== 'completed' && order.status !== 'cancelled') {
+        // Use updated_at as approximate start time
+        const s = getTimerStore();
+        s[orderTimerKey] = { startedAt: order.updated_at };
+        saveTimerStore(s);
+      }
+    }
+    if (order.status === 'completed' || order.status === 'cancelled') {
+      stopTimer(orderTimerKey);
+    }
+  }, [order.status, orderTimerKey, order.updated_at]);
+
   const handleStatusUpdate = (e: React.MouseEvent) => {
     e.stopPropagation();
     const next = getNextStatus(order.status);
     if (next) {
+      // Start timer when accepting
+      if (order.status === 'pending' && next === 'preparing') {
+        startTimer(orderTimerKey);
+      }
+      // Stop timer when completing
+      if (next === 'completed') {
+        stopTimer(orderTimerKey);
+      }
       updateStatusMutation.mutate({ orderId: order.id, status: next, orderType: order.type });
     }
   };
