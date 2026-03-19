@@ -800,6 +800,30 @@ export type Database = {
           },
         ]
       }
+      system_settings: {
+        Row: {
+          id: number
+          stock_enabled: boolean
+          product_stock_enabled: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          stock_enabled?: boolean
+          product_stock_enabled?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          stock_enabled?: boolean
+          product_stock_enabled?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       push_subscriptions: {
         Row: {
           auth: string

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Pencil, Trash2, Loader2, Search, Package } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, Search, Package, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -10,7 +10,10 @@ import {
 } from '@/components/ui/dialog';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { useIngredients, useCreateIngredient, useUpdateIngredient, useDeleteIngredient, Ingredient } from '@/hooks/useIngredients';
+import { useSystemSettings, useUpdateSystemSettings } from '@/hooks/useSystemSettings';
 import { useToast } from '@/hooks/use-toast';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 const AdminIngredients = () => {
   const { data: ingredients, isLoading } = useIngredients();
@@ -18,6 +21,9 @@ const AdminIngredients = () => {
   const updateIngredient = useUpdateIngredient();
   const deleteIngredient = useDeleteIngredient();
   const { toast } = useToast();
+  
+  const { data: systemSettings, isLoading: isLoadingSettings } = useSystemSettings();
+  const updateSettings = useUpdateSystemSettings();
 
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -111,6 +117,48 @@ const AdminIngredients = () => {
 
   return (
     <AdminLayout title="Estoque">
+      {/* Settings Section */}
+      <div className="bg-card rounded-xl p-4 shadow-card mb-6 border border-border">
+        <h2 className="text-lg font-semibold mb-4 text-foreground flex items-center gap-2">
+          <Settings className="h-5 w-5 text-primary" />
+          Configurações de Estoque
+        </h2>
+        
+        {isLoadingSettings ? (
+          <div className="flex justify-center p-4">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4 sm:flex-row sm:gap-8">
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="stock-enabled" 
+                checked={systemSettings?.stock_enabled ?? true}
+                onCheckedChange={(checked) => updateSettings.mutateAsync({ stock_enabled: checked })}
+                className="data-[state=checked]:bg-[#23354D]"
+              />
+              <Label htmlFor="stock-enabled" className="cursor-pointer font-medium">
+                Ativar Controle de Estoque
+              </Label>
+            </div>
+            
+            <div className={`flex items-center space-x-2 transition-opacity ${!systemSettings?.stock_enabled ? 'opacity-50 pointer-events-none' : ''}`}>
+              <Switch 
+                id="product-stock-enabled" 
+                checked={systemSettings?.product_stock_enabled ?? true}
+                onCheckedChange={(checked) => updateSettings.mutateAsync({ product_stock_enabled: checked })}
+                disabled={!systemSettings?.stock_enabled}
+                className="data-[state=checked]:bg-[#23354D]"
+              />
+              <Label htmlFor="product-stock-enabled" className="cursor-pointer font-medium">
+                Ativar Estoque por Produto
+              </Label>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Header */}
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

@@ -24,6 +24,7 @@ import { ImageUpload } from '@/components/admin/ImageUpload';
 import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct, useProductIngredients, useUpdateProductIngredients, Product } from '@/hooks/useProducts';
 import { useCategories } from '@/hooks/useCategories';
 import { useIngredients } from '@/hooks/useIngredients';
+import { useSystemSettings } from '@/hooks/useSystemSettings';
 import { useAddonGroups, useAddProductAddonGroup, useRemoveProductAddonGroup } from '@/hooks/useAddons';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -39,6 +40,7 @@ const AdminProducts = () => {
   const removeProductAddonGroup = useRemoveProductAddonGroup();
   const { data: ingredients } = useIngredients();
   const updateProductIngredients = useUpdateProductIngredients();
+  const { data: systemSettings } = useSystemSettings();
   const { toast } = useToast();
 
   const [search, setSearch] = useState('');
@@ -97,7 +99,7 @@ const AdminProducts = () => {
       category_id: product.category_id || '',
       image_url: product.image_url || '',
       is_available: product.is_available,
-      stock_type: product.stock_type === 'ingredient' ? 'ingredient' : 'unit',
+      stock_type: (systemSettings && !systemSettings.product_stock_enabled) ? 'ingredient' : (product.stock_type === 'ingredient' ? 'ingredient' : 'unit'),
       stock_quantity: (product.stock_quantity || 0).toString(),
       unit: product.unit || 'un',
       min_stock: (product.min_stock || 0).toString(),
@@ -155,7 +157,7 @@ const AdminProducts = () => {
       return;
     }
 
-    if (formData.stock_type === 'ingredient' && composition.length === 0) {
+    if (formData.stock_type === 'ingredient' && composition.length === 0 && systemSettings?.product_stock_enabled !== false) {
       toast({ title: 'Adicione pelo menos 1 ingrediente à composição', variant: 'destructive' });
       return;
     }
@@ -168,7 +170,7 @@ const AdminProducts = () => {
         category_id: formData.category_id || null,
         image_url: formData.image_url || null,
         is_available: formData.is_available,
-        stock_type: formData.stock_type,
+        stock_type: (systemSettings && !systemSettings.product_stock_enabled) ? 'ingredient' : formData.stock_type,
         stock_quantity: parseFloat(formData.stock_quantity.replace(',', '.')) || 0,
         unit: formData.stock_type === 'unit' ? formData.unit : 'un',
         min_stock: parseFloat(formData.min_stock.replace(',', '.')) || 0,
@@ -429,79 +431,86 @@ const AdminProducts = () => {
               </div>
             </div>
 
-            <div className="space-y-3 pt-2 border-t border-border">
-              <label className="text-sm font-semibold text-foreground uppercase tracking-wider">Controle de Estoque</label>
-              
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { id: 'unit', label: 'Unidade Simples' },
-                  { id: 'ingredient', label: 'Ingredientes' }
-                ].map((mode) => (
-                  <Button
-                    key={mode.id}
-                    type="button"
-                    variant={formData.stock_type === mode.id ? 'default' : 'outline'}
-                    className="text-xs h-9"
-                    onClick={() => {
-                      if (mode.id === 'unit' && formData.stock_type !== 'unit') {
-                        setFormData({ ...formData, stock_type: 'unit' });
-                        setComposition([]);
-                      } else if (mode.id === 'ingredient' && formData.stock_type !== 'ingredient') {
-                        setFormData({ ...formData, stock_type: 'ingredient', stock_quantity: '0', min_stock: '0', unit: 'un' });
-                      }
-                    }}
-                  >
-                    {mode.label}
-                  </Button>
-                ))}
-              </div>
+            {systemSettings?.stock_enabled && (
+              <div className="space-y-3 pt-2 border-t border-border">
+                <label className="text-sm font-semibold text-foreground uppercase tracking-wider">Controle de Estoque</label>
+                
+                {systemSettings?.product_stock_enabled ? (
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { id: 'unit', label: 'Unidade Simples' },
+                      { id: 'ingredient', label: 'Ingredientes' }
+                    ].map((mode) => (
+                      <Button
+                        key={mode.id}
+                        type="button"
+                        variant={formData.stock_type === mode.id ? 'default' : 'outline'}
+                        className="text-xs h-9"
+                        onClick={() => {
+                          if (mode.id === 'unit' && formData.stock_type !== 'unit') {
+                            setFormData({ ...formData, stock_type: 'unit' });
+                            setComposition([]);
+                          } else if (mode.id === 'ingredient' && formData.stock_type !== 'ingredient') {
+                            setFormData({ ...formData, stock_type: 'ingredient', stock_quantity: '0', min_stock: '0', unit: 'un' });
+                          }
+                        }}
+                      >
+                        {mode.label}
+                      </Button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-blue-50/50 text-blue-600 p-2 text-xs rounded-lg mb-2">
+                    O controle de Estoque por Unidade Simples está desativado nas configurações.
+                  </div>
+                )}
 
-              {formData.stock_type === 'unit' && (
-                <div className="grid grid-cols-3 gap-4 animate-in fade-in slide-in-from-top-2">
-                  <div>
-                    <label className="text-sm text-muted-foreground">Qtd em Estoque</label>
-                    <Input
-                      type="number"
-                      step="0.001"
-                      value={formData.stock_quantity}
-                      onChange={(e) => setFormData({ ...formData, stock_quantity: e.target.value })}
-                      placeholder="0.000"
-                      className="mt-1"
-                    />
+                {systemSettings?.product_stock_enabled && formData.stock_type === 'unit' && (
+                  <div className="grid grid-cols-3 gap-4 animate-in fade-in slide-in-from-top-2">
+                    <div>
+                      <label className="text-sm text-muted-foreground">Qtd em Estoque</label>
+                      <Input
+                        type="number"
+                        step="0.001"
+                        value={formData.stock_quantity}
+                        onChange={(e) => setFormData({ ...formData, stock_quantity: e.target.value })}
+                        placeholder="0.000"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm text-muted-foreground">Unidade</label>
+                      <Select
+                        value={formData.unit}
+                        onValueChange={(val) => setFormData({ ...formData, unit: val })}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="un">Unidade (un)</SelectItem>
+                          <SelectItem value="kg">Quilograma (kg)</SelectItem>
+                          <SelectItem value="g">Grama (g)</SelectItem>
+                          <SelectItem value="L">Litro (L)</SelectItem>
+                          <SelectItem value="ml">Mililitro (ml)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="text-sm text-muted-foreground">Estoque Mínimo</label>
+                      <Input
+                        type="number"
+                        step="0.001"
+                        value={formData.min_stock}
+                        onChange={(e) => setFormData({ ...formData, min_stock: e.target.value })}
+                        placeholder="0.000"
+                        className="mt-1"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-sm text-muted-foreground">Unidade</label>
-                    <Select
-                      value={formData.unit}
-                      onValueChange={(val) => setFormData({ ...formData, unit: val })}
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="un">Unidade (un)</SelectItem>
-                        <SelectItem value="kg">Quilograma (kg)</SelectItem>
-                        <SelectItem value="g">Grama (g)</SelectItem>
-                        <SelectItem value="L">Litro (L)</SelectItem>
-                        <SelectItem value="ml">Mililitro (ml)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="text-sm text-muted-foreground">Estoque Mínimo</label>
-                    <Input
-                      type="number"
-                      step="0.001"
-                      value={formData.min_stock}
-                      onChange={(e) => setFormData({ ...formData, min_stock: e.target.value })}
-                      placeholder="0.000"
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-              )}
+                )}
 
-              {formData.stock_type === 'ingredient' && (
+              {(!systemSettings?.product_stock_enabled || formData.stock_type === 'ingredient') && (
                 <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
                   <div className="flex items-center justify-between">
                     <label className="text-sm text-muted-foreground">Composição do Produto</label>
@@ -600,6 +609,7 @@ const AdminProducts = () => {
                 </div>
               )}
             </div>
+          )}
 
             {/* Addon Groups Selection */}
             {addonGroups && addonGroups.length > 0 && (
