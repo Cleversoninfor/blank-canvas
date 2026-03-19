@@ -162,54 +162,71 @@ const AdminIngredients = () => {
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar estoque..."
+          <Input 
+            placeholder="Buscar estoque..." 
+            className="pl-9 h-11 bg-card border-border shadow-sm rounded-xl focus-visible:ring-primary"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
+            disabled={!systemSettings?.stock_enabled}
           />
         </div>
-        <Button onClick={openCreateModal} className="w-full sm:w-auto">
-          <Plus className="h-4 w-4 mr-2" />
-          Novo Item de Estoque
-        </Button>
+        
+        {systemSettings?.stock_enabled && (
+          <Button 
+            onClick={openCreateModal}
+            className="h-11 shadow-sm rounded-xl font-medium sm:w-auto w-full gap-2 text-primary-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <Plus className="h-5 w-5" /> Novo Item de Estoque
+          </Button>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        {filteredIngredients.map((ingredient) => (
-          <div key={ingredient.id} className="bg-card rounded-xl p-4 shadow-card">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Package className="h-5 w-5 text-primary" />
+      {!systemSettings?.stock_enabled ? (
+        <div className="text-center p-12 bg-card rounded-xl border border-border shadow-sm">
+          <Package className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-foreground mb-2">Estoque Global Desativado</h3>
+          <p className="text-muted-foreground max-w-md mx-auto">
+            O gerenciamento de estoque foi totalmente desativado nas configurações. 
+            Ative-o no painel acima para gerenciar os seus itens e movimentações de estoque.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          {filteredIngredients.map((ingredient) => (
+            <div key={ingredient.id} className="bg-card rounded-xl p-4 shadow-card">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Package className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">{ingredient.name}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Estoque: <span className={ingredient.stock_quantity <= ingredient.min_stock ? "text-destructive font-bold" : ""}>
+                        {ingredient.stock_quantity} {ingredient.unit}
+                      </span>
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">{ingredient.name}</h3>
-                  <p className="text-xs text-muted-foreground">
-                    Estoque: <span className={ingredient.stock_quantity <= ingredient.min_stock ? "text-destructive font-bold" : ""}>
-                      {ingredient.stock_quantity} {ingredient.unit}
-                    </span>
-                  </p>
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditModal(ingredient)}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(ingredient)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
-              </div>
-              <div className="flex gap-1">
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditModal(ingredient)}>
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(ingredient)}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
 
         {filteredIngredients.length === 0 && (
           <div className="col-span-full py-12 text-center text-muted-foreground">
             Nenhum item de estoque encontrado
           </div>
         )}
-      </div>
+        </div>
+      )}
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-sm">
