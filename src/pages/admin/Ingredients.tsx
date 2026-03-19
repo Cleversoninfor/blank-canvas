@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Pencil, Trash2, Loader2, Search, Package, Settings } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, Search, Package, Settings, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -14,7 +14,6 @@ import { useSystemSettings, useUpdateSystemSettings } from '@/hooks/useSystemSet
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-
 const AdminIngredients = () => {
   const { data: ingredients, isLoading } = useIngredients();
   const createIngredient = useCreateIngredient();
@@ -35,8 +34,12 @@ const AdminIngredients = () => {
     min_stock: '',
   });
 
-  const filteredIngredients = ingredients?.filter(i => 
-    i.name.toLowerCase().includes(search.toLowerCase())
+  const filteredIngredients = ingredients?.filter(ing => 
+    ing.name.toLowerCase().includes(search.toLowerCase())
+  ) || [];
+
+  const criticalIngredients = ingredients?.filter(ing => 
+    ing.stock_quantity <= ing.min_stock
   ) || [];
 
   const openCreateModal = () => {
@@ -191,43 +194,70 @@ const AdminIngredients = () => {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          {filteredIngredients.map((ingredient) => (
-            <div key={ingredient.id} className="bg-card rounded-xl p-4 shadow-card">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Package className="h-5 w-5 text-primary" />
-                  </div>
+        <>
+          {criticalIngredients.length > 0 && (
+            <div className="mb-6 space-y-2">
+              {criticalIngredients.map(ing => (
+                <div key={`critical-${ing.id}`} className="bg-destructive/10 border-l-4 border-destructive p-3 rounded-r-lg flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+                  <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
                   <div>
-                    <h3 className="font-semibold text-foreground">{ingredient.name}</h3>
-                    <p className="text-xs text-muted-foreground">
-                      Estoque: <span className={ingredient.stock_quantity <= ingredient.min_stock ? "text-destructive font-bold" : ""}>
-                        {ingredient.stock_quantity} {ingredient.unit}
-                      </span>
+                    <h4 className="font-semibold text-destructive text-sm leading-none">⚠️ Estoque no mínimo</h4>
+                    <p className="text-sm text-destructive/90 mt-1">
+                      O ingrediente <span className="font-bold">{ing.name}</span> atingiu o estoque mínimo. Quantidade atual: {ing.stock_quantity} {ing.unit}
                     </p>
                   </div>
                 </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditModal(ingredient)}>
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(ingredient)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
+          )}
 
-        {filteredIngredients.length === 0 && (
-          <div className="col-span-full py-12 text-center text-muted-foreground">
-            Nenhum item de estoque encontrado
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            {filteredIngredients.map((ingredient) => {
+              const isCritical = ingredient.stock_quantity <= ingredient.min_stock;
+              return (
+                <div 
+                  key={ingredient.id} 
+                  className={`bg-card rounded-xl p-4 shadow-card border-2 transition-colors ${
+                    isCritical ? 'border-destructive/40 bg-destructive/5' : 'border-transparent'
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${
+                        isCritical ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'
+                      }`}>
+                        {isCritical ? <AlertTriangle className="h-5 w-5" /> : <Package className="h-5 w-5" />}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-foreground">{ingredient.name}</h3>
+                        <p className="text-xs text-muted-foreground">
+                          Estoque: <span className={isCritical ? "text-destructive font-bold" : ""}>
+                            {ingredient.stock_quantity} {ingredient.unit}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditModal(ingredient)}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(ingredient)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {filteredIngredients.length === 0 && (
+              <div className="col-span-full py-12 text-center text-muted-foreground">
+                Nenhum item de estoque encontrado
+              </div>
+            )}
           </div>
-        )}
-        </div>
+        </>
       )}
-
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>

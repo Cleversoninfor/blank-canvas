@@ -57,6 +57,8 @@ const PDVHeader = ({ title, onLogout }: { title: string; onLogout: () => void })
   </div>
 );
 
+import { useStockAlerts } from '@/hooks/useStockAlerts';
+
 const PDVPublic = () => {
   const { toast } = useToast();
   const { data: store, isLoading: loadingStore } = useStoreConfig();
@@ -65,6 +67,7 @@ const PDVPublic = () => {
   const [passwordError, setPasswordError] = useState('');
 
   useTheme();
+  useStockAlerts();
 
   // PDV state
   const { data: comandasData, isLoading: loadingComandas } = useComandas();
