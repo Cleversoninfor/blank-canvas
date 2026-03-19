@@ -16,7 +16,6 @@ import {
   LayoutDashboard,
   ClipboardList,
   PlusCircle,
-  ExternalLink,
   Eye,
   MapPin,
   BarChart3,
@@ -26,7 +25,9 @@ import {
   Monitor,
   Users as UsersIcon,
   Send,
-  Receipt
+  Receipt,
+  Package,
+  ExternalLink
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -65,6 +66,7 @@ const navGroups = [
     items: [
       { id: 'orders', label: 'Pedidos', icon: ClipboardList, path: '/admin/orders', permKey: 'perm_pedidos' as PermKey },
       { id: 'products', label: 'Produtos', icon: ShoppingBag, path: '/admin/products', permKey: 'perm_produtos' as PermKey },
+      { id: 'ingredients', label: 'Ingredientes', icon: Package, path: '/admin/ingredients', permKey: 'perm_produtos' as PermKey },
       { id: 'categories', label: 'Categorias', icon: Tag, path: '/admin/categories', permKey: 'perm_categorias' as PermKey },
       { id: 'addons', label: 'Acréscimos', icon: PlusCircle, path: '/admin/addons', permKey: 'perm_acrescimos' as PermKey },
       { id: 'coupons', label: 'Cupons', icon: Ticket, path: '/admin/coupons', permKey: 'perm_cupons' as PermKey },

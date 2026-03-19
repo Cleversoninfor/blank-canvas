@@ -171,7 +171,7 @@ export function useCreateComandaOrder() {
     }: {
       comandaId: string;
       numeroComanda: number;
-      items: { product_name: string; quantity: number; unit_price: number; observation?: string }[];
+      items: { product_id: string; product_name: string; quantity: number; unit_price: number; observation?: string }[];
     }) => {
       const totalAmount = items.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
 

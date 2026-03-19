@@ -524,12 +524,43 @@ export type Database = {
         }
         Relationships: []
       }
+      ingredients: {
+        Row: {
+          created_at: string
+          id: string
+          min_stock: number
+          name: string
+          stock_quantity: number
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          min_stock?: number
+          name: string
+          stock_quantity?: number
+          unit: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          min_stock?: number
+          name?: string
+          stock_quantity?: number
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
           id: string
           observation: string | null
           order_id: number | null
+          product_id: string | null
           product_name: string
           quantity: number
           unit_price: number
@@ -539,6 +570,7 @@ export type Database = {
           id?: string
           observation?: string | null
           order_id?: number | null
+          product_id?: string | null
           product_name: string
           quantity?: number
           unit_price?: number
@@ -548,6 +580,7 @@ export type Database = {
           id?: string
           observation?: string | null
           order_id?: number | null
+          product_id?: string | null
           product_name?: string
           quantity?: number
           unit_price?: number
@@ -669,6 +702,45 @@ export type Database = {
           },
         ]
       }
+      product_ingredients: {
+        Row: {
+          created_at: string
+          id: string
+          ingredient_id: string
+          product_id: string
+          quantity_used: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ingredient_id: string
+          product_id: string
+          quantity_used: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ingredient_id?: string
+          product_id?: string
+          quantity_used?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_ingredients_ingredient_id_fkey"
+            columns: ["ingredient_id"]
+            isOneToOne: false
+            referencedRelation: "ingredients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_ingredients_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category_id: string | null
@@ -677,8 +749,11 @@ export type Database = {
           id: string
           image_url: string | null
           is_available: boolean
+          min_stock: number
           name: string
           price: number
+          stock_mode: string
+          stock_quantity: number
           updated_at: string
         }
         Insert: {
@@ -688,8 +763,11 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_available?: boolean
+          min_stock?: number
           name: string
           price?: number
+          stock_mode?: string
+          stock_quantity?: number
           updated_at?: string
         }
         Update: {
@@ -699,8 +777,11 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_available?: boolean
+          min_stock?: number
           name?: string
           price?: number
+          stock_mode?: string
+          stock_quantity?: number
           updated_at?: string
         }
         Relationships: [

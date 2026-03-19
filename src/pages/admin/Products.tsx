@@ -21,8 +21,9 @@ import {
 } from '@/components/ui/select';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { ImageUpload } from '@/components/admin/ImageUpload';
-import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct, Product } from '@/hooks/useProducts';
+import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct, useProductIngredients, useUpdateProductIngredients, Product } from '@/hooks/useProducts';
 import { useCategories } from '@/hooks/useCategories';
+import { useIngredients } from '@/hooks/useIngredients';
 import { useAddonGroups, useAddProductAddonGroup, useRemoveProductAddonGroup } from '@/hooks/useAddons';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,6 +37,8 @@ const AdminProducts = () => {
   const deleteProduct = useDeleteProduct();
   const addProductAddonGroup = useAddProductAddonGroup();
   const removeProductAddonGroup = useRemoveProductAddonGroup();
+  const { data: ingredients } = useIngredients();
+  const updateProductIngredients = useUpdateProductIngredients();
   const { toast } = useToast();
 
   const [search, setSearch] = useState('');
@@ -48,10 +51,15 @@ const AdminProducts = () => {
     category_id: '',
     image_url: '',
     is_available: true,
+    stock_mode: 'none' as 'simple' | 'ingredients' | 'none',
+    stock_quantity: '',
+    min_stock: '',
   });
   const [selectedAddonGroups, setSelectedAddonGroups] = useState<string[]>([]);
   const [initialAddonGroups, setInitialAddonGroups] = useState<string[]>([]);
+  const [composition, setComposition] = useState<{ ingredient_id: string; quantity_used: string }[]>([]);
   const [loadingAddons, setLoadingAddons] = useState(false);
+  const [loadingComposition, setLoadingComposition] = useState(false);
 
   const filteredProducts = products?.filter(p => 
     p.name.toLowerCase().includes(search.toLowerCase())
@@ -69,8 +77,12 @@ const AdminProducts = () => {
       category_id: '',
       image_url: '',
       is_available: true,
+      stock_mode: 'none',
+      stock_quantity: '0',
+      min_stock: '0',
     });
     setSelectedAddonGroups([]);
+    setComposition([]);
     setIsModalOpen(true);
   };
 
@@ -83,28 +95,45 @@ const AdminProducts = () => {
       category_id: product.category_id || '',
       image_url: product.image_url || '',
       is_available: product.is_available,
+      stock_mode: product.stock_mode || 'none',
+      stock_quantity: (product.stock_quantity || 0).toString(),
+      min_stock: (product.min_stock || 0).toString(),
     });
     setIsModalOpen(true);
     
     // Fetch product addon groups
     setLoadingAddons(true);
+    setLoadingComposition(true);
     try {
-      const { data, error } = await supabase
+      // Addons
+      const { data: addonsData, error: addonsError } = await supabase
         .from('product_addon_groups')
         .select('addon_group_id')
         .eq('product_id', product.id);
       
-      if (error) throw error;
+      if (addonsError) throw addonsError;
       
-      const groupIds = data?.map(pag => pag.addon_group_id) || [];
+      const groupIds = addonsData?.map(pag => pag.addon_group_id) || [];
       setSelectedAddonGroups(groupIds);
       setInitialAddonGroups(groupIds);
+
+      // Composition
+      const { data: compData, error: compError } = await supabase
+        .from('product_ingredients')
+        .select('ingredient_id, quantity_used')
+        .eq('product_id', product.id);
+      
+      if (compError) throw compError;
+      setComposition(compData?.map(c => ({ 
+        ingredient_id: c.ingredient_id, 
+        quantity_used: c.quantity_used.toString() 
+      })) || []);
+
     } catch (error) {
-      console.error('Error fetching product addon groups:', error);
-      setSelectedAddonGroups([]);
-      setInitialAddonGroups([]);
+      console.error('Error fetching details:', error);
     } finally {
       setLoadingAddons(false);
+      setLoadingComposition(false);
     }
   };
 
@@ -130,6 +159,9 @@ const AdminProducts = () => {
         category_id: formData.category_id || null,
         image_url: formData.image_url || null,
         is_available: formData.is_available,
+        stock_mode: formData.stock_mode,
+        stock_quantity: parseFloat(formData.stock_quantity.replace(',', '.')) || 0,
+        min_stock: parseFloat(formData.min_stock.replace(',', '.')) || 0,
       };
 
       let productId: string;
@@ -148,6 +180,15 @@ const AdminProducts = () => {
         for (const groupId of toAdd) {
           await addProductAddonGroup.mutateAsync({ product_id: productId, addon_group_id: groupId });
         }
+
+        // Sync composition
+        await updateProductIngredients.mutateAsync({
+          productId,
+          ingredients: composition.map(c => ({
+            ingredient_id: c.ingredient_id,
+            quantity_used: parseFloat(c.quantity_used.replace(',', '.')) || 0
+          }))
+        });
         
         toast({ title: 'Produto atualizado!' });
       } else {
@@ -158,6 +199,15 @@ const AdminProducts = () => {
         for (const groupId of selectedAddonGroups) {
           await addProductAddonGroup.mutateAsync({ product_id: productId, addon_group_id: groupId });
         }
+
+        // Add composition
+        await updateProductIngredients.mutateAsync({
+          productId,
+          ingredients: composition.map(c => ({
+            ingredient_id: c.ingredient_id,
+            quantity_used: parseFloat(c.quantity_used.replace(',', '.')) || 0
+          }))
+        });
         
         toast({ title: 'Produto criado!' });
       }
@@ -365,6 +415,133 @@ const AdminProducts = () => {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            {/* Stock Control */}
+            <div className="space-y-3 pt-2 border-t border-border">
+              <label className="text-sm font-semibold text-foreground uppercase tracking-wider">Controle de Estoque</label>
+              
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: 'none', label: 'Inativo' },
+                  { id: 'simple', label: 'Unidade' },
+                  { id: 'ingredients', label: 'Ingredientes' }
+                ].map((mode) => (
+                  <Button
+                    key={mode.id}
+                    type="button"
+                    variant={formData.stock_mode === mode.id ? 'default' : 'outline'}
+                    className="text-xs h-9"
+                    onClick={() => setFormData({ ...formData, stock_mode: mode.id as any })}
+                  >
+                    {mode.label}
+                  </Button>
+                ))}
+              </div>
+
+              {formData.stock_mode === 'simple' && (
+                <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
+                  <div>
+                    <label className="text-sm text-muted-foreground">Qtd em Estoque</label>
+                    <Input
+                      type="number"
+                      step="0.001"
+                      value={formData.stock_quantity}
+                      onChange={(e) => setFormData({ ...formData, stock_quantity: e.target.value })}
+                      placeholder="0.000"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-muted-foreground">Estoque Mínimo</label>
+                    <Input
+                      type="number"
+                      step="0.001"
+                      value={formData.min_stock}
+                      onChange={(e) => setFormData({ ...formData, min_stock: e.target.value })}
+                      placeholder="0.000"
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {formData.stock_mode === 'ingredients' && (
+                <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm text-muted-foreground">Composição do Produto</label>
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 text-xs text-primary"
+                      onClick={() => setComposition([...composition, { ingredient_id: '', quantity_used: '0' }])}
+                    >
+                      <Plus className="h-3 w-3 mr-1" /> Add Ingrediente
+                    </Button>
+                  </div>
+
+                  {loadingComposition ? (
+                    <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>
+                  ) : (
+                    <div className="space-y-2">
+                      {composition.map((comp, idx) => (
+                        <div key={idx} className="flex gap-2 items-end bg-muted/30 p-2 rounded-lg relative group">
+                          <div className="flex-1">
+                            <label className="text-[10px] uppercase text-muted-foreground select-none">Ingrediente</label>
+                            <Select
+                              value={comp.ingredient_id}
+                              onValueChange={(val) => {
+                                const newComp = [...composition];
+                                newComp[idx].ingredient_id = val;
+                                setComposition(newComp);
+                              }}
+                            >
+                              <SelectTrigger className="h-8 text-xs bg-background">
+                                <SelectValue placeholder="Selecione" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {ingredients?.map((ing) => (
+                                  <SelectItem key={ing.id} value={ing.id} className="text-xs">
+                                    {ing.name} ({ing.unit})
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="w-24">
+                            <label className="text-[10px] uppercase text-muted-foreground select-none">Qtd. Uso</label>
+                            <Input
+                              value={comp.quantity_used}
+                              onChange={(e) => {
+                                const newComp = [...composition];
+                                newComp[idx].quantity_used = e.target.value;
+                                setComposition(newComp);
+                              }}
+                              placeholder="0.000"
+                              className="h-8 text-xs bg-background"
+                            />
+                          </div>
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => setComposition(composition.filter((_, i) => i !== idx))}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      ))}
+                      {composition.length === 0 && (
+                        <p className="text-center py-4 text-xs text-muted-foreground border-2 border-dashed border-muted rounded-lg">
+                          Nenhum ingrediente adicionado.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Addon Groups Selection */}

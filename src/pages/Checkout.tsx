@@ -291,6 +291,7 @@ const Checkout = () => {
           longitude: deliveryType === 'delivery' ? geoCoords?.lng ?? null : null,
         },
         items: items.map((item) => ({
+          product_id: item.product.id,
           product_name: item.product.name,
           quantity: item.quantity,
           unit_price: item.product.price,

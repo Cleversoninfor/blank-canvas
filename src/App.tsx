@@ -16,6 +16,7 @@ import Install from "./pages/Install";
 import AdminOrders from "./pages/admin/Orders";
 import AdminProducts from "./pages/admin/Products";
 import AdminCategories from "./pages/admin/Categories";
+import AdminIngredients from "./pages/admin/Ingredients";
 import AdminCoupons from "./pages/admin/Coupons";
 import AdminHours from "./pages/admin/Hours";
 import AdminSettings from "./pages/admin/Settings";
@@ -62,6 +63,7 @@ const App = () => (
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/orders" element={<AdminOrders />} />
                 <Route path="/admin/products" element={<AdminProducts />} />
+                <Route path="/admin/ingredients" element={<AdminIngredients />} />
                 <Route path="/admin/categories" element={<AdminCategories />} />
                 <Route path="/admin/coupons" element={<AdminCoupons />} />
                 <Route path="/admin/hours" element={<AdminHours />} />

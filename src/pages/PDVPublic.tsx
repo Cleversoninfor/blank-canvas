@@ -145,6 +145,7 @@ const PDVPublic = () => {
         comandaId: selectedComanda.id,
         numeroComanda: selectedComanda.numero_comanda,
         items: cart.map(i => ({
+          product_id: i.product.id,
           product_name: i.product.name,
           quantity: i.quantity,
           unit_price: Number(i.product.price || 0),
@@ -381,6 +382,7 @@ const PDVPublic = () => {
                 comandaId: selectorComanda.id,
                 numeroComanda: selectorComanda.numero_comanda,
                 items: castedItems.map((i: any) => ({
+                  product_id: i.product.id,
                   product_name: i.product.name,
                   quantity: i.quantity,
                   unit_price: Number(i.product.price || 0),

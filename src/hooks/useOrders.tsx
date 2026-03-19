@@ -21,6 +21,7 @@ export interface Order {
 export interface OrderItem {
   id: string;
   order_id: number;
+  product_id: string | null;
   product_name: string;
   quantity: number;
   unit_price: number;
@@ -44,6 +45,7 @@ export interface CreateOrderData {
 
 export interface CreateOrderItemData {
   order_id: number;
+  product_id?: string | null;
   product_name: string;
   quantity: number;
   unit_price: number;
@@ -180,6 +182,7 @@ export function useCreateOrder() {
         _total_amount: order.total_amount,
         _payment_method: order.payment_method,
         _items: items.map(item => ({
+          product_id: item.product_id || null,
           product_name: item.product_name,
           quantity: item.quantity,
           unit_price: item.unit_price,

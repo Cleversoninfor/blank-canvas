@@ -9,6 +9,20 @@ export interface Product {
   price: number;
   image_url: string;
   is_available: boolean;
+  stock_mode: 'simple' | 'ingredients' | 'none';
+  stock_quantity: number;
+  min_stock: number;
+}
+
+export interface ProductIngredient {
+  id: string;
+  product_id: string;
+  ingredient_id: string;
+  quantity_used: number;
+  ingredient?: {
+    name: string;
+    unit: string;
+  };
 }
 
 export function useProducts() {
@@ -25,6 +39,9 @@ export function useProducts() {
         ...p,
         description: p.description || '',
         image_url: p.image_url || '',
+        stock_mode: p.stock_mode || 'none',
+        stock_quantity: p.stock_quantity || 0,
+        min_stock: p.min_stock || 0,
       })) as Product[];
     },
   });
@@ -44,6 +61,9 @@ export function useCreateProduct() {
           category_id: product.category_id,
           image_url: product.image_url,
           is_available: product.is_available,
+          stock_mode: product.stock_mode || 'none',
+          stock_quantity: product.stock_quantity || 0,
+          min_stock: product.min_stock || 0,
         })
         .select()
         .single();
@@ -92,6 +112,59 @@ export function useDeleteProduct() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+  });
+}
+
+export function useProductIngredients(productId?: string) {
+  return useQuery({
+    queryKey: ['product-ingredients', productId],
+    queryFn: async () => {
+      if (!productId) return [];
+      const { data, error } = await supabase
+        .from('product_ingredients')
+        .select('*, ingredient:ingredients(name, unit)')
+        .eq('product_id', productId);
+      
+      if (error) throw error;
+      return data as ProductIngredient[];
+    },
+    enabled: !!productId,
+  });
+}
+
+export function useUpdateProductIngredients() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ productId, ingredients }: { productId: string, ingredients: Omit<ProductIngredient, 'id' | 'product_id'>[] }) => {
+      // First delete all existing ingredients for this product
+      const { error: deleteError } = await supabase
+        .from('product_ingredients')
+        .delete()
+        .eq('product_id', productId);
+      
+      if (deleteError) throw deleteError;
+
+      if (ingredients.length === 0) return [];
+
+      // Then insert new ones
+      const { data, error: insertError } = await supabase
+        .from('product_ingredients')
+        .insert(
+          ingredients.map(ing => ({
+            product_id: productId,
+            ingredient_id: ing.ingredient_id,
+            quantity_used: ing.quantity_used,
+          }))
+        )
+        .select();
+      
+      if (insertError) throw insertError;
+      return data;
+    },
+    onSuccess: (_, { productId }) => {
+      queryClient.invalidateQueries({ queryKey: ['product-ingredients', productId] });
     },
   });
 }
