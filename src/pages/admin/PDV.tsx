@@ -21,7 +21,6 @@ import { Product } from '@/hooks/useProducts';
 import { CloseSaleModal } from '@/components/pdv/CloseSaleModal';
 import { ProductSelectorModal } from '@/components/pdv/ProductSelectorModal';
 import { CloseComandaCard } from '@/components/pdv/CloseComandaCard';
-import { useStockAlerts } from '@/hooks/useStockAlerts';
 
 interface CartItem {
   product: Product;
@@ -43,7 +42,6 @@ const PDV = () => {
   const { data: activeSession, isLoading: loadingSession } = useOpenedSession();
   const { data: balance } = useCaixaBalance(activeSession?.id);
   const closeCaixa = useCloseCaixa();
-  useStockAlerts();
 
   const [view, setView] = useState<'main' | 'select-comanda' | 'select-close'>('main');
 

@@ -14,6 +14,7 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { useStoreConfig } from '@/hooks/useStore';
 import { useAllOrders, useUnifiedOrderItems, useUpdateUnifiedOrderStatus, UnifiedOrder } from '@/hooks/useAllOrders';
 import { useOrdersRealtime } from '@/hooks/useOrdersRealtime';
+import { useStockAlerts } from '@/hooks/useStockAlerts';
 import { OrderDetailModal } from '@/components/orders/OrderDetailModal';
 import { Order } from '@/hooks/useOrders';
 import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isWithinInterval, subDays } from 'date-fns';
@@ -508,6 +509,7 @@ const AdminOrders = () => {
   const { data: store } = useStoreConfig();
   const { data: orders, isLoading, refetch } = useAllOrders();
   const updateStatus = useUpdateUnifiedOrderStatus();
+  useStockAlerts();
 
   // Auto-prompt push notification permission for admin
   useAutoPromptPush('admin');
