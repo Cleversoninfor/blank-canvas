@@ -51,7 +51,7 @@ const AdminProducts = () => {
     category_id: '',
     image_url: '',
     is_available: true,
-    stock_mode: 'none' as 'simple' | 'ingredients' | 'none',
+    stock_mode: 'simple' as 'simple' | 'ingredients',
     stock_quantity: '',
     min_stock: '',
   });
@@ -77,7 +77,7 @@ const AdminProducts = () => {
       category_id: '',
       image_url: '',
       is_available: true,
-      stock_mode: 'none',
+      stock_mode: 'simple' as 'simple' | 'ingredients',
       stock_quantity: '0',
       min_stock: '0',
     });
@@ -95,7 +95,7 @@ const AdminProducts = () => {
       category_id: product.category_id || '',
       image_url: product.image_url || '',
       is_available: product.is_available,
-      stock_mode: product.stock_mode || 'none',
+      stock_mode: product.stock_mode === 'ingredients' ? 'ingredients' : 'simple',
       stock_quantity: (product.stock_quantity || 0).toString(),
       min_stock: (product.min_stock || 0).toString(),
     });
@@ -148,6 +148,11 @@ const AdminProducts = () => {
     const price = parseFloat(formData.price.replace(',', '.'));
     if (isNaN(price) || price <= 0) {
       toast({ title: 'Preço inválido', variant: 'destructive' });
+      return;
+    }
+
+    if (formData.stock_mode === 'ingredients' && composition.length === 0) {
+      toast({ title: 'Adicione pelo menos 1 ingrediente à composição', variant: 'destructive' });
       return;
     }
 
@@ -417,22 +422,27 @@ const AdminProducts = () => {
               </div>
             </div>
 
-            {/* Stock Control */}
             <div className="space-y-3 pt-2 border-t border-border">
               <label className="text-sm font-semibold text-foreground uppercase tracking-wider">Controle de Estoque</label>
               
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {[
-                  { id: 'none', label: 'Inativo' },
-                  { id: 'simple', label: 'Unidade' },
-                  { id: 'ingredients', label: 'Estoque' }
+                  { id: 'simple', label: 'Unidade Simples' },
+                  { id: 'ingredients', label: 'Ingredientes' }
                 ].map((mode) => (
                   <Button
                     key={mode.id}
                     type="button"
                     variant={formData.stock_mode === mode.id ? 'default' : 'outline'}
                     className="text-xs h-9"
-                    onClick={() => setFormData({ ...formData, stock_mode: mode.id as any })}
+                    onClick={() => {
+                      if (mode.id === 'simple' && formData.stock_mode !== 'simple') {
+                        setFormData({ ...formData, stock_mode: 'simple' });
+                        setComposition([]);
+                      } else if (mode.id === 'ingredients' && formData.stock_mode !== 'ingredients') {
+                        setFormData({ ...formData, stock_mode: 'ingredients', stock_quantity: '0', min_stock: '0' });
+                      }
+                    }}
                   >
                     {mode.label}
                   </Button>
@@ -477,7 +487,7 @@ const AdminProducts = () => {
                       className="h-8 text-xs text-primary"
                       onClick={() => setComposition([...composition, { ingredient_id: '', quantity_used: '0' }])}
                     >
-                      <Plus className="h-3 w-3 mr-1" /> Add Item de Estoque
+                      <Plus className="h-3 w-3 mr-1" /> Adicionar Ingrediente
                     </Button>
                   </div>
 
