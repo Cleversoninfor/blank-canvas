@@ -96,8 +96,8 @@ export function HeroHeader({ store }: HeroHeaderProps) {
   useEffect(() => {
     const handleDeviceMotion = (e: DeviceMotionEvent) => {
       if (e.accelerationIncludingGravity) {
-        const x = (e.accelerationIncludingGravity.x || 0) * 2;
-        const y = (e.accelerationIncludingGravity.y || 0) * 2;
+        const x = (e.accelerationIncludingGravity.x || 0) * 8;
+        const y = (e.accelerationIncludingGravity.y || 0) * 8;
         setImagePosition({ x: -x, y });
       }
     };
@@ -235,7 +235,7 @@ export function HeroHeader({ store }: HeroHeaderProps) {
             ref={imageRef}
             src={floatingImageUrl}
             alt="Destaque"
-            className="absolute drop-shadow-2xl transition-transform duration-200 ease-out pointer-events-none z-0"
+            className="absolute drop-shadow-2xl transition-transform duration-100 ease-out pointer-events-none z-0"
             style={
               isMobile
                 ? {
