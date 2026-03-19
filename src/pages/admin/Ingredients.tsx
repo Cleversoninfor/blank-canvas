@@ -76,10 +76,10 @@ const AdminIngredients = () => {
 
       if (editingIngredient) {
         await updateIngredient.mutateAsync({ id: editingIngredient.id, ...data });
-        toast({ title: 'Ingrediente atualizado!' });
+        toast({ title: 'Item atualizado!' });
       } else {
         await createIngredient.mutateAsync(data);
-        toast({ title: 'Ingrediente criado!' });
+        toast({ title: 'Item criado!' });
       }
 
       setIsModalOpen(false);
@@ -89,11 +89,11 @@ const AdminIngredients = () => {
   };
 
   const handleDelete = async (ingredient: Ingredient) => {
-    if (!confirm(`Deseja excluir "${ingredient.name}"? Isso pode afetar produtos que usam este ingrediente.`)) return;
+    if (!confirm(`Deseja excluir "${ingredient.name}"? Isso pode afetar produtos que usam este item.`)) return;
 
     try {
       await deleteIngredient.mutateAsync(ingredient.id);
-      toast({ title: 'Ingrediente excluído!' });
+      toast({ title: 'Item excluído!' });
     } catch (error: any) {
       toast({ title: 'Erro ao excluir', description: error.message, variant: 'destructive' });
     }
@@ -101,7 +101,7 @@ const AdminIngredients = () => {
 
   if (isLoading) {
     return (
-      <AdminLayout title="Ingredientes">
+      <AdminLayout title="Estoque">
         <div className="flex items-center justify-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -110,12 +110,12 @@ const AdminIngredients = () => {
   }
 
   return (
-    <AdminLayout title="Ingredientes">
+    <AdminLayout title="Estoque">
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar ingredientes..."
+            placeholder="Buscar estoque..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
@@ -123,7 +123,7 @@ const AdminIngredients = () => {
         </div>
         <Button onClick={openCreateModal} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
-          Novo Ingrediente
+          Novo Item de Estoque
         </Button>
       </div>
 
@@ -158,7 +158,7 @@ const AdminIngredients = () => {
 
         {filteredIngredients.length === 0 && (
           <div className="col-span-full py-12 text-center text-muted-foreground">
-            Benhum ingrediente encontrado
+            Nenhum item de estoque encontrado
           </div>
         )}
       </div>
@@ -167,7 +167,7 @@ const AdminIngredients = () => {
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>
-              {editingIngredient ? 'Editar Ingrediente' : 'Novo Ingrediente'}
+              {editingIngredient ? 'Editar Item' : 'Novo Item'}
             </DialogTitle>
           </DialogHeader>
 

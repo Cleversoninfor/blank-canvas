@@ -425,7 +425,7 @@ const AdminProducts = () => {
                 {[
                   { id: 'none', label: 'Inativo' },
                   { id: 'simple', label: 'Unidade' },
-                  { id: 'ingredients', label: 'Ingredientes' }
+                  { id: 'ingredients', label: 'Estoque' }
                 ].map((mode) => (
                   <Button
                     key={mode.id}
@@ -477,7 +477,7 @@ const AdminProducts = () => {
                       className="h-8 text-xs text-primary"
                       onClick={() => setComposition([...composition, { ingredient_id: '', quantity_used: '0' }])}
                     >
-                      <Plus className="h-3 w-3 mr-1" /> Add Ingrediente
+                      <Plus className="h-3 w-3 mr-1" /> Add Item de Estoque
                     </Button>
                   </div>
 
@@ -535,7 +535,7 @@ const AdminProducts = () => {
                       ))}
                       {composition.length === 0 && (
                         <p className="text-center py-4 text-xs text-muted-foreground border-2 border-dashed border-muted rounded-lg">
-                          Nenhum ingrediente adicionado.
+                          Nenhum item de estoque adicionado.
                         </p>
                       )}
                     </div>
