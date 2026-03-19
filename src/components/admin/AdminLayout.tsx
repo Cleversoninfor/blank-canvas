@@ -64,12 +64,12 @@ const navGroups = [
     label: 'Gestão',
     items: [
       { id: 'orders', label: 'Pedidos', icon: ClipboardList, path: '/admin/orders', permKey: 'perm_pedidos' as PermKey },
-      { id: 'envios', label: 'Envios', icon: Send, path: '/admin/envios', permKey: 'perm_pedidos' as PermKey },
       { id: 'products', label: 'Produtos', icon: ShoppingBag, path: '/admin/products', permKey: 'perm_produtos' as PermKey },
       { id: 'categories', label: 'Categorias', icon: Tag, path: '/admin/categories', permKey: 'perm_categorias' as PermKey },
       { id: 'addons', label: 'Acréscimos', icon: PlusCircle, path: '/admin/addons', permKey: 'perm_acrescimos' as PermKey },
       { id: 'coupons', label: 'Cupons', icon: Ticket, path: '/admin/coupons', permKey: 'perm_cupons' as PermKey },
       { id: 'comandas', label: 'Comandas', icon: Receipt, path: '/admin/comandas', permKey: 'perm_pedidos' as PermKey },
+      { id: 'envios', label: 'Envios', icon: Send, path: '/admin/envios', permKey: 'perm_pedidos' as PermKey },
       { id: 'reports', label: 'Relatórios', icon: BarChart3, path: '/admin/reports', permKey: 'perm_relatorios' as PermKey },
     ]
   },
