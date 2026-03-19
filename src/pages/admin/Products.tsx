@@ -162,6 +162,31 @@ const AdminProducts = () => {
       return;
     }
 
+    if (formData.stock_type === 'ingredient') {
+      for (const comp of composition) {
+        if (!comp.ingredient_id) {
+          toast({ title: 'Selecione um ingrediente para todos os itens da composição', variant: 'destructive' });
+          return;
+        }
+
+        const qtyUsed = parseFloat(comp.quantity_used.replace(',', '.'));
+        if (isNaN(qtyUsed) || qtyUsed <= 0) {
+          toast({ title: 'A quantidade utilizada na composição não pode ser vazia ou zero', variant: 'destructive' });
+          return;
+        }
+
+        const ing = ingredients?.find(i => i.id === comp.ingredient_id);
+        if (ing && qtyUsed > ing.stock_quantity) {
+          toast({ 
+            title: `Estoque insuficiente para o ingrediente ${ing.name}.`, 
+            description: `Disponível: ${ing.stock_quantity}, necessário: ${qtyUsed}`,
+            variant: 'destructive' 
+          });
+          return;
+        }
+      }
+    }
+
     try {
       const productData = {
         name: formData.name,
@@ -522,77 +547,90 @@ const AdminProducts = () => {
                     {loadingComposition ? (
                       <div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>
                     ) : (
-                      <div className="space-y-2">
-                        {composition.map((comp, idx) => (
-                          <div key={idx} className="flex gap-2 items-end bg-muted/30 p-2 rounded-lg relative group">
-                            <div className="flex-1">
-                              <label className="text-[10px] uppercase text-muted-foreground select-none">Ingrediente</label>
-                              <Select
-                                value={comp.ingredient_id}
-                                onValueChange={(val) => {
-                                  const newComp = [...composition];
-                                  newComp[idx].ingredient_id = val;
-                                  setComposition(newComp);
-                                }}
-                              >
-                                <SelectTrigger className="h-8 text-xs bg-background">
-                                  <SelectValue placeholder="Selecione" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {ingredients?.map((ing) => (
-                                    <SelectItem key={ing.id} value={ing.id} className="text-xs">
-                                      {ing.name} ({ing.unit})
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                      <div className="space-y-3">
+                        {composition.map((comp, idx) => {
+                          const qtyUsed = parseFloat(comp.quantity_used.replace(',', '.'));
+                          const ing = ingredients?.find(i => i.id === comp.ingredient_id);
+                          const isOverStock = Boolean(ing && !isNaN(qtyUsed) && qtyUsed > ing.stock_quantity);
+
+                          return (
+                            <div key={idx} className={`flex flex-col bg-muted/30 p-2 rounded-lg relative group ${isOverStock ? 'border border-destructive' : 'border border-transparent'}`}>
+                              <div className="flex gap-2 items-end">
+                                <div className="flex-1">
+                                  <label className="text-[10px] uppercase text-muted-foreground select-none">Ingrediente</label>
+                                  <Select
+                                    value={comp.ingredient_id}
+                                    onValueChange={(val) => {
+                                      const newComp = [...composition];
+                                      newComp[idx].ingredient_id = val;
+                                      setComposition(newComp);
+                                    }}
+                                  >
+                                    <SelectTrigger className="h-8 text-xs bg-background">
+                                      <SelectValue placeholder="Selecione" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {ingredients?.map((i) => (
+                                        <SelectItem key={i.id} value={i.id} className="text-xs">
+                                          {i.name} (Disp: {i.stock_quantity} {i.unit})
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="w-24">
+                                  <label className={`text-[10px] uppercase select-none ${isOverStock ? 'text-destructive font-bold' : 'text-muted-foreground'}`}>Qtd. Uso</label>
+                                  <Input
+                                    value={comp.quantity_used}
+                                    onChange={(e) => {
+                                      const newComp = [...composition];
+                                      newComp[idx].quantity_used = e.target.value;
+                                      setComposition(newComp);
+                                    }}
+                                    placeholder="0.000"
+                                    className={`h-8 text-xs bg-background ${isOverStock ? 'border-destructive text-destructive font-bold' : ''}`}
+                                  />
+                                </div>
+                                <div className="w-24">
+                                  <label className="text-[10px] uppercase text-muted-foreground select-none">Unidade</label>
+                                  <Select
+                                    value={comp.unit}
+                                    onValueChange={(val) => {
+                                      const newComp = [...composition];
+                                      newComp[idx].unit = val;
+                                      setComposition(newComp);
+                                    }}
+                                  >
+                                    <SelectTrigger className="h-8 text-xs bg-background">
+                                      <SelectValue placeholder="Un" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="un" className="text-xs">un</SelectItem>
+                                      <SelectItem value="kg" className="text-xs">kg</SelectItem>
+                                      <SelectItem value="g" className="text-xs">g</SelectItem>
+                                      <SelectItem value="L" className="text-xs">L</SelectItem>
+                                      <SelectItem value="ml" className="text-xs">ml</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <Button 
+                                  type="button" 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-8 w-8 text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                                  onClick={() => setComposition(composition.filter((_, i) => i !== idx))}
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                              {isOverStock && ing && (
+                                <p className="text-[10px] text-destructive font-medium mt-1 ml-1">
+                                  Estoque insuficiente. Disponível: {ing.stock_quantity} {ing.unit}
+                                </p>
+                              )}
                             </div>
-                            <div className="w-24">
-                              <label className="text-[10px] uppercase text-muted-foreground select-none">Qtd. Uso</label>
-                              <Input
-                                value={comp.quantity_used}
-                                onChange={(e) => {
-                                  const newComp = [...composition];
-                                  newComp[idx].quantity_used = e.target.value;
-                                  setComposition(newComp);
-                                }}
-                                placeholder="0.000"
-                                className="h-8 text-xs bg-background"
-                              />
-                            </div>
-                            <div className="w-24">
-                              <label className="text-[10px] uppercase text-muted-foreground select-none">Unidade</label>
-                              <Select
-                                value={comp.unit}
-                                onValueChange={(val) => {
-                                  const newComp = [...composition];
-                                  newComp[idx].unit = val;
-                                  setComposition(newComp);
-                                }}
-                              >
-                                <SelectTrigger className="h-8 text-xs bg-background">
-                                  <SelectValue placeholder="Un" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="un" className="text-xs">un</SelectItem>
-                                  <SelectItem value="kg" className="text-xs">kg</SelectItem>
-                                  <SelectItem value="g" className="text-xs">g</SelectItem>
-                                  <SelectItem value="L" className="text-xs">L</SelectItem>
-                                  <SelectItem value="ml" className="text-xs">ml</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <Button 
-                              type="button" 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8 text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={() => setComposition(composition.filter((_, i) => i !== idx))}
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        ))}
+                          );
+                        })}
                         {composition.length === 0 && (
                           <p className="text-center py-4 text-xs text-muted-foreground border-2 border-dashed border-muted rounded-lg">
                             Nenhum item de estoque adicionado.
