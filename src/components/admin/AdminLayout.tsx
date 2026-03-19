@@ -282,7 +282,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
 
           <div className="p-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
             <div className="hidden lg:block mb-3">
-              <PWAInstallButton appName="Administração" />
+              <PWAInstallButton appName="Administrativo" />
             </div>
             
             <div className="flex items-center gap-3 mb-3">
@@ -323,7 +323,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
               <Menu className="h-5 w-5" />
             </button>
             <h1 className="font-semibold text-white truncate flex-1 text-sm sm:text-base">{title || 'Admin'}</h1>
-            <PWAInstallButton appName="Administração" />
+            <PWAInstallButton appName="Administrativo" />
           </header>
 
           <main className="flex-1 p-4 sm:p-6 overflow-x-hidden">

@@ -83,8 +83,8 @@ function getPWAConfig(pathname: string): PWAConfig {
   
   if (pathname.startsWith('/admin')) {
     return {
-      name: 'Administração',
-      shortName: 'Admin',
+      name: 'Administrativo',
+      shortName: 'Administrativo',
       startUrl: '/admin',
       description: 'Painel Administrativo - Gestão do estabelecimento'
     };
