@@ -9,7 +9,8 @@ export interface Product {
   price: number;
   image_url: string;
   is_available: boolean;
-  stock_mode: 'simple' | 'ingredients' | 'none';
+  stock_type: 'unit' | 'ingredient';
+  unit: string;
   stock_quantity: number;
   min_stock: number;
 }
@@ -19,6 +20,7 @@ export interface ProductIngredient {
   product_id: string;
   ingredient_id: string;
   quantity_used: number;
+  unit: string;
   ingredient?: {
     name: string;
     unit: string;
@@ -39,7 +41,8 @@ export function useProducts() {
         ...p,
         description: p.description || '',
         image_url: p.image_url || '',
-        stock_mode: p.stock_mode || 'none',
+        stock_type: p.stock_type || 'unit',
+        unit: p.unit || 'un',
         stock_quantity: p.stock_quantity || 0,
         min_stock: p.min_stock || 0,
       })) as Product[];
@@ -61,7 +64,8 @@ export function useCreateProduct() {
           category_id: product.category_id,
           image_url: product.image_url,
           is_available: product.is_available,
-          stock_mode: product.stock_mode || 'none',
+          stock_type: product.stock_type || 'unit',
+          unit: product.unit || 'un',
           stock_quantity: product.stock_quantity || 0,
           min_stock: product.min_stock || 0,
         })
@@ -156,6 +160,7 @@ export function useUpdateProductIngredients() {
             product_id: productId,
             ingredient_id: ing.ingredient_id,
             quantity_used: ing.quantity_used,
+            unit: ing.unit,
           }))
         )
         .select();

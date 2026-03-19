@@ -709,6 +709,7 @@ export type Database = {
           ingredient_id: string
           product_id: string
           quantity_used: number
+          unit: string | null
         }
         Insert: {
           created_at?: string
@@ -716,6 +717,7 @@ export type Database = {
           ingredient_id: string
           product_id: string
           quantity_used: number
+          unit?: string | null
         }
         Update: {
           created_at?: string
@@ -723,6 +725,7 @@ export type Database = {
           ingredient_id?: string
           product_id?: string
           quantity_used?: number
+          unit?: string | null
         }
         Relationships: [
           {
@@ -752,8 +755,9 @@ export type Database = {
           min_stock: number
           name: string
           price: number
-          stock_mode: string
           stock_quantity: number
+          stock_type: string
+          unit: string | null
           updated_at: string
         }
         Insert: {
@@ -766,8 +770,9 @@ export type Database = {
           min_stock?: number
           name: string
           price?: number
-          stock_mode?: string
+          stock_type?: string
           stock_quantity?: number
+          unit?: string | null
           updated_at?: string
         }
         Update: {
@@ -780,8 +785,9 @@ export type Database = {
           min_stock?: number
           name?: string
           price?: number
-          stock_mode?: string
+          stock_type?: string
           stock_quantity?: number
+          unit?: string | null
           updated_at?: string
         }
         Relationships: [
