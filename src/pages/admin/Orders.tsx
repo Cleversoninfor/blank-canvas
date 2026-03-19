@@ -364,7 +364,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
             </div>
           )}
           <p className="font-bold text-lg sm:text-2xl text-foreground">{order.type === 'table' ? `\uD83C\uDF7D\uFE0F Mesa #${order.table_number}` : `#${order.id}`}</p>
-        </div>
+          {isTimerVisible && <PrepTimer orderKey={orderTimerKey} isRunning={isTimerRunning} />}
         <div className="flex flex-wrap items-center gap-1.5 mb-1">
           <Badge variant="outline" className="text-xs px-2.5 py-0.5 whitespace-nowrap">
             {getOrderTypeLabel()}
