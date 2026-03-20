@@ -243,8 +243,9 @@ const Checkout = () => {
       toast({ title: 'Telefone inválido', variant: 'destructive' });
       return;
     }
-    if (false) {
-      // Placeholder to maintain structure
+    // Validate dine_in table selection
+    if (deliveryType === 'dine_in' && !selectedTableId) {
+      toast({ title: 'Selecione uma mesa', variant: 'destructive' });
       return;
     }
     const zoneAsNeighborhood = isZoneMode && activeZones.length > 0;
