@@ -16,7 +16,7 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-type OrderTypeFilter = 'all' | 'delivery' | 'retirada' | 'comanda';
+type OrderTypeFilter = 'all' | 'delivery' | 'retirada' | 'comanda' | 'consumir_local';
 
 interface OrderReport {
   id: number;
