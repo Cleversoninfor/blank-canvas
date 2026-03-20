@@ -68,6 +68,7 @@ export interface AdminUser {
   perm_qrcode: boolean;
   perm_usuarios: boolean;
   perm_backup: boolean;
+  perm_consumir_local: boolean;
 }
 
 async function callManageAdminUser(body: Record<string, unknown>) {
