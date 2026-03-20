@@ -19,7 +19,8 @@ import {
   Settings,
   Package,
   ClipboardList,
-  UserCog
+  UserCog,
+  DollarSign
 } from 'lucide-react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -41,15 +42,21 @@ interface BackupData {
   coupons: any[];
   delivery_zones: any[];
   business_hours: any[];
-  waiters: any[];
-  tables: any[];
-  // New fields for complete backup
-  orders: any[];
-  order_items: any[];
-  table_orders: any[];
-  table_order_items: any[];
   user_roles: any[];
   customer_addresses: any[];
+  // Inventory (NEW)
+  ingredients: any[];
+  product_ingredients: any[];
+  // History & Orders (Report Data)
+  orders: any[];
+  order_items: any[];
+  comandas: any[];
+  comanda_pedidos: any[];
+  comanda_vendas: any[];
+  // Financial (NEW)
+  caixa_sessions: any[];
+  caixa_movimentacoes: any[];
+  admin_users: any[];
 }
 
 const AdminBackup = () => {
@@ -70,12 +77,15 @@ const AdminBackup = () => {
     { name: 'coupons', label: 'Cupons', icon: Ticket },
     { name: 'delivery_zones', label: 'Zonas de Entrega', icon: MapPin },
     { name: 'business_hours', label: 'Horários de Funcionamento', icon: Clock },
-    { name: 'waiters', label: 'Garçons', icon: Users },
-    { name: 'tables', label: 'Mesas', icon: Database },
-    { name: 'orders', label: 'Pedidos Delivery', icon: Package },
+    { name: 'ingredients', label: 'Ingredientes (Estoque)', icon: Package },
+    { name: 'product_ingredients', label: 'Composição de Produtos', icon: ClipboardList },
+    { name: 'orders', label: 'Pedidos Delivery/Comandas', icon: Package },
     { name: 'order_items', label: 'Itens dos Pedidos', icon: ClipboardList },
-    { name: 'table_orders', label: 'Comandas de Mesa', icon: ClipboardList },
-    { name: 'table_order_items', label: 'Itens das Comandas', icon: ClipboardList },
+    { name: 'comandas', label: 'Comandas Ativas', icon: Database },
+    { name: 'comanda_vendas', label: 'Vendas de Comandas', icon: DollarSign },
+    { name: 'caixa_sessions', label: 'Sessões de Caixa', icon: Database },
+    { name: 'caixa_movimentacoes', label: 'Movimentações de Caixa', icon: DollarSign },
+    { name: 'admin_users', label: 'Usuários Admin (Equipe)', icon: Users },
     { name: 'user_roles', label: 'Permissões de Usuário', icon: UserCog },
     { name: 'customer_addresses', label: 'Endereços de Clientes', icon: MapPin },
   ];
@@ -86,7 +96,7 @@ const AdminBackup = () => {
 
     try {
       const backup: BackupData = {
-        version: '2.0',
+        version: '3.0',
         created_at: new Date().toISOString(),
         store_config: null,
         categories: [],
@@ -97,124 +107,42 @@ const AdminBackup = () => {
         coupons: [],
         delivery_zones: [],
         business_hours: [],
-        waiters: [],
-        tables: [],
-        orders: [],
-        order_items: [],
-        table_orders: [],
-        table_order_items: [],
         user_roles: [],
         customer_addresses: [],
+        ingredients: [],
+        product_ingredients: [],
+        orders: [],
+        order_items: [],
+        comandas: [],
+        comanda_pedidos: [],
+        comanda_vendas: [],
+        caixa_sessions: [],
+        caixa_movimentacoes: [],
+        admin_users: [],
       };
 
-      const totalTables = tables.length;
+      const tableNames = [
+        'store_config', 'categories', 'products', 'addon_groups', 'addon_options',
+        'product_addon_groups', 'coupons', 'delivery_zones', 'business_hours',
+        'user_roles', 'customer_addresses', 'ingredients',        'product_ingredients', 'orders', 'order_items', 'comandas',
+        'comanda_pedidos', 'comanda_vendas', 'caixa_sessions',
+        'caixa_movimentacoes', 'admin_users'
+      ];
+
+      const totalSteps = tableNames.length;
       let completed = 0;
 
-      // Fetch store_config
-      const { data: storeConfig } = await supabase
-        .from('store_config')
-        .select('*')
-        .limit(1)
-        .maybeSingle();
-      backup.store_config = storeConfig;
-      completed++;
-      setProgress((completed / totalTables) * 100);
-
-      // Fetch categories
-      const { data: categories } = await supabase.from('categories').select('*');
-      backup.categories = categories || [];
-      completed++;
-      setProgress((completed / totalTables) * 100);
-
-      // Fetch products
-      const { data: products } = await supabase.from('products').select('*');
-      backup.products = products || [];
-      completed++;
-      setProgress((completed / totalTables) * 100);
-
-      // Fetch addon_groups
-      const { data: addonGroups } = await supabase.from('addon_groups').select('*');
-      backup.addon_groups = addonGroups || [];
-      completed++;
-      setProgress((completed / totalTables) * 100);
-
-      // Fetch addon_options
-      const { data: addonOptions } = await supabase.from('addon_options').select('*');
-      backup.addon_options = addonOptions || [];
-      completed++;
-      setProgress((completed / totalTables) * 100);
-
-      // Fetch product_addon_groups
-      const { data: productAddonGroups } = await supabase.from('product_addon_groups').select('*');
-      backup.product_addon_groups = productAddonGroups || [];
-      completed++;
-      setProgress((completed / totalTables) * 100);
-
-      // Fetch coupons
-      const { data: coupons } = await supabase.from('coupons').select('*');
-      backup.coupons = coupons || [];
-      completed++;
-      setProgress((completed / totalTables) * 100);
-
-      // Fetch delivery_zones
-      const { data: deliveryZones } = await supabase.from('delivery_zones').select('*');
-      backup.delivery_zones = deliveryZones || [];
-      completed++;
-      setProgress((completed / totalTables) * 100);
-
-      // Fetch business_hours
-      const { data: businessHours } = await supabase.from('business_hours').select('*');
-      backup.business_hours = businessHours || [];
-      completed++;
-      setProgress((completed / totalTables) * 100);
-
-      // Fetch waiters
-      const { data: waiters } = await supabase.from('waiters').select('*');
-      backup.waiters = waiters || [];
-      completed++;
-      setProgress((completed / totalTables) * 100);
-
-      // Fetch tables
-      const { data: tablesData } = await supabase.from('tables').select('*');
-      backup.tables = tablesData || [];
-      completed++;
-      setProgress((completed / totalTables) * 100);
-
-      // Fetch orders (delivery)
-      const { data: orders } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
-      backup.orders = orders || [];
-      completed++;
-      setProgress((completed / totalTables) * 100);
-
-      // Fetch order_items
-      const { data: orderItems } = await supabase.from('order_items').select('*');
-      backup.order_items = orderItems || [];
-      completed++;
-      setProgress((completed / totalTables) * 100);
-
-      // Fetch table_orders (comandas)
-      const { data: tableOrders } = await supabase.from('table_orders').select('*').order('created_at', { ascending: false });
-      backup.table_orders = tableOrders || [];
-      completed++;
-      setProgress((completed / totalTables) * 100);
-
-      // Fetch table_order_items
-      const { data: tableOrderItems } = await supabase.from('table_order_items').select('*');
-      backup.table_order_items = tableOrderItems || [];
-      completed++;
-      setProgress((completed / totalTables) * 100);
-
-      // Fetch user_roles
-      const { data: userRoles } = await supabase.from('user_roles').select('*');
-      backup.user_roles = userRoles || [];
-      completed++;
-      setProgress((completed / totalTables) * 100);
-
-      // Fetch customer_addresses
-      const { data: customerAddresses } = await supabase.from('customer_addresses').select('*');
-      backup.customer_addresses = customerAddresses || [];
-      completed++;
-      setProgress((completed / totalTables) * 100);
+      for (const tableName of tableNames) {
+        if (tableName === 'store_config') {
+          const { data } = await supabase.from(tableName as any).select('*').limit(1).maybeSingle();
+          (backup as any)[tableName] = data;
+        } else {
+          const { data } = await supabase.from(tableName as any).select('*');
+          (backup as any)[tableName] = data || [];
+        }
+        completed++;
+        setProgress((completed / totalSteps) * 100);
+      }
 
       // Download file
       const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
@@ -229,7 +157,7 @@ const AdminBackup = () => {
 
       toast({
         title: 'Backup completo exportado!',
-        description: `${backup.products.length} produtos, ${backup.orders.length} pedidos, ${backup.table_orders.length} comandas exportados.`,
+        description: `${backup.orders.length} pedidos e histórico completo incluído.`,
       });
     } catch (error) {
       console.error('Export error:', error);
@@ -287,29 +215,37 @@ const AdminBackup = () => {
     setProgress(0);
 
     try {
-      const totalSteps = 17;
+      // 1. Clear existing data in correct dependency order
+      // Delete child records first
+      const deleteInOrder = [
+        'comanda_pedidos', 'comanda_vendas', 'caixa_movimentacoes', 'order_items', 
+        'product_addon_groups', 'product_ingredients',
+        'orders', 'comandas', 'caixa_sessions', 'admin_users', 'addon_options', 
+        'addon_groups', 'products', 'categories', 'coupons', 'delivery_zones', 
+        'business_hours', 'customer_addresses'
+      ];
+
+      for (const table of deleteInOrder) {
+        // Special case for tables with numeric ID if any, usually neq('', '') or gte(id, 0) works
+        if (['orders', 'order_items'].includes(table)) {
+          await supabase.from(table as any).delete().gte('id', 0);
+        } else {
+          await supabase.from(table as any).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        }
+      }
+
+      // 2. Import In Order (Parent first)
+      const importOrder = [
+        'categories', 'products', 'addon_groups', 'addon_options', 'product_addon_groups',
+        'coupons', 'delivery_zones', 'business_hours', 'ingredients', 'product_ingredients',
+        'orders', 'order_items', 'comandas', 'comanda_pedidos', 'comanda_vendas',
+        'caixa_sessions', 'caixa_movimentacoes', 'admin_users', 'customer_addresses'
+      ];
+
+      const totalSteps = importOrder.length + 1; // +1 for store_config
       let completed = 0;
 
-      // 1. Clear existing data and import in order (respecting foreign keys)
-      
-      // Delete in reverse dependency order
-      await supabase.from('table_order_items').delete().neq('id', '');
-      await supabase.from('table_orders').delete().gte('id', 0);
-      await supabase.from('order_items').delete().neq('id', '');
-      await supabase.from('orders').delete().gte('id', 0);
-      await supabase.from('product_addon_groups').delete().neq('id', '');
-      await supabase.from('addon_options').delete().neq('id', '');
-      await supabase.from('addon_groups').delete().neq('id', '');
-      await supabase.from('products').delete().neq('id', '');
-      await supabase.from('categories').delete().neq('id', '');
-      await supabase.from('coupons').delete().neq('id', '');
-      await supabase.from('delivery_zones').delete().neq('id', '');
-      await supabase.from('business_hours').delete().neq('id', '');
-      await supabase.from('waiters').delete().neq('id', '');
-      await supabase.from('tables').delete().neq('id', '');
-      await supabase.from('customer_addresses').delete().neq('id', '');
-
-      // 2. Update store_config
+      // Update store_config
       if (previewData.store_config) {
         const { id, ...configWithoutId } = previewData.store_config;
         await supabase.from('store_config').update(configWithoutId).eq('id', id);
@@ -317,116 +253,18 @@ const AdminBackup = () => {
       completed++;
       setProgress((completed / totalSteps) * 100);
 
-      // 3. Import categories
-      if (previewData.categories?.length > 0) {
-        await supabase.from('categories').insert(previewData.categories);
+      for (const table of importOrder) {
+        const data = (previewData as any)[table];
+        if (data && data.length > 0) {
+          await supabase.from(table as any).insert(data);
+        }
+        completed++;
+        setProgress((completed / totalSteps) * 100);
       }
-      completed++;
-      setProgress((completed / totalSteps) * 100);
-
-      // 4. Import products
-      if (previewData.products?.length > 0) {
-        await supabase.from('products').insert(previewData.products);
-      }
-      completed++;
-      setProgress((completed / totalSteps) * 100);
-
-      // 5. Import addon_groups
-      if (previewData.addon_groups?.length > 0) {
-        await supabase.from('addon_groups').insert(previewData.addon_groups);
-      }
-      completed++;
-      setProgress((completed / totalSteps) * 100);
-
-      // 6. Import addon_options
-      if (previewData.addon_options?.length > 0) {
-        await supabase.from('addon_options').insert(previewData.addon_options);
-      }
-      completed++;
-      setProgress((completed / totalSteps) * 100);
-
-      // 7. Import product_addon_groups
-      if (previewData.product_addon_groups?.length > 0) {
-        await supabase.from('product_addon_groups').insert(previewData.product_addon_groups);
-      }
-      completed++;
-      setProgress((completed / totalSteps) * 100);
-
-      // 8. Import coupons
-      if (previewData.coupons?.length > 0) {
-        await supabase.from('coupons').insert(previewData.coupons);
-      }
-      completed++;
-      setProgress((completed / totalSteps) * 100);
-
-      // 9. Import delivery_zones
-      if (previewData.delivery_zones?.length > 0) {
-        await supabase.from('delivery_zones').insert(previewData.delivery_zones);
-      }
-      completed++;
-      setProgress((completed / totalSteps) * 100);
-
-      // 10. Import business_hours
-      if (previewData.business_hours?.length > 0) {
-        await supabase.from('business_hours').insert(previewData.business_hours);
-      }
-      completed++;
-      setProgress((completed / totalSteps) * 100);
-
-      // 11. Import waiters
-      if (previewData.waiters?.length > 0) {
-        await supabase.from('waiters').insert(previewData.waiters);
-      }
-      completed++;
-      setProgress((completed / totalSteps) * 100);
-
-      // 12. Import tables
-      if (previewData.tables?.length > 0) {
-        // Remove current_order_id to avoid FK issues
-        const tablesWithoutOrders = previewData.tables.map(({ current_order_id, ...rest }) => rest);
-        await supabase.from('tables').insert(tablesWithoutOrders);
-      }
-      completed++;
-      setProgress((completed / totalSteps) * 100);
-
-      // 13. Import orders (delivery)
-      if (previewData.orders?.length > 0) {
-        await supabase.from('orders').insert(previewData.orders);
-      }
-      completed++;
-      setProgress((completed / totalSteps) * 100);
-
-      // 14. Import order_items
-      if (previewData.order_items?.length > 0) {
-        await supabase.from('order_items').insert(previewData.order_items);
-      }
-      completed++;
-      setProgress((completed / totalSteps) * 100);
-
-      // 15. Import table_orders
-      if (previewData.table_orders?.length > 0) {
-        await supabase.from('table_orders').insert(previewData.table_orders);
-      }
-      completed++;
-      setProgress((completed / totalSteps) * 100);
-
-      // 16. Import table_order_items
-      if (previewData.table_order_items?.length > 0) {
-        await supabase.from('table_order_items').insert(previewData.table_order_items);
-      }
-      completed++;
-      setProgress((completed / totalSteps) * 100);
-
-      // 17. Import customer_addresses
-      if (previewData.customer_addresses?.length > 0) {
-        await supabase.from('customer_addresses').insert(previewData.customer_addresses);
-      }
-      completed++;
-      setProgress((completed / totalSteps) * 100);
 
       toast({
         title: 'Backup completo importado!',
-        description: 'Todos os dados foram restaurados, incluindo pedidos e comandas.',
+        description: 'Todos os dados foram restaurados, incluindo relatórios e histórico.',
       });
 
       setImportFile(null);
@@ -456,7 +294,7 @@ const AdminBackup = () => {
         <div>
           <h2 className="text-2xl font-bold text-foreground">Backup do Sistema</h2>
           <p className="text-muted-foreground mt-1">
-            Exporte ou importe todos os dados cadastrais do sistema
+            Exporte ou importe todos os dados, incluindo histórico de vendas e relatórios
           </p>
         </div>
 
@@ -465,10 +303,10 @@ const AdminBackup = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Download className="h-5 w-5 text-primary" />
-              Exportar Backup
+              Exportar Backup Completo
             </CardTitle>
             <CardDescription>
-              Gera um arquivo JSON com todas as configurações, produtos, categorias e demais dados cadastrais.
+              Gera um arquivo JSON com TODO o conteúdo do sistema: produtos, pedidos, comandas, caixa e estoque.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -506,7 +344,7 @@ const AdminBackup = () => {
               ) : (
                 <>
                   <Download className="h-4 w-4 mr-2" />
-                  Exportar Backup
+                  Gerar Backup Completo
                 </>
               )}
             </Button>
@@ -521,15 +359,15 @@ const AdminBackup = () => {
               Importar Backup
             </CardTitle>
             <CardDescription>
-              Restaure os dados a partir de um arquivo de backup exportado anteriormente.
+              Restaure o sistema a partir de um arquivo de backup completo.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Atenção!</AlertTitle>
+              <AlertTitle>Risco de Perda de Dados!</AlertTitle>
               <AlertDescription>
-                A importação irá <strong>substituir todos os dados existentes</strong> pelos dados do backup, incluindo pedidos e comandas.
+                A importação irá <strong>sobrescrever todo o banco de dados</strong>.
               </AlertDescription>
             </Alert>
 
@@ -558,62 +396,38 @@ const AdminBackup = () => {
               <div className="space-y-4">
                 <Alert>
                   <CheckCircle2 className="h-4 w-4" />
-                  <AlertTitle>Arquivo selecionado: {importFile?.name}</AlertTitle>
+                  <AlertTitle>Arquivo: {importFile?.name}</AlertTitle>
                   <AlertDescription>
-                    Backup v{previewData.version} criado em {format(new Date(previewData.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                    Criado em {format(new Date(previewData.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
                   </AlertDescription>
                 </Alert>
 
                 <div className="bg-muted/50 rounded-xl p-4 space-y-3">
-                  <h4 className="font-medium text-foreground">Dados do backup:</h4>
+                  <h4 className="font-medium text-foreground">Conteúdo do Backup:</h4>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
-                    <div className="flex items-center justify-between bg-background rounded-lg px-3 py-2">
-                      <span className="text-muted-foreground">Categorias</span>
-                      <span className="font-medium">{previewData.categories?.length || 0}</span>
-                    </div>
                     <div className="flex items-center justify-between bg-background rounded-lg px-3 py-2">
                       <span className="text-muted-foreground">Produtos</span>
                       <span className="font-medium">{previewData.products?.length || 0}</span>
                     </div>
-                    <div className="flex items-center justify-between bg-background rounded-lg px-3 py-2">
-                      <span className="text-muted-foreground">Acréscimos</span>
-                      <span className="font-medium">{previewData.addon_groups?.length || 0}</span>
-                    </div>
-                    <div className="flex items-center justify-between bg-background rounded-lg px-3 py-2">
-                      <span className="text-muted-foreground">Cupons</span>
-                      <span className="font-medium">{previewData.coupons?.length || 0}</span>
-                    </div>
-                    <div className="flex items-center justify-between bg-background rounded-lg px-3 py-2">
-                      <span className="text-muted-foreground">Zonas de Entrega</span>
-                      <span className="font-medium">{previewData.delivery_zones?.length || 0}</span>
-                    </div>
-                    <div className="flex items-center justify-between bg-background rounded-lg px-3 py-2">
-                      <span className="text-muted-foreground">Garçons</span>
-                      <span className="font-medium">{previewData.waiters?.length || 0}</span>
-                    </div>
-                    <div className="flex items-center justify-between bg-background rounded-lg px-3 py-2">
-                      <span className="text-muted-foreground">Mesas</span>
-                      <span className="font-medium">{previewData.tables?.length || 0}</span>
-                    </div>
-                    <div className="flex items-center justify-between bg-background rounded-lg px-3 py-2">
-                      <span className="text-muted-foreground">Horários</span>
-                      <span className="font-medium">{previewData.business_hours?.length || 0}</span>
-                    </div>
                     <div className="flex items-center justify-between bg-background rounded-lg px-3 py-2 border-2 border-primary/30">
-                      <span className="text-muted-foreground">Pedidos Delivery</span>
-                      <span className="font-medium text-primary">{previewData.orders?.length || 0}</span>
+                      <span className="text-muted-foreground font-semibold">Vendas (Relatórios)</span>
+                      <span className="font-bold text-primary">{previewData.orders?.length || 0}</span>
                     </div>
-                    <div className="flex items-center justify-between bg-background rounded-lg px-3 py-2 border-2 border-primary/30">
+                    <div className="flex items-center justify-between bg-background rounded-lg px-3 py-2">
                       <span className="text-muted-foreground">Comandas</span>
-                      <span className="font-medium text-primary">{previewData.table_orders?.length || 0}</span>
-                    </div>
-                    <div className="flex items-center justify-between bg-background rounded-lg px-3 py-2 border-2 border-primary/30">
-                      <span className="text-muted-foreground">Permissões</span>
-                      <span className="font-medium text-primary">{previewData.user_roles?.length || 0}</span>
+                      <span className="font-medium">{previewData.comandas?.length || 0}</span>
                     </div>
                     <div className="flex items-center justify-between bg-background rounded-lg px-3 py-2">
-                      <span className="text-muted-foreground">Endereços</span>
-                      <span className="font-medium">{previewData.customer_addresses?.length || 0}</span>
+                      <span className="text-muted-foreground">Caixa</span>
+                      <span className="font-medium">{previewData.caixa_sessions?.length || 0}</span>
+                    </div>
+                    <div className="flex items-center justify-between bg-background rounded-lg px-3 py-2">
+                      <span className="text-muted-foreground">Estoque</span>
+                      <span className="font-medium">{previewData.ingredients?.length || 0}</span>
+                    </div>
+                    <div className="flex items-center justify-between bg-background rounded-lg px-3 py-2">
+                      <span className="text-muted-foreground">Zonas</span>
+                      <span className="font-medium">{previewData.delivery_zones?.length || 0}</span>
                     </div>
                   </div>
                 </div>
@@ -622,7 +436,7 @@ const AdminBackup = () => {
                   <div className="space-y-2">
                     <Progress value={progress} className="h-2" />
                     <p className="text-sm text-muted-foreground text-center">
-                      Importando... {Math.round(progress)}%
+                      Restaurando... {Math.round(progress)}%
                     </p>
                   </div>
                 )}
@@ -637,12 +451,12 @@ const AdminBackup = () => {
                     {isImporting ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Importando...
+                        Restaurando...
                       </>
                     ) : (
                       <>
                         <Upload className="h-4 w-4 mr-2" />
-                        Confirmar Importação
+                        Substituir Dados Agora
                       </>
                     )}
                   </Button>
@@ -660,23 +474,18 @@ const AdminBackup = () => {
         </Card>
 
         {/* Info */}
-        <Card className="bg-muted/30">
+        <Card className="bg-muted/30 border-primary/20">
           <CardContent className="pt-6">
-            <h4 className="font-medium text-foreground mb-2">💡 O que está incluído no backup?</h4>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• Configurações gerais da loja (nome, cores, logo, etc.)</li>
-              <li>• Todas as categorias e produtos com suas imagens</li>
-              <li>• Grupos de acréscimos e suas opções</li>
-              <li>• Cupons de desconto</li>
-              <li>• Zonas e taxas de entrega</li>
-              <li>• Horários de funcionamento</li>
-              <li>• Lista de garçons e mesas</li>
-            </ul>
-            <h4 className="font-medium text-foreground mt-4 mb-2">⚠️ O que NÃO está incluído:</h4>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• Histórico de pedidos (delivery)</li>
-              <li>• Histórico de comandas (mesa)</li>
-              <li>• Dados de usuários e autenticação</li>
+            <h4 className="font-bold text-primary mb-2 flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5" />
+              Backup Total (com Relatórios)
+            </h4>
+            <ul className="text-sm text-muted-foreground space-y-2">
+              <li>• <strong>Relatórios e Vendas</strong>: Histórico de todos os pedidos e itens vendidos.</li>
+              <li>• <strong>Financeiro (Caixa)</strong>: Sessões abertas/fechadas e todas as entradas/saídas.</li>
+              <li>• <strong>Estoque Completo</strong>: Ingredientes, produtos e fichas técnicas (composições).</li>
+              <li>• <strong>Equipe e Acessos</strong>: Usuários do painel admin e suas permissões configuradas.</li>
+              <li>• <strong>Configurações</strong>: Produtos, categorias, taxas de entrega e horários.</li>
             </ul>
           </CardContent>
         </Card>
@@ -686,3 +495,4 @@ const AdminBackup = () => {
 };
 
 export default AdminBackup;
+
