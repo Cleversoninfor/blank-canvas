@@ -453,6 +453,7 @@ const Checkout = () => {
         )}
 
         {/* Delivery Type Tabs */}
+        {!isDineInMode && (
         <div className="flex border-b border-border">
           {availableTypes.delivery && (
             <button
@@ -480,7 +481,27 @@ const Checkout = () => {
               Retirada
             </button>
           )}
+          {availableTypes.dine_in && (
+            <button
+              onClick={() => setDeliveryType('dine_in')}
+              className={cn(
+                "flex-1 py-3 text-center text-sm font-medium transition-colors",
+                deliveryType === 'dine_in' 
+                  ? "text-primary border-b-2 border-primary" 
+                  : "text-muted-foreground"
+              )}
+            >
+              No Local
+            </button>
+          )}
         </div>
+        )}
+        {isDineInMode && (
+          <div className="flex items-center gap-2 px-4 py-3 bg-primary/10 border-b border-primary/20">
+            <UtensilsCrossed className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium text-primary">Consumir no Local</span>
+          </div>
+        )}
 
         <div className="p-4 space-y-6">
           {/* Address Section */}
