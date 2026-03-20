@@ -289,14 +289,31 @@ const Checkout = () => {
     const paymentMethod = paymentOption?.dbValue || 'money';
 
     try {
+      const selectedDineTable = dineInTables?.find(t => t.id === selectedTableId);
+      const getAddressStreet = () => {
+        if (deliveryType === 'delivery') return deliveryData.street;
+        if (deliveryType === 'dine_in') return 'Consumir no Local';
+        return 'Retirada no local';
+      };
+      const getAddressNumber = () => {
+        if (deliveryType === 'delivery') return deliveryData.number;
+        if (deliveryType === 'dine_in') return selectedDineTable ? String(selectedDineTable.number) : '-';
+        return '-';
+      };
+      const getAddressNeighborhood = () => {
+        if (deliveryType === 'delivery') return zoneAsNeighborhood && selectedZone ? selectedZone.name : deliveryData.neighborhood;
+        if (deliveryType === 'dine_in') return selectedDineTable?.location || 'Mesa';
+        return '-';
+      };
+
       const order = await createOrder.mutateAsync({
         order: {
           customer_name: deliveryData.name,
           customer_phone: deliveryData.phone,
-          address_street: deliveryType === 'delivery' ? deliveryData.street : 'Retirada no local',
-          address_number: deliveryType === 'delivery' ? deliveryData.number : '-',
-          address_neighborhood: deliveryType === 'delivery' ? (zoneAsNeighborhood && selectedZone ? selectedZone.name : deliveryData.neighborhood) : '-',
-          address_complement: deliveryType === 'delivery' ? deliveryData.complement || null : null,
+          address_street: getAddressStreet(),
+          address_number: getAddressNumber(),
+          address_neighborhood: getAddressNeighborhood(),
+          address_complement: deliveryType === 'delivery' ? deliveryData.complement || null : (deliveryType === 'dine_in' ? `Mesa ${selectedDineTable?.number}` : null),
           total_amount: finalTotal,
           payment_method: paymentMethod,
           change_for: changeForValue,
