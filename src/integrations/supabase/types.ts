@@ -98,6 +98,7 @@ export type Database = {
           perm_backup: boolean
           perm_categorias: boolean
           perm_configuracoes: boolean
+          perm_consumir_local: boolean
           perm_cozinha: boolean
           perm_cupons: boolean
           perm_dashboard: boolean
@@ -126,6 +127,7 @@ export type Database = {
           perm_backup?: boolean
           perm_categorias?: boolean
           perm_configuracoes?: boolean
+          perm_consumir_local?: boolean
           perm_cozinha?: boolean
           perm_cupons?: boolean
           perm_dashboard?: boolean
@@ -154,6 +156,7 @@ export type Database = {
           perm_backup?: boolean
           perm_categorias?: boolean
           perm_configuracoes?: boolean
+          perm_consumir_local?: boolean
           perm_cozinha?: boolean
           perm_cupons?: boolean
           perm_dashboard?: boolean
@@ -1152,6 +1155,7 @@ export type Database = {
           created_at: string | null
           current_order_id: number | null
           id: string
+          location: string | null
           name: string | null
           number: number
           status: string | null
@@ -1162,6 +1166,7 @@ export type Database = {
           created_at?: string | null
           current_order_id?: number | null
           id?: string
+          location?: string | null
           name?: string | null
           number: number
           status?: string | null
@@ -1172,6 +1177,7 @@ export type Database = {
           created_at?: string | null
           current_order_id?: number | null
           id?: string
+          location?: string | null
           name?: string | null
           number?: number
           status?: string | null
