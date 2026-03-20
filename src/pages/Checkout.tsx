@@ -266,7 +266,7 @@ const Checkout = () => {
       return;
     }
     
-    if (!selectedPayment) {
+    if (!selectedPayment && deliveryType !== 'dine_in') {
       toast({ title: 'Selecione a forma de pagamento', variant: 'destructive' });
       return;
     }
@@ -725,7 +725,8 @@ const Checkout = () => {
             </div>
           </section>
 
-          {/* Payment Method Section */}
+          {/* Payment Method Section - hidden for dine_in */}
+          {deliveryType !== 'dine_in' && (
           <section className="space-y-2">
             <h3 className="font-semibold text-foreground">Método de pagamento</h3>
             <div className="grid grid-cols-2 gap-3">
@@ -768,6 +769,7 @@ const Checkout = () => {
               </div>
             )}
           </section>
+          )}
 
 
           {/* Order Summary Section */}
@@ -862,8 +864,9 @@ const Checkout = () => {
             </button>
           </section>
 
-          {/* Coupon Section */}
-          {appliedCoupon ? (
+          {/* Coupon Section - hidden for dine_in */}
+          {deliveryType !== 'dine_in' && (
+          appliedCoupon ? (
             <div className="flex items-center justify-between p-4 bg-secondary/10 border border-secondary/30 rounded-xl">
               <div className="flex items-center gap-3">
                 <Tag className="h-5 w-5 text-secondary" />
@@ -895,6 +898,7 @@ const Checkout = () => {
                 {isApplyingCoupon ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Aplicar'}
               </Button>
             </div>
+          )
           )}
 
           {/* Summary */}
@@ -925,7 +929,8 @@ const Checkout = () => {
             </div>
           </div>
 
-          {/* Delivery Estimate */}
+          {/* Delivery Estimate - hidden for dine_in */}
+          {deliveryType !== 'dine_in' && (
           <div className="flex items-center gap-3 p-4 bg-card rounded-2xl shadow-card">
             <Clock className="h-5 w-5 text-muted-foreground" />
             <div>
@@ -937,6 +942,7 @@ const Checkout = () => {
               </p>
             </div>
           </div>
+          )}
         </div>
 
         {/* Submit Button */}
