@@ -100,14 +100,31 @@ const OrderStatus = () => {
 
   // Detect if this is a pickup order (address_street contains 'Retirada')
   const isPickup = order.address_street?.toLowerCase().includes('retirada');
+  // Detect if this is a dine_in order (Consumir no Local)
+  const isDineIn = order.address_street === 'Consumir no Local';
   
   // For delivery orders, 'ready' should still show as 'preparing' 
-  // For pickup orders, we want to show 'ready' as final step
-  const displayStatus = isPickup 
+  // For pickup/dine_in orders, we want to show 'ready' as final step
+  const displayStatus = (isPickup || isDineIn)
     ? (order.status === 'delivery' || order.status === 'completed' ? 'ready' : order.status)
     : (order.status === 'ready' ? 'preparing' : order.status);
 
   const getStatusMessage = () => {
+    if (isDineIn) {
+      switch (order.status) {
+        case 'pending':
+          return 'O restaurante está analisando seu pedido';
+        case 'preparing':
+          return 'Seu pedido está sendo preparado';
+        case 'ready':
+        case 'delivery':
+        case 'completed':
+          return 'Pedido pronto! Aguarde, vai ser entregue na sua mesa';
+        default:
+          return 'Acompanhe seu pedido';
+      }
+    }
+
     if (isPickup) {
       switch (order.status) {
         case 'pending':
@@ -198,7 +215,7 @@ const OrderStatus = () => {
             </p>
 
             {/* Status Tracker */}
-            <OrderStatusTracker status={displayStatus} isPickup={isPickup} />
+            <OrderStatusTracker status={displayStatus} isPickup={isPickup} isDineIn={isDineIn} />
           </section>
 
           {/* Order Details */}
@@ -235,13 +252,15 @@ const OrderStatus = () => {
             <div className="flex items-center gap-2 mb-2">
               <MapPin className="h-5 w-5 text-red-500" />
               <h3 className="font-semibold text-foreground">
-                {isPickup ? 'Retirada no local' : 'Endereço de Entrega'}
+                {isDineIn ? 'Consumir no Local' : isPickup ? 'Retirada no local' : 'Endereço de Entrega'}
               </h3>
             </div>
             <p className="text-sm text-muted-foreground ml-7">
-              {isPickup 
-                ? (store?.address || 'Endereço não configurado')
-                : `${order.address_street}, ${order.address_number} - ${order.address_neighborhood}`
+              {isDineIn
+                ? `Mesa ${order.address_number || ''} ${order.address_neighborhood ? '— ' + order.address_neighborhood : ''}`.trim()
+                : isPickup 
+                  ? (store?.address || 'Endereço não configurado')
+                  : `${order.address_street}, ${order.address_number} - ${order.address_neighborhood}`
               }
             </p>
           </section>
