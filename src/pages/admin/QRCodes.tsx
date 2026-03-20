@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { jsPDF } from "jspdf";
-import { Download, ChefHat, Menu, QrCode, RefreshCw, Truck } from "lucide-react";
+import { Download, ChefHat, Menu, QrCode, RefreshCw, Truck, UtensilsCrossed } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
