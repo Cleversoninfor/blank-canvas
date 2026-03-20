@@ -16,7 +16,7 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-type OrderTypeFilter = 'all' | 'delivery' | 'retirada' | 'comanda' | 'consumir_local';
+type OrderTypeFilter = 'all' | 'delivery' | 'retirada' | 'comanda';
 
 interface OrderReport {
   id: number;
@@ -26,18 +26,9 @@ interface OrderReport {
   total_amount: number;
   payment_method: string;
   status: string;
-  type: 'delivery' | 'retirada' | 'comanda' | 'consumir_local';
+  type: 'delivery' | 'retirada' | 'comanda';
 }
 
-interface TableOrderReport {
-  id: number;
-  created_at: string | null;
-  waiter_name: string | null;
-  total_amount: number | null;
-  payment_method: string | null;
-  status: string | null;
-  table_number?: number;
-}
 
 const AdminReports = () => {
   const navigate = useNavigate();
@@ -62,56 +53,35 @@ const AdminReports = () => {
     },
   });
 
-  // Fetch table orders (comandas)
-  const { data: tableOrders, isLoading: isLoadingTable } = useQuery({
-    queryKey: ['reports-table-orders', startDate, endDate],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('table_orders')
-        .select('*, table:tables!table_orders_table_id_fkey(number)')
-        .gte('created_at', startDate.toISOString())
-        .lte('created_at', endDate.toISOString())
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      return (data || []).map((order: any) => ({
-        ...order,
-        table_number: order.table?.number,
-      })) as TableOrderReport[];
-    },
-  });
-
-  const isLoading = isLoadingDelivery || isLoadingTable;
+  const isLoading = isLoadingDelivery;
 
   // Combine and classify reports
   const allReports = useMemo(() => {
-    const deliveryReports: OrderReport[] = (deliveryOrders || []).map((order) => ({
-      id: order.id,
-      created_at: order.created_at,
-      customer_name: order.customer_name,
-      customer_phone: order.customer_phone,
-      total_amount: order.total_amount,
-      payment_method: order.payment_method,
-      status: order.status,
-      type: order.address_street === 'Retirada no local' ? 'retirada' as const 
-            : order.address_street === 'Consumir no Local' ? 'consumir_local' as const 
-            : 'delivery' as const,
-    }));
+    const deliveryReports: OrderReport[] = (deliveryOrders || []).map((order) => {
+      let type: 'delivery' | 'retirada' | 'comanda' = 'delivery';
+      
+      if (order.address_street === 'Retirada no local') {
+        type = 'retirada';
+      } else if (order.address_street === 'Local' || (order.customer_name && order.customer_name.startsWith('Comanda #'))) {
+        type = 'comanda';
+      }
 
-    const tableReports: OrderReport[] = (tableOrders || []).map((order) => ({
-      id: order.id,
-      created_at: order.created_at || '',
-      customer_name: `Mesa ${order.table_number || '-'}`,
-      customer_phone: order.waiter_name || '-',
-      total_amount: order.total_amount || 0,
-      payment_method: order.payment_method || '-',
-      status: order.status || 'open',
-      type: 'comanda' as const,
-    }));
+      return {
+        id: order.id,
+        created_at: order.created_at,
+        customer_name: order.customer_name,
+        customer_phone: order.customer_phone,
+        total_amount: order.total_amount,
+        payment_method: order.payment_method,
+        status: order.status,
+        type,
+      };
+    });
 
-    return [...deliveryReports, ...tableReports].sort(
+    return deliveryReports.sort(
       (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
-  }, [deliveryOrders, tableOrders]);
+  }, [deliveryOrders]);
 
   // Filtered reports
   const filteredReports = useMemo(() => {
@@ -155,14 +125,14 @@ const AdminReports = () => {
 
   const formatType = (type: string) => {
     const types: Record<string, string> = {
-      delivery: 'Delivery', retirada: 'Retirada', comanda: 'Comanda', consumir_local: 'Consumir no Local',
+      delivery: 'Delivery', retirada: 'Retirada', comanda: 'Comanda',
     };
     return types[type] || type;
   };
 
   const getFilterLabel = () => {
     const labels: Record<OrderTypeFilter, string> = {
-      all: 'Todos', delivery: 'Delivery', retirada: 'Retirada', comanda: 'Comandas', consumir_local: 'Consumir no Local',
+      all: 'Todos', delivery: 'Delivery', retirada: 'Retirada', comanda: 'Comandas',
     };
     return labels[typeFilter];
   };
@@ -266,7 +236,6 @@ const AdminReports = () => {
     { value: 'delivery', label: 'Delivery', icon: <Truck className="h-4 w-4" /> },
     { value: 'retirada', label: 'Retirada', icon: <Store className="h-4 w-4" /> },
     { value: 'comanda', label: 'Comandas', icon: <UtensilsCrossed className="h-4 w-4" /> },
-    { value: 'consumir_local', label: 'Consumir no Local', icon: <UtensilsCrossed className="h-4 w-4" /> },
   ];
 
   return (
