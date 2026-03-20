@@ -19,12 +19,13 @@ const AdminEnvios = () => {
       setPixMessage(store.pix_message || '');
       setCheckoutMessage(store.checkout_whatsapp_message || '');
     }
-  }, [store]);
+  }, [store?.id, store?.pix_message, store?.checkout_whatsapp_message]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     updateStore.mutate({
+      id: store?.id,
       pix_message: pixMessage,
       checkout_whatsapp_message: checkoutMessage
     }, {
