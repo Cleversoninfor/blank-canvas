@@ -322,6 +322,7 @@ const Checkout = () => {
           change_for: changeForValue,
           latitude: deliveryType === 'delivery' ? geoCoords?.lat ?? null : null,
           longitude: deliveryType === 'delivery' ? geoCoords?.lng ?? null : null,
+          table_id: deliveryType === 'dine_in' ? selectedTableId : null,
         },
         items: items.map((item) => ({
           product_id: item.product.id,
