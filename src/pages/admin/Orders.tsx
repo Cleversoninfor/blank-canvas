@@ -268,8 +268,9 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
   };
 
   const getNextStatus = (status: UnifiedOrder['status']): UnifiedOrder['status'] | null => {
-    // For table orders or comanda orders, skip 'delivery' step
-    if (order.type === 'table' || isComanda) {
+    const isDineIn = order.address_street === 'Consumir no Local';
+    // For table orders, comanda orders, or dine-in orders, skip 'delivery' step
+    if (order.type === 'table' || isComanda || isDineIn) {
       const flow: Record<string, UnifiedOrder['status']> = {
         pending: 'preparing',
         preparing: 'ready',
