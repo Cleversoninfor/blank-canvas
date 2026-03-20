@@ -155,14 +155,14 @@ const AdminReports = () => {
 
   const formatType = (type: string) => {
     const types: Record<string, string> = {
-      delivery: 'Delivery', retirada: 'Retirada', comanda: 'Comanda',
+      delivery: 'Delivery', retirada: 'Retirada', comanda: 'Comanda', consumir_local: 'No Local',
     };
     return types[type] || type;
   };
 
   const getFilterLabel = () => {
     const labels: Record<OrderTypeFilter, string> = {
-      all: 'Todos', delivery: 'Delivery', retirada: 'Retirada', comanda: 'Comandas',
+      all: 'Todos', delivery: 'Delivery', retirada: 'Retirada', comanda: 'Comandas', consumir_local: 'No Local',
     };
     return labels[typeFilter];
   };
