@@ -184,6 +184,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
   const formatCurrency = (value: number) => Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
   const isComanda = order.type === 'delivery' && order.customer_name?.startsWith('Comanda #');
+  const isDineIn = order.address_street === 'Consumir no Local';
 
   const getPaymentLabel = (method: string | null) => {
     switch (method) {
@@ -268,7 +269,6 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
   };
 
   const getNextStatus = (status: UnifiedOrder['status']): UnifiedOrder['status'] | null => {
-    const isDineIn = order.address_street === 'Consumir no Local';
     // For table orders, comanda orders, or dine-in orders, skip 'delivery' step
     if (order.type === 'table' || isComanda || isDineIn) {
       const flow: Record<string, UnifiedOrder['status']> = {
@@ -290,7 +290,6 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
   };
 
   const getNextStatusLabel = (status: UnifiedOrder['status']) => {
-    const isDineIn = order.address_street === 'Consumir no Local';
     if (order.type === 'table' || isComanda || isDineIn) {
       const labels: Record<string, string> = {
         pending: 'Aceitar',
@@ -416,11 +415,32 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
           </div>
         </div>
 
-        {!isCompleted && getNextStatus(order.status) && (
-          <Button size="lg" className="w-full h-12 sm:h-16 text-base sm:text-2xl font-bold uppercase tracking-tight" onClick={handleStatusUpdate} disabled={updateStatusMutation.isPending}>
-            {updateStatusMutation.isPending ? <Loader2 className="h-6 w-6 animate-spin" /> : getNextStatusLabel(order.status)}
-          </Button>
-        )}
+        {!isCompleted && getNextStatus(order.status) && (() => {
+          const isDineInPreparing = isDineIn && order.status === 'preparing';
+          return (
+            <div className={isDineInPreparing ? 'flex gap-2' : ''}>
+              <Button
+                size="lg"
+                className={`h-12 sm:h-16 text-base sm:text-2xl font-bold uppercase tracking-tight ${isDineInPreparing ? 'flex-1' : 'w-full'}`}
+                onClick={handleStatusUpdate}
+                disabled={updateStatusMutation.isPending}
+              >
+                {updateStatusMutation.isPending ? <Loader2 className="h-6 w-6 animate-spin" /> : getNextStatusLabel(order.status)}
+              </Button>
+              {isDineInPreparing && (
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="h-12 sm:h-16 px-4 border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700 dark:hover:bg-green-950"
+                  onClick={sendStatusWhatsApp}
+                  title="Enviar dados do pedido pelo WhatsApp"
+                >
+                  <MessageSquare className="h-6 w-6" />
+                </Button>
+              )}
+            </div>
+          );
+        })()}
 
         {!isCompleted && (
           <div className="space-y-2">
