@@ -378,7 +378,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
           <Badge variant="outline" className="text-xs px-2.5 py-0.5 whitespace-nowrap">
             {getOrderTypeLabel()}
           </Badge>
-          {!isComanda && order.payment_method && (
+          {!isComanda && !isDineIn && order.payment_method && (
             <Badge variant={order.payment_method as any} className="text-xs px-2.5 py-0.5 whitespace-nowrap">
               {getPaymentLabel(order.payment_method)}
             </Badge>
