@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Truck, Store, Loader2, KeyRound, Save } from 'lucide-react';
+import { Truck, Store, Loader2, KeyRound, Save, UtensilsCrossed } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useStoreConfig, useUpdateStoreConfig } from '@/hooks/useStore';
+import { useSystemSettings, useUpdateSystemSettings } from '@/hooks/useSystemSettings';
 import { useToast } from '@/hooks/use-toast';
 
 export function OperationModes() {
   const { data: store, isLoading } = useStoreConfig();
   const updateStore = useUpdateStoreConfig();
+  const { data: systemSettings, isLoading: isLoadingSettings } = useSystemSettings();
+  const updateSystemSettings = useUpdateSystemSettings();
   const { toast } = useToast();
   const [pdvPassword, setPdvPassword] = useState('');
 
@@ -28,7 +31,7 @@ export function OperationModes() {
       });
       
       const modeNames = {
-      mode_delivery_enabled: 'Delivery',
+        mode_delivery_enabled: 'Delivery',
         mode_pickup_enabled: 'Retirada',
       };
       
@@ -43,7 +46,21 @@ export function OperationModes() {
     }
   };
 
-  if (isLoading) {
+  const handleConsumeOnSiteToggle = async (value: boolean) => {
+    try {
+      await updateSystemSettings.mutateAsync({ consume_on_site_enabled: value });
+      toast({
+        title: value ? 'Consumir no Local ativado' : 'Consumir no Local desativado',
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro ao atualizar',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  if (isLoading || isLoadingSettings) {
     return (
       <div className="bg-card rounded-xl p-4 sm:p-6 shadow-card">
         <div className="flex items-center justify-center py-4">
@@ -69,6 +86,8 @@ export function OperationModes() {
       enabled: store?.mode_pickup_enabled ?? true,
     },
   ];
+
+  const consumeOnSiteEnabled = systemSettings?.consume_on_site_enabled ?? true;
 
   return (
     <div className="bg-card rounded-xl p-4 sm:p-6 shadow-card space-y-4">
@@ -102,6 +121,24 @@ export function OperationModes() {
             />
           </div>
         ))}
+
+        {/* Consumir no Local */}
+        <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/50">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className={`h-10 w-10 rounded-xl flex items-center justify-center flex-shrink-0 ${consumeOnSiteEnabled ? 'bg-primary/20' : 'bg-muted'}`}>
+              <UtensilsCrossed className={`h-5 w-5 ${consumeOnSiteEnabled ? 'text-primary' : 'text-muted-foreground'}`} />
+            </div>
+            <div className="min-w-0">
+              <p className="font-medium text-foreground text-sm">Ativar Consumir no Local</p>
+              <p className="text-xs text-muted-foreground truncate">Exibir opção de pedido para consumo no local no cardápio</p>
+            </div>
+          </div>
+          <Switch
+            checked={consumeOnSiteEnabled}
+            onCheckedChange={handleConsumeOnSiteToggle}
+            disabled={updateSystemSettings.isPending}
+          />
+        </div>
       </div>
 
       {/* Senha PDV */}

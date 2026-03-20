@@ -5,6 +5,7 @@ export interface SystemSettings {
   id: number;
   stock_enabled: boolean;
   product_stock_enabled: boolean;
+  consume_on_site_enabled: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -27,6 +28,7 @@ export function useSystemSettings() {
           id: 1,
           stock_enabled: true,
           product_stock_enabled: true,
+          consume_on_site_enabled: true,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         } as SystemSettings;

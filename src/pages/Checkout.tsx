@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/hooks/use-toast';
 import { useStoreConfig } from '@/hooks/useStore';
+import { useSystemSettings } from '@/hooks/useSystemSettings';
 import { useCreateOrder, saveCustomerPhone } from '@/hooks/useOrders';
 import { useValidateCoupon, calculateDiscount, Coupon } from '@/hooks/useCoupons';
 import { saveLastOrderId } from '@/components/order/FloatingOrderButton';
@@ -76,6 +77,7 @@ const Checkout = () => {
   const { items, totalPrice, clearCart, updateQuantity, removeItem } = useCart();
   const { toast } = useToast();
   const { data: store } = useStoreConfig();
+  const { data: systemSettings } = useSystemSettings();
   const storeStatus = useStoreStatus();
   const createOrder = useCreateOrder();
   
@@ -90,10 +92,11 @@ const Checkout = () => {
   const preselectedTable = searchParams.get('table');
 
   // Determine available delivery types based on store config
+  const consumeOnSiteEnabled = systemSettings?.consume_on_site_enabled ?? true;
   const availableTypes = {
     delivery: store?.mode_delivery_enabled ?? true,
     pickup: store?.mode_pickup_enabled ?? true,
-    dine_in: store?.mode_dine_in_enabled ?? false,
+    dine_in: (store?.mode_dine_in_enabled ?? false) && consumeOnSiteEnabled,
   };
 
   // Get initial delivery type - use first available
@@ -491,7 +494,7 @@ const Checkout = () => {
                   : "text-muted-foreground"
               )}
             >
-              No Local
+              Consumir no Local
             </button>
           )}
         </div>

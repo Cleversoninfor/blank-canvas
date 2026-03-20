@@ -13,6 +13,7 @@ import { FloatingOrderButton, getLastOrderId } from '@/components/order/Floating
 import { InstallPrompt } from '@/components/pwa/InstallPrompt';
 import { InfornexaBanner } from '@/components/menu/InfornexaBanner';
 import { useStoreConfig } from '@/hooks/useStore';
+import { useSystemSettings } from '@/hooks/useSystemSettings';
 import { useCategories } from '@/hooks/useCategories';
 import { useProducts, Product } from '@/hooks/useProducts';
 import { useTheme } from '@/hooks/useTheme';
@@ -38,6 +39,7 @@ const Index = () => {
   const sectionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   const { data: store, isLoading: storeLoading } = useStoreConfig();
+  const { data: systemSettings } = useSystemSettings();
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const { data: products, isLoading: productsLoading } = useProducts();
   const storeStatus = useStoreStatus();
@@ -52,6 +54,14 @@ const Index = () => {
     const orderId = getLastOrderId();
     setLastOrderId(orderId);
   }, []);
+
+  // Block dine_in mode access when consume_on_site_enabled is false
+  useEffect(() => {
+    if (isDineInMode && systemSettings && systemSettings.consume_on_site_enabled === false) {
+      // Remove mode param and redirect to main menu
+      setSearchParams({}, { replace: true });
+    }
+  }, [isDineInMode, systemSettings, setSearchParams]);
 
   // Handle URL params for editing products from cart/checkout
   useEffect(() => {

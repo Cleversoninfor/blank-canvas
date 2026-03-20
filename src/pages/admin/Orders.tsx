@@ -228,7 +228,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
     const itemsList = items?.map(it => `${it.quantity}x ${it.product_name}`).join('\n') || '';
     const address = order.type === 'delivery' 
       ? `${order.address_street || ''}, ${order.address_number || ''}${order.address_neighborhood ? ` - ${order.address_neighborhood}` : ''}`
-      : (order.type === 'table' ? `Mesa #${order.table_number}` : 'No Local');
+      : (order.type === 'table' ? `Mesa #${order.table_number}` : 'Consumir no Local');
     const orderLink = `${window.location.origin}/order/${order.id}`;
 
     // Replace placeholders

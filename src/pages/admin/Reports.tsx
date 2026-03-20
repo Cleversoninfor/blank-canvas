@@ -155,14 +155,14 @@ const AdminReports = () => {
 
   const formatType = (type: string) => {
     const types: Record<string, string> = {
-      delivery: 'Delivery', retirada: 'Retirada', comanda: 'Comanda', consumir_local: 'No Local',
+      delivery: 'Delivery', retirada: 'Retirada', comanda: 'Comanda', consumir_local: 'Consumir no Local',
     };
     return types[type] || type;
   };
 
   const getFilterLabel = () => {
     const labels: Record<OrderTypeFilter, string> = {
-      all: 'Todos', delivery: 'Delivery', retirada: 'Retirada', comanda: 'Comandas', consumir_local: 'No Local',
+      all: 'Todos', delivery: 'Delivery', retirada: 'Retirada', comanda: 'Comandas', consumir_local: 'Consumir no Local',
     };
     return labels[typeFilter];
   };
@@ -266,7 +266,7 @@ const AdminReports = () => {
     { value: 'delivery', label: 'Delivery', icon: <Truck className="h-4 w-4" /> },
     { value: 'retirada', label: 'Retirada', icon: <Store className="h-4 w-4" /> },
     { value: 'comanda', label: 'Comandas', icon: <UtensilsCrossed className="h-4 w-4" /> },
-    { value: 'consumir_local', label: 'No Local', icon: <UtensilsCrossed className="h-4 w-4" /> },
+    { value: 'consumir_local', label: 'Consumir no Local', icon: <UtensilsCrossed className="h-4 w-4" /> },
   ];
 
   return (
