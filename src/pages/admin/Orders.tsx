@@ -418,26 +418,26 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
         {!isCompleted && getNextStatus(order.status) && (() => {
           const isDineInPreparing = isDineIn && order.status === 'preparing';
           return (
-            <div className={isDineInPreparing ? 'flex gap-2' : ''}>
+            <div className="flex flex-col gap-2">
+              {isDineInPreparing && (
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full h-12 sm:h-14 gap-2 border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700 dark:hover:bg-green-950 text-sm sm:text-base font-semibold"
+                  onClick={sendStatusWhatsApp}
+                >
+                  <MessageSquare className="h-5 w-5" />
+                  Envio WhatsApp
+                </Button>
+              )}
               <Button
                 size="lg"
-                className={`h-12 sm:h-16 text-base sm:text-2xl font-bold uppercase tracking-tight ${isDineInPreparing ? 'flex-1' : 'w-full'}`}
+                className="w-full h-12 sm:h-16 text-base sm:text-2xl font-bold uppercase tracking-tight"
                 onClick={handleStatusUpdate}
                 disabled={updateStatusMutation.isPending}
               >
                 {updateStatusMutation.isPending ? <Loader2 className="h-6 w-6 animate-spin" /> : getNextStatusLabel(order.status)}
               </Button>
-              {isDineInPreparing && (
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-12 sm:h-16 px-4 border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700 dark:hover:bg-green-950"
-                  onClick={sendStatusWhatsApp}
-                  title="Enviar dados do pedido pelo WhatsApp"
-                >
-                  <MessageSquare className="h-6 w-6" />
-                </Button>
-              )}
             </div>
           );
         })()}
