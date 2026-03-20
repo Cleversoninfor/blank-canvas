@@ -266,6 +266,7 @@ const AdminReports = () => {
     { value: 'delivery', label: 'Delivery', icon: <Truck className="h-4 w-4" /> },
     { value: 'retirada', label: 'Retirada', icon: <Store className="h-4 w-4" /> },
     { value: 'comanda', label: 'Comandas', icon: <UtensilsCrossed className="h-4 w-4" /> },
+    { value: 'consumir_local', label: 'No Local', icon: <UtensilsCrossed className="h-4 w-4" /> },
   ];
 
   return (

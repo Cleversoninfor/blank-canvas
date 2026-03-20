@@ -290,7 +290,8 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
   };
 
   const getNextStatusLabel = (status: UnifiedOrder['status']) => {
-    if (order.type === 'table' || isComanda) {
+    const isDineIn = order.address_street === 'Consumir no Local';
+    if (order.type === 'table' || isComanda || isDineIn) {
       const labels: Record<string, string> = {
         pending: 'Aceitar',
         preparing: 'Pronto',
