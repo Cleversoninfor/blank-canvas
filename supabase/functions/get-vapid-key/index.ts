@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import webpush from "web-push";
+import webpush from "npm:web-push";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
