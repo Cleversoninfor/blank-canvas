@@ -81,6 +81,7 @@ const App = () => (
                 <Route path="/admin/pdv" element={<AdminPDV />} />
                 <Route path="/admin/users" element={<AdminUsers />} />
                 <Route path="/admin/comandas" element={<AdminComandas />} />
+                <Route path="/admin/consumir-no-local" element={<AdminDineIn />} />
                 <Route path="/pdv" element={<PDVPublic />} />
                 <Route path="/driver" element={<DriverAccess />} />
                 <Route path="/driver/dashboard" element={<DriverDashboard />} />

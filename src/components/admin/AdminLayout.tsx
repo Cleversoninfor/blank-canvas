@@ -115,7 +115,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
       if (!user?.id) return null;
       const { data } = await supabase
         .from('admin_users')
-        .select('perm_dashboard, perm_cozinha, perm_entregadores, perm_pdv, perm_pedidos, perm_produtos, perm_categorias, perm_acrescimos, perm_cupons, perm_relatorios, perm_taxas_entrega, perm_horarios, perm_configuracoes, perm_qrcode, perm_usuarios, perm_backup')
+        .select('perm_dashboard, perm_cozinha, perm_entregadores, perm_pdv, perm_pedidos, perm_produtos, perm_categorias, perm_acrescimos, perm_cupons, perm_relatorios, perm_taxas_entrega, perm_horarios, perm_configuracoes, perm_qrcode, perm_usuarios, perm_backup, perm_consumir_local')
         .or(`auth_user_id.eq.${user.id},usuario.eq.${user.email},usuario.eq.${user.email?.split('@')[0]}`)
         .maybeSingle();
       return data;
