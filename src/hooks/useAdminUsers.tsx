@@ -18,6 +18,7 @@ export const PERM_KEYS = [
   'perm_qrcode',
   'perm_usuarios',
   'perm_backup',
+  'perm_consumir_local',
 ] as const;
 
 export type PermKey = typeof PERM_KEYS[number];
@@ -39,6 +40,7 @@ export const PERM_LABELS: Record<PermKey, string> = {
   perm_qrcode: 'QR Codes',
   perm_usuarios: 'Usuários',
   perm_backup: 'Backup',
+  perm_consumir_local: 'Consumir no Local',
 };
 
 export type PermMap = Record<PermKey, boolean>;
