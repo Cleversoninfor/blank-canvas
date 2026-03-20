@@ -416,10 +416,10 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
         </div>
 
         {!isCompleted && getNextStatus(order.status) && (() => {
-          const isDineInPreparing = isDineIn && order.status === 'preparing';
+          const isPreparing = order.status === 'preparing';
           return (
             <div className="flex flex-col gap-2">
-              {isDineInPreparing && (
+              {isPreparing && !isComanda && (
                 <Button
                   size="lg"
                   variant="outline"
