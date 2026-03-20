@@ -6,11 +6,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useComandaOrderDetails, useCloseSale, Comanda } from '@/hooks/useComandas';
+import { useTableOrderDetails, useCloseTableOrder } from '@/hooks/useDineInTables';
 import { useToast } from '@/hooks/use-toast';
 import { useOpenedSession, useAddMovimentacao } from '@/hooks/useCaixa';
 
 interface CloseSaleModalProps {
-  comanda: Comanda;
+  comanda: Comanda & { isTable?: boolean; tableOrderId?: number };
   open: boolean;
   onClose: () => void;
 }
@@ -28,22 +29,27 @@ const formatCurrency = (v: number) => v.toLocaleString('pt-BR', { style: 'curren
 
 export function CloseSaleModal({ comanda, open, onClose }: CloseSaleModalProps) {
   const { toast } = useToast();
-  const { data: ordersData, isLoading } = useComandaOrderDetails(comanda?.id);
-  const orders = Array.isArray(ordersData) ? ordersData : [];
+  
+  const { data: comandaOrdersData, isLoading: loadingComanda } = useComandaOrderDetails(!comanda?.isTable && comanda?.id ? comanda.id : undefined);
+  const { data: tableItemsData, isLoading: loadingTable } = useTableOrderDetails(comanda?.isTable ? comanda?.tableOrderId : undefined);
+  
+  const isLoading = loadingComanda || loadingTable;
   const closeSale = useCloseSale();
+  const closeTableOrder = useCloseTableOrder();
+  
   const { data: activeSession } = useOpenedSession();
   const addMovimentacao = useAddMovimentacao();
 
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(null);
   const [valorRecebido, setValorRecebido] = useState('');
 
-  // Flatten all items from all orders
+  // Flatten all items
   const allItems = useMemo(() => {
     const itemMap = new Map<string, { product_name: string; quantity: number; unit_price: number; observation?: string }>();
     
-    orders.forEach(order => {
-      if (!order) return;
-      (order.items || []).forEach((item: any) => {
+    if (comanda?.isTable) {
+      if (!tableItemsData) return [];
+      tableItemsData.forEach((item: any) => {
         const name = (item.product_name || '').trim();
         const price = Number(item.unit_price) || 0;
         const observation = (item.observation || '').trim();
@@ -60,10 +66,32 @@ export function CloseSaleModal({ comanda, open, onClose }: CloseSaleModalProps) 
           });
         }
       });
-    });
+    } else {
+      if (!comandaOrdersData) return [];
+      comandaOrdersData.forEach(order => {
+        if (!order) return;
+        (order.items || []).forEach((item: any) => {
+          const name = (item.product_name || '').trim();
+          const price = Number(item.unit_price) || 0;
+          const observation = (item.observation || '').trim();
+          const key = `${name}-${price}-${observation}`;
+          const existing = itemMap.get(key);
+          if (existing) {
+            existing.quantity += item.quantity;
+          } else {
+            itemMap.set(key, {
+              product_name: name,
+              quantity: item.quantity,
+              unit_price: price,
+              observation: observation,
+            });
+          }
+        });
+      });
+    }
     
     return Array.from(itemMap.values());
-  }, [orders]);
+  }, [comanda?.isTable, comandaOrdersData, tableItemsData]);
 
   const total = allItems.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
   const valorRecebidoNum = parseFloat(valorRecebido) || 0;
@@ -75,11 +103,20 @@ export function CloseSaleModal({ comanda, open, onClose }: CloseSaleModalProps) 
     if (!selectedPayment) return;
 
     try {
-      await closeSale.mutateAsync({
-        comandaId: comanda.id,
-        valorTotal: total,
-        formaPagamento: selectedPayment,
-      });
+      if (comanda.isTable && comanda.tableOrderId) {
+        await closeTableOrder.mutateAsync({
+          tableOrderId: comanda.tableOrderId,
+          tableId: comanda.id,
+          valorTotal: total,
+          formaPagamento: selectedPayment,
+        });
+      } else {
+        await closeSale.mutateAsync({
+          comandaId: comanda.id,
+          valorTotal: total,
+          formaPagamento: selectedPayment,
+        });
+      }
 
       // Se for dinheiro e tiver um caixa aberto, registra a entrada
       if (selectedPayment === 'money' && activeSession) {
@@ -87,22 +124,27 @@ export function CloseSaleModal({ comanda, open, onClose }: CloseSaleModalProps) 
           sessionId: activeSession.id,
           type: 'entrada',
           amount: total,
-          description: `Venda Comanda #${comanda.numero_comanda}`,
+          description: `Venda ${comanda.isTable ? `Mesa ${comanda.numero_comanda}` : `Comanda #${comanda.numero_comanda}`}`,
         });
       }
 
-      toast({ title: 'Venda fechada!', description: `Comanda #${comanda.numero_comanda} finalizada com sucesso.` });
+      toast({ 
+        title: 'Venda fechada!', 
+        description: `${comanda.isTable ? `Mesa ${comanda.numero_comanda}` : `Comanda #${comanda.numero_comanda}`} finalizada com sucesso.` 
+      });
       onClose();
     } catch (err: any) {
       toast({ title: 'Erro ao fechar venda', description: err.message, variant: 'destructive' });
     }
   };
 
+  const title = comanda?.isTable ? `Mesa ${comanda.numero_comanda}` : `Comanda #${comanda?.numero_comanda}`;
+
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Fechar Venda - Comanda #{comanda.numero_comanda}</DialogTitle>
+          <DialogTitle>Fechar Venda - {title}</DialogTitle>
         </DialogHeader>
 
         {isLoading ? (
@@ -110,7 +152,7 @@ export function CloseSaleModal({ comanda, open, onClose }: CloseSaleModalProps) 
             <Loader2 className="h-6 w-6 animate-spin" />
           </div>
         ) : allItems.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">Nenhum item nesta comanda.</p>
+          <p className="text-center text-muted-foreground py-8">Nenhum item nesta {comanda?.isTable ? 'mesa' : 'comanda'}.</p>
         ) : (
           <div className="space-y-4">
             {/* Items list */}
@@ -194,10 +236,10 @@ export function CloseSaleModal({ comanda, open, onClose }: CloseSaleModalProps) 
             <Button
               className="w-full"
               size="lg"
-              disabled={!canConfirm || closeSale.isPending}
+              disabled={!canConfirm || closeSale.isPending || closeTableOrder.isPending}
               onClick={handleConfirm}
             >
-              {closeSale.isPending ? (
+              {(closeSale.isPending || closeTableOrder.isPending) ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
               ) : null}
               Confirmar Pagamento

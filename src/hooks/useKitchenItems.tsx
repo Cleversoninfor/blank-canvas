@@ -82,7 +82,9 @@ export function useKitchenItemMutations() {
   ) => {
     if (orderType === 'table') {
       const updateData: Record<string, unknown> = { status: newStatus };
-      if (newStatus === 'delivered') {
+      // If marked as 'ready' or 'delivered' for table, set as 'delivered' and add delivery time
+      if (newStatus === 'ready' || newStatus === 'delivered') {
+        updateData.status = 'delivered';
         updateData.delivered_at = new Date().toISOString();
       }
 
