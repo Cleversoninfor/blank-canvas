@@ -652,6 +652,48 @@ const Checkout = () => {
             </section>
           )}
 
+          {/* Dine-in Table Selector */}
+          {deliveryType === 'dine_in' && (
+            <section className="bg-card rounded-2xl p-4 shadow-card">
+              <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                <UtensilsCrossed className="h-4 w-4 text-primary" />
+                Selecione sua mesa
+              </h3>
+              {dineInTables && dineInTables.length > 0 ? (
+                <div className="grid grid-cols-3 gap-2">
+                  {dineInTables.map((table) => (
+                    <button
+                      key={table.id}
+                      type="button"
+                      onClick={() => setSelectedTableId(table.id)}
+                      className={cn(
+                        "flex flex-col items-center p-3 rounded-xl border-2 transition-colors",
+                        selectedTableId === table.id
+                          ? "border-primary bg-primary/10"
+                          : "border-border bg-muted/30 hover:border-primary/50"
+                      )}
+                    >
+                      <span className={cn(
+                        "text-lg font-bold",
+                        selectedTableId === table.id ? "text-primary" : "text-foreground"
+                      )}>
+                        {table.number}
+                      </span>
+                      {table.location && (
+                        <span className="text-[10px] text-muted-foreground">{table.location}</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">Nenhuma mesa disponível</p>
+              )}
+              {!selectedTableId && (
+                <p className="text-xs text-destructive mt-2">Selecione uma mesa para continuar</p>
+              )}
+            </section>
+          )}
+
 
           {/* Customer Data Section */}
           <section className="space-y-2">
