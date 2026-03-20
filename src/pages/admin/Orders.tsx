@@ -223,7 +223,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
     e.stopPropagation();
 
     // Use custom message template or default
-    const defaultMessage = `Ol\u00E1 {nome}! \uD83C\uDF54\n\nPedido #{pedido} recebido!\n\nTotal: {total}\n\n\uD83D\uDCA0 Chave Pix: {chave_pix} ({tipo_chave})\n\nAguardamos o comprovante para iniciar o preparo!`;
+    const defaultMessage = `Olá {nome}! 🍔\n\nPedido #{pedido} recebido!\n\nTotal: {total}\n\n💎 Chave Pix: {chave_pix} ({tipo_chave})\n\nAguardamos o comprovante para iniciar o preparo!`;
     const template = store?.pix_message || defaultMessage;
 
     const itemsList = items?.map(it => `${it.quantity}x ${it.product_name}`).join('\n') || '';
@@ -250,7 +250,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
     e.stopPropagation();
 
     const template = store?.checkout_whatsapp_message || 
-      "Ol\u00E1 {nome}! \uD83D\uDC4B\n\nSeu pedido #{pedido} foi aceito e j\u00E1 est\u00E1 em preparo!\n\n\uD83D\uDCCB *Resumo:* \n{itens}\n\n\uD83D\uDCCD *Entrega:* {endereco}\n\uD83D\uDCB3 *Pagamento:* {pagamento}\n\uD83D\uDCB0 *Total:* {total}\n\n\uD83D\uDE80 Acompanhe aqui:\n{link}";
+      "Olá {nome}! 👋\n\nSeu pedido #{pedido} foi aceito e já está em preparo!\n\n📋 *Resumo:* \n{itens}\n\n📍 *Entrega:* {endereco}\n💳 *Pagamento:* {pagamento}\n💰 *Total:* {total}\n\n🚀 Acompanhe aqui:\n{link}";
     
     const itemsList = items?.map(it => `${it.quantity}x ${it.product_name}`).join('\n') || '';
     const address = `${order.address_street || ''}, ${order.address_number || ''}${order.address_neighborhood ? ` - ${order.address_neighborhood}` : ''}`;
