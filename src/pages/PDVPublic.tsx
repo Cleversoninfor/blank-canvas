@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   Trash2, ShoppingCart, ArrowLeft, Search, ArrowRight,
   Loader2, Receipt, Package, LockOpen, Lock, KeyRound, ClipboardList,
-  Banknote, ArrowDownCircle, Info,
+  Banknote, ArrowDownCircle, Info, UtensilsCrossed
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,7 @@ import {
   useComandas,
   useCreateComandaOrder, useUpdateComandaStatus, Comanda,
 } from '@/hooks/useComandas';
+import { useDineInTables, useCreateTableOrder, useAddTableItems, useTableOrders, DineInTable } from '@/hooks/useDineInTables';
 import { useProducts, Product } from '@/hooks/useProducts';
 import { useCategories } from '@/hooks/useCategories';
 import { useOpenedSession, useCaixaBalance, useCloseCaixa } from '@/hooks/useCaixa';
@@ -70,6 +71,10 @@ const PDVPublic = () => {
   const { data: comandasData, isLoading: loadingComandas } = useComandas();
   const comandas = Array.isArray(comandasData) ? comandasData : [];
   
+  const { data: tablesData, isLoading: loadingTables } = useDineInTables();
+  const tables = Array.isArray(tablesData) ? tablesData : [];
+  const { data: tableOrders } = useTableOrders();
+  
   const { data: productsData, isLoading: loadingProducts, error: productsError } = useProducts();
   const products = Array.isArray(productsData) ? productsData : [];
   
@@ -77,6 +82,8 @@ const PDVPublic = () => {
   const categories = Array.isArray(categoriesData) ? categoriesData : [];
   
   const createOrder = useCreateComandaOrder();
+  const createTableOrder = useCreateTableOrder();
+  const addTableItems = useAddTableItems();
   const { data: activeSession, isLoading: loadingSession } = useOpenedSession();
   const { data: balanceData } = useCaixaBalance(activeSession?.id);
   const balance = balanceData || { current: 0, initial: 0, entradas: 0, saidas: 0 };
@@ -85,7 +92,7 @@ const PDVPublic = () => {
 
   const [view, setView] = useState<PDVView>('main');
   const [selectedComanda, setSelectedComanda] = useState<Comanda | null>(null);
-  const [selectorComanda, setSelectorComanda] = useState<Comanda | null>(null);
+  const [selectedTable, setSelectedTable] = useState<DineInTable | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -95,6 +102,8 @@ const PDVPublic = () => {
 
   const livres = comandas.filter(c => c.status === 'livre');
   const ocupadas = comandas.filter(c => c.status === 'ocupada');
+  const mesasLivres = tables.filter(t => t.status !== 'occupied');
+  const mesasOcupadas = tables.filter(t => t.status === 'occupied');
 
   const handleLogin = () => {
     if (!store?.pdv_password) {
@@ -111,6 +120,13 @@ const PDVPublic = () => {
 
   const handleSelectComanda = (comanda: Comanda) => {
     setSelectedComanda(comanda);
+    setSelectedTable(null);
+    setView('venda');
+  };
+
+  const handleSelectTable = (table: DineInTable) => {
+    setSelectedTable(table);
+    setSelectedComanda(null);
     setView('venda');
   };
 
@@ -139,25 +155,51 @@ const PDVPublic = () => {
   const cartTotal = cart.reduce((sum, i) => sum + Number(i.product.price || 0) * i.quantity, 0);
 
   const handleFinalizarPedido = async () => {
-    if (!selectedComanda || cart.length === 0) return;
+    if ((!selectedComanda && !selectedTable) || cart.length === 0) return;
     try {
-      await createOrder.mutateAsync({
-        comandaId: selectedComanda.id,
-        numeroComanda: selectedComanda.numero_comanda,
-        items: cart.map(i => ({
-          product_id: i.product.id,
-          product_name: i.product.name,
-          quantity: i.quantity,
-          unit_price: Number(i.product.price || 0),
-          observation: i.observation,
-        })),
-      });
+      if (selectedComanda) {
+        await createOrder.mutateAsync({
+          comandaId: selectedComanda.id,
+          numeroComanda: selectedComanda.numero_comanda,
+          items: cart.map(i => ({
+            product_id: i.product.id,
+            product_name: i.product.name,
+            quantity: i.quantity,
+            unit_price: Number(i.product.price || 0),
+            observation: i.observation,
+          })),
+        });
 
-      if (selectedComanda.status === 'livre') {
-        await updateStatus.mutateAsync({ id: selectedComanda.id, status: 'ocupada' });
+        if (selectedComanda.status === 'livre') {
+          await updateStatus.mutateAsync({ id: selectedComanda.id, status: 'ocupada' });
+        }
+
+        toast({ title: 'Pedido enviado!', description: `Pedido da Comanda #${selectedComanda.numero_comanda} enviado para a cozinha.` });
+      } else if (selectedTable) {
+        let orderId: number;
+        const activeOrder = tableOrders?.find((o: any) => o.table_id === selectedTable.id);
+        
+        if (activeOrder) {
+          orderId = activeOrder.id;
+        } else {
+          const newOrder = await createTableOrder.mutateAsync({ tableId: selectedTable.id });
+          orderId = newOrder.id;
+        }
+
+        await addTableItems.mutateAsync({
+          tableOrderId: orderId,
+          items: cart.map(i => ({
+            product_id: i.product.id,
+            product_name: i.product.name,
+            quantity: i.quantity,
+            unit_price: Number(i.product.price || 0),
+            observation: i.observation,
+          })),
+        });
+
+        toast({ title: 'Pedido enviado!', description: `Pedido da Mesa ${selectedTable.number} enviado para a cozinha.` });
       }
 
-      toast({ title: 'Pedido enviado!', description: `Pedido da Comanda #${selectedComanda.numero_comanda} enviado para a cozinha.` });
       setCart([]);
     } catch (err: any) {
       toast({ title: 'Erro ao criar pedido', description: err.message, variant: 'destructive' });
@@ -219,13 +261,14 @@ const PDVPublic = () => {
   const renderCurrentView = () => {
     switch (view) {
       case 'venda':
-        if (!selectedComanda) return <div className="flex justify-center py-20"><Loader2 className="animate-spin" /></div>;
+        if (!selectedComanda && !selectedTable) return <div className="flex justify-center py-20"><Loader2 className="animate-spin" /></div>;
+        const title = selectedTable ? `Mesa ${selectedTable.number}` : `Comanda #${selectedComanda?.numero_comanda}`;
         return (
           <div className="space-y-4">
-            <PDVHeader title={`Comanda #${selectedComanda.numero_comanda}`} onLogout={() => setAuthenticated(false)} />
+            <PDVHeader title={title} onLogout={() => setAuthenticated(false)} />
             <div className="flex items-center justify-between">
-              <Button variant="ghost" onClick={() => { setView('main'); setSelectedComanda(null); setCart([]); }}><ArrowLeft className="h-4 w-4 mr-2" /> Voltar</Button>
-              <Button variant="destructive" onClick={() => setCloseSaleComanda(selectedComanda)}>Fechar Venda</Button>
+              <Button variant="ghost" onClick={() => { setView('main'); setSelectedComanda(null); setSelectedTable(null); setCart([]); }}><ArrowLeft className="h-4 w-4 mr-2" /> Voltar</Button>
+              <Button variant="destructive" onClick={() => setCloseSaleComanda(selectedTable ? { id: selectedTable.id, numero_comanda: selectedTable.number, status: 'occupied', isTable: true } as any : selectedComanda)}>Fechar Venda</Button>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-4">
@@ -272,17 +315,47 @@ const PDVPublic = () => {
           <div className="space-y-6">
             <PDVHeader title="Abrir Venda" onLogout={() => setAuthenticated(false)} />
             <Button variant="ghost" onClick={() => setView('main')}><ArrowLeft className="h-4 w-4 mr-2" /> Voltar</Button>
-            <h2 className="text-xl font-bold">Selecione uma Comanda Livre</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6">
-              {livres.map(c => (
-                <Card key={c.id} className="cursor-pointer hover:ring-4 hover:ring-primary/20 transition-all p-2" onClick={() => handleSelectComanda(c)}>
-                  <CardContent className="p-6 text-center">
-                    <div className="bg-green-100 p-3 rounded-full w-fit mx-auto mb-4 text-green-600"><LockOpen className="h-6 w-6" /></div>
-                    <p className="font-bold text-xl">#{c.numero_comanda}</p>
-                    <Badge variant="default" className="mt-2">Livre</Badge>
-                  </CardContent>
-                </Card>
-              ))}
+            
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <UtensilsCrossed className="h-5 w-5 text-primary" /> Mesas Disponíveis
+              </h2>
+              {loadingTables ? <div className="flex justify-center py-8"><Loader2 className="animate-spin text-primary" /></div> : mesasLivres.length === 0 ? (
+                <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma mesa livre.</CardContent></Card>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6">
+                  {mesasLivres.map(t => (
+                    <Card key={t.id} className="cursor-pointer hover:ring-4 hover:ring-primary/20 transition-all p-2" onClick={() => handleSelectTable(t)}>
+                      <CardContent className="p-6 text-center">
+                        <div className="bg-green-100 p-3 rounded-full w-fit mx-auto mb-4 text-green-600"><LockOpen className="h-6 w-6" /></div>
+                        <p className="font-bold text-xl">Mesa {t.number}</p>
+                        <Badge variant="default" className="mt-2">Livre</Badge>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4 pt-6 border-t">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <Package className="h-5 w-5 text-primary" /> Comandas Livres
+              </h2>
+              {loadingComandas ? <div className="flex justify-center py-8"><Loader2 className="animate-spin text-primary" /></div> : livres.length === 0 ? (
+                <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma comanda livre.</CardContent></Card>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6">
+                  {livres.map(c => (
+                    <Card key={c.id} className="cursor-pointer hover:ring-4 hover:ring-primary/20 transition-all p-2" onClick={() => handleSelectComanda(c)}>
+                      <CardContent className="p-6 text-center">
+                        <div className="bg-green-100 p-3 rounded-full w-fit mx-auto mb-4 text-green-600"><LockOpen className="h-6 w-6" /></div>
+                        <p className="font-bold text-xl">#{c.numero_comanda}</p>
+                        <Badge variant="default" className="mt-2">Livre</Badge>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         );
@@ -291,9 +364,43 @@ const PDVPublic = () => {
           <div className="space-y-6">
             <PDVHeader title="Consumo" onLogout={() => setAuthenticated(false)} />
             <Button variant="ghost" onClick={() => setView('main')}><ArrowLeft className="h-4 w-4 mr-2" /> Voltar</Button>
-            <h2 className="text-xl font-bold">Comandas em Atendimento</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {ocupadas.map(c => <ComandaConsumoCard key={c.id} comanda={c} onAddMore={(c) => { setSelectedComanda(c); setView('venda'); }} />)}
+            
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <UtensilsCrossed className="h-5 w-5 text-primary" /> Mesas em Atendimento
+              </h2>
+              {mesasOcupadas.length === 0 ? (
+                <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma mesa em atendimento.</CardContent></Card>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {mesasOcupadas.map(t => (
+                    <ComandaConsumoCard 
+                      key={t.id} 
+                      comanda={{ id: t.id, numero_comanda: t.number, status: 'occupied', isTable: true } as any} 
+                      onAddMore={(c) => handleSelectTable(t)} 
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4 pt-6 border-t">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <Package className="h-5 w-5 text-primary" /> Comandas em Atendimento
+              </h2>
+              {ocupadas.length === 0 ? (
+                <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma comanda em atendimento.</CardContent></Card>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {ocupadas.map(c => (
+                    <ComandaConsumoCard 
+                      key={c.id} 
+                      comanda={c} 
+                      onAddMore={(com) => handleSelectComanda(com)} 
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         );
@@ -302,16 +409,60 @@ const PDVPublic = () => {
           <div className="space-y-6">
             <PDVHeader title="Fechar Venda" onLogout={() => setAuthenticated(false)} />
             <Button variant="ghost" onClick={() => setView('main')}><ArrowLeft className="h-4 w-4 mr-2" /> Voltar</Button>
-            <h2 className="text-xl font-bold">Selecione a Comanda para Fechar</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {ocupadas.map(c => (
-                <CloseComandaCard 
-                  key={c.id} 
-                  comanda={c} 
-                  onClose={() => setCloseSaleComanda(c)}
-                  onTransfer={() => setTransferSourceComanda(c)}
-                />
-              ))}
+            
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <UtensilsCrossed className="h-5 w-5 text-primary" /> Mesas Ocupadas
+              </h2>
+              {mesasOcupadas.length === 0 ? (
+                <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma mesa ocupada.</CardContent></Card>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {mesasOcupadas.map(t => {
+                    const tableOrder = tableOrders?.find((o: any) => o.table_id === t.id);
+                    return (
+                      <CloseComandaCard 
+                        key={t.id} 
+                        comanda={{ 
+                          id: t.id, 
+                          numero_comanda: t.number, 
+                          status: 'occupied',
+                          isTable: true,
+                          tableOrderId: tableOrder?.id
+                        } as any} 
+                        onClose={() => setCloseSaleComanda({ 
+                          id: t.id, 
+                          numero_comanda: t.number, 
+                          status: 'occupied',
+                          isTable: true,
+                          tableOrderId: tableOrder?.id
+                        } as any)}
+                        onTransfer={() => setView('main')}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4 pt-6 border-t">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <Package className="h-5 w-5 text-primary" /> Comandas Ocupadas
+              </h2>
+              {ocupadas.length === 0 ? (
+                <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma comanda ocupada.</CardContent></Card>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {ocupadas.map(c => (
+                    <CloseComandaCard 
+                      key={c.id} 
+                      comanda={c} 
+                      onClose={() => setCloseSaleComanda(c)}
+                      onTransfer={() => setTransferSourceComanda(c)}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         );
@@ -340,14 +491,14 @@ const PDVPublic = () => {
                   <CardContent className="p-6 text-center space-y-5">
                     <div className="mx-auto h-24 w-24 rounded-3xl bg-green-500/10 flex items-center justify-center text-green-600 transition-transform group-hover:scale-110"><ShoppingCart className="h-12 w-12" /></div>
                     <h3 className="text-2xl font-black">Abrir Venda</h3>
-                    <Badge className="bg-green-500 text-white font-bold h-7 px-4 rounded-full">{livres.length} Livres</Badge>
+                    <Badge className="bg-green-500 text-white font-bold h-7 px-4 rounded-full">{livres.length + mesasLivres.length} Livres</Badge>
                   </CardContent>
                 </Card>
                 <Card className="cursor-pointer hover:ring-4 hover:ring-blue-500/20 hover:-translate-y-2 transition-all p-4 rounded-3xl border-none shadow-2xl group" onClick={() => setView('consumo')}>
                   <CardContent className="p-6 text-center space-y-5">
                     <div className="mx-auto h-24 w-24 rounded-3xl bg-blue-500/10 flex items-center justify-center text-blue-600 transition-transform group-hover:scale-110"><ClipboardList className="h-12 w-12" /></div>
                     <h3 className="text-2xl font-black">Consumo</h3>
-                    <Badge className="bg-blue-500 text-white font-bold h-7 px-4 rounded-full">{ocupadas.length} Ativas</Badge>
+                    <Badge className="bg-blue-500 text-white font-bold h-7 px-4 rounded-full">{ocupadas.length + mesasOcupadas.length} Ativas</Badge>
                   </CardContent>
                 </Card>
                 <Card className="cursor-pointer hover:ring-4 hover:ring-amber-500/20 hover:-translate-y-2 transition-all p-4 rounded-3xl border-none shadow-2xl group" onClick={() => setView('select-close')}>
@@ -370,36 +521,6 @@ const PDVPublic = () => {
       <AbrirCaixaModal open={!loadingSession && !activeSession} />
       {activeSession && <SangriaModal open={sangriaOpen} onClose={() => setSangriaOpen(false)} sessionId={activeSession.id} />}
       {closeSaleComanda && <CloseSaleModal comanda={closeSaleComanda} open={!!closeSaleComanda} onClose={() => { setCloseSaleComanda(null); setView('main'); }} />}
-      {selectorComanda && (
-        <ProductSelectorModal
-          open={!!selectorComanda}
-          comandaNumero={selectorComanda.numero_comanda}
-          onClose={() => setSelectorComanda(null)}
-          onConfirm={async (items) => {
-            const castedItems = items as any;
-            try {
-              await createOrder.mutateAsync({
-                comandaId: selectorComanda.id,
-                numeroComanda: selectorComanda.numero_comanda,
-                items: castedItems.map((i: any) => ({
-                  product_id: i.product.id,
-                  product_name: i.product.name,
-                  quantity: i.quantity,
-                  unit_price: Number(i.product.price || 0),
-                  observation: i.observation,
-                })),
-              });
-              if (selectorComanda.status === 'livre') await updateStatus.mutateAsync({ id: selectorComanda.id, status: 'ocupada' });
-              toast({ title: 'Pedido enviado!' });
-              setSelectorComanda(null);
-            } catch (err: any) {
-              toast({ title: 'Erro', description: err.message, variant: 'destructive' });
-              throw err;
-            }
-          }}
-          isLoading={createOrder.isPending}
-        />
-      )}
       {transferSourceComanda && <TransferComandaModal sourceComanda={transferSourceComanda} open={!!transferSourceComanda} onClose={() => setTransferSourceComanda(null)} />}
     </div>
   );
