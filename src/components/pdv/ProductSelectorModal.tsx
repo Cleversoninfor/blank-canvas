@@ -18,13 +18,13 @@ interface CartItem {
 
 interface ProductSelectorModalProps {
   open: boolean;
-  comandaNumero: number;
+  title: string;
   onClose: () => void;
   onConfirm: (items: CartItem[]) => Promise<void>;
   isLoading?: boolean;
 }
 
-export function ProductSelectorModal({ open, comandaNumero, onClose, onConfirm, isLoading }: ProductSelectorModalProps) {
+export function ProductSelectorModal({ open, title, onClose, onConfirm, isLoading }: ProductSelectorModalProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -84,7 +84,7 @@ export function ProductSelectorModal({ open, comandaNumero, onClose, onConfirm, 
         <DialogHeader className="px-6 pt-6 pb-4 border-b flex-shrink-0">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl font-bold">
-              Comanda #{comandaNumero} — Adicionar Itens
+              {title} — Adicionar Itens
             </DialogTitle>
           </div>
         </DialogHeader>

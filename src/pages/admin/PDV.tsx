@@ -53,9 +53,6 @@ const PDV = () => {
   const closeCaixa = useCloseCaixa();
 
   const [view, setView] = useState<'main' | 'select-comanda' | 'select-close'>('main');
-  const [selectTab, setSelectTab] = useState<'comanda' | 'mesa'>('comanda');
-
-  // Modal state
   const [selectorComanda, setSelectorComanda] = useState<Comanda | null>(null);
   const [selectorTable, setSelectorTable] = useState<DineInTable | null>(null);
   const [sangriaOpen, setSangriaOpen] = useState(false);
@@ -146,34 +143,38 @@ const PDV = () => {
     switch (view) {
       case 'select-comanda':
         return (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <Button variant="ghost" onClick={() => setView('main')}><ArrowLeft className="h-4 w-4 mr-2" /> Voltar ao PDV</Button>
             
-            <div className="flex gap-2 p-1 bg-muted/30 rounded-xl w-fit">
-              <Button 
-                variant={selectTab === 'comanda' ? 'default' : 'ghost'} 
-                size="sm"
-                onClick={() => setSelectTab('comanda')}
-                className="rounded-lg"
-              >
-                <Package className="h-4 w-4 mr-2" /> Comandas
-              </Button>
-              <Button 
-                variant={selectTab === 'mesa' ? 'default' : 'ghost'} 
-                size="sm"
-                onClick={() => setSelectTab('mesa')}
-                className="rounded-lg"
-              >
-                <UtensilsCrossed className="h-4 w-4 mr-2" /> Mesas
-              </Button>
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <UtensilsCrossed className="h-5 w-5 text-primary" /> Mesas Disponíveis
+              </h2>
+              {loadingTables ? <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div> : tables.length === 0 ? (
+                <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma mesa cadastrada.</CardContent></Card>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                  {tables.map(table => {
+                    const isLivre = table.status !== 'occupied';
+                    return (
+                      <Card key={table.id} className="cursor-pointer hover:ring-2 hover:ring-primary/40 active:scale-[0.97] transition-all" onClick={() => setSelectorTable(table)}>
+                        <CardContent className="p-4 text-center">
+                          {isLivre ? <LockOpen className="h-8 w-8 mx-auto mb-2 text-green-500" /> : <Lock className="h-8 w-8 mx-auto mb-2 text-orange-400" />}
+                          <p className="font-bold text-lg">Mesa {table.number}</p>
+                          <Badge variant={isLivre ? 'default' : 'secondary'} className="mt-1">{isLivre ? 'Livre' : 'Em uso'}</Badge>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
-            <h2 className="text-xl font-bold text-foreground">
-              Selecione {selectTab === 'comanda' ? 'uma Comanda' : 'uma Mesa'}
-            </h2>
-
-            {selectTab === 'comanda' ? (
-              loadingComandas ? <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div> : comandas.length === 0 ? (
+            <div className="space-y-4 pt-4 border-t border-border">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <Package className="h-5 w-5 text-primary" /> Comandas
+              </h2>
+              {loadingComandas ? <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div> : comandas.length === 0 ? (
                 <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma comanda disponível.</CardContent></Card>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
@@ -190,73 +191,21 @@ const PDV = () => {
                     );
                   })}
                 </div>
-              )
-            ) : (
-              loadingTables ? <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div> : tables.length === 0 ? (
-                <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma mesa disponível.</CardContent></Card>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                  {tables.map(table => {
-                    const isLivre = table.status !== 'occupied';
-                    return (
-                      <Card key={table.id} className="cursor-pointer hover:ring-2 hover:ring-primary/40 active:scale-[0.97] transition-all" onClick={() => setSelectorTable(table)}>
-                        <CardContent className="p-4 text-center">
-                          {isLivre ? <LockOpen className="h-8 w-8 mx-auto mb-2 text-green-500" /> : <Lock className="h-8 w-8 mx-auto mb-2 text-orange-400" />}
-                          <p className="font-bold text-lg">Mesa {table.number}</p>
-                          <Badge variant={isLivre ? 'default' : 'secondary'} className="mt-1">{isLivre ? 'Livre' : 'Em uso'}</Badge>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              )
-            )}
+              )}
+            </div>
           </div>
         );
 
       case 'select-close':
         return (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <Button variant="ghost" onClick={() => setView('main')}><ArrowLeft className="h-4 w-4 mr-2" /> Voltar ao PDV</Button>
             
-            <div className="flex gap-2 p-1 bg-muted/30 rounded-xl w-fit">
-              <Button 
-                variant={selectTab === 'comanda' ? 'default' : 'ghost'} 
-                size="sm"
-                onClick={() => setSelectTab('comanda')}
-                className="rounded-lg"
-              >
-                <Package className="h-4 w-4 mr-2" /> Comandas
-              </Button>
-              <Button 
-                variant={selectTab === 'mesa' ? 'default' : 'ghost'} 
-                size="sm"
-                onClick={() => setSelectTab('mesa')}
-                className="rounded-lg"
-              >
-                <UtensilsCrossed className="h-4 w-4 mr-2" /> Mesas
-              </Button>
-            </div>
-
-            <h2 className="text-xl font-bold text-foreground">
-              Selecione a {selectTab === 'comanda' ? 'Comanda' : 'Mesa'} para Fechar
-            </h2>
-
-            {selectTab === 'comanda' ? (
-              ocupadas.length === 0 ? <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma comanda ocupada.</CardContent></Card> : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {ocupadas.map(comanda => (
-                    <CloseComandaCard 
-                      key={comanda.id} 
-                      comanda={comanda} 
-                      onClose={() => setCloseSaleComanda(comanda)}
-                      onTransfer={() => setView('main')} // Simplificado para admin
-                    />
-                  ))}
-                </div>
-              )
-            ) : (
-              mesasOcupadas.length === 0 ? <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma mesa ocupada.</CardContent></Card> : (
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold flex items-center gap-2 text-foreground">
+                <UtensilsCrossed className="h-5 w-5 text-primary" /> Mesas Ocupadas
+              </h2>
+              {mesasOcupadas.length === 0 ? <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma mesa ocupada.</CardContent></Card> : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {mesasOcupadas.map(table => {
                     const tableOrder = tableOrders?.find((o: any) => o.table_id === table.id);
@@ -282,8 +231,26 @@ const PDV = () => {
                     );
                   })}
                 </div>
-              )
-            )}
+              )}
+            </div>
+
+            <div className="space-y-4 pt-4 border-t border-border">
+              <h2 className="text-xl font-bold flex items-center gap-2 text-foreground">
+                <Package className="h-5 w-5 text-primary" /> Comandas Ocupadas
+              </h2>
+              {ocupadas.length === 0 ? <Card><CardContent className="py-8 text-center text-muted-foreground">Nenhuma comanda ocupada.</CardContent></Card> : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {ocupadas.map(comanda => (
+                    <CloseComandaCard 
+                      key={comanda.id} 
+                      comanda={comanda} 
+                      onClose={() => setCloseSaleComanda(comanda)}
+                      onTransfer={() => setView('main')}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         );
 
@@ -360,7 +327,7 @@ const PDV = () => {
       {selectorComanda && (
         <ProductSelectorModal
           open={!!selectorComanda}
-          comandaNumero={selectorComanda.numero_comanda}
+          title={`Comanda #${selectorComanda.numero_comanda}`}
           onClose={() => setSelectorComanda(null)}
           onConfirm={handleSelectorConfirm}
           isLoading={createOrder.isPending}
@@ -369,7 +336,7 @@ const PDV = () => {
       {selectorTable && (
         <ProductSelectorModal
           open={!!selectorTable}
-          comandaNumero={selectorTable.number}
+          title={`Mesa ${selectorTable.number}`}
           onClose={() => setSelectorTable(null)}
           onConfirm={handleSelectorConfirm}
           isLoading={createTableOrder.isPending || addTableItems.isPending}
