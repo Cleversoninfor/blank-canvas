@@ -1,11 +1,18 @@
--- Migration: Fix create_order_with_items RPC and Restore Stock Logic
--- Description: Consolidates the RPC function, resolves signature mismatches, and restores stock management.
+-- Migration: Fix create_order_with_items RPC (MASTER WIPE)
+-- Description: Completely clears all previous versions of the function to avoid signature mismatches.
 
--- 1. CLEAN UP: Drop all previous overloads to avoid "Could not find function" or ambiguity
-DROP FUNCTION IF EXISTS public.create_order_with_items(text, text, text, text, text, numeric, text, jsonb, text, text, numeric, double precision, double precision);
-DROP FUNCTION IF EXISTS public.create_order_with_items(text, text, text, text, text, numeric, text, jsonb, text, text, numeric, numeric, numeric, uuid);
+-- 1. MASTER WIPE: Drop all overloads of the function regardless of signature
+DO $$
+DECLARE
+    _r record;
+BEGIN
+    FOR _r IN (SELECT oid::regprocedure as name FROM pg_proc WHERE proname = 'create_order_with_items' AND pronamespace = 'public'::regnamespace)
+    LOOP
+        EXECUTE 'DROP FUNCTION ' || _r.name;
+    END LOOP;
+END $$;
 
--- 2. CREATE CONSOLIDATED FUNCTION
+-- 2. CREATE DEFINITIVE CONSOLIDATED FUNCTION
 CREATE OR REPLACE FUNCTION public.create_order_with_items(
   _customer_name text,
   _customer_phone text,
@@ -36,7 +43,7 @@ DECLARE
   v_ing_rec record;
   v_required_stock numeric;
 BEGIN
-  -- FIRST PASS: VALIDATE STOCK (Restored logic)
+  -- FIRST PASS: VALIDATE STOCK
   FOR v_item IN SELECT * FROM jsonb_array_elements(_items)
   LOOP
     v_product_id := (v_item->>'product_id')::uuid;
@@ -105,7 +112,7 @@ BEGIN
   )
   RETURNING id INTO v_order_id;
 
-  -- THIRD PASS: INSERT ORDER ITEMS AND REDUCE STOCK (Restored logic)
+  -- THIRD PASS: INSERT ORDER ITEMS AND REDUCE STOCK
   FOR v_item IN SELECT * FROM jsonb_array_elements(_items)
   LOOP
     v_product_id := (v_item->>'product_id')::uuid;
@@ -150,9 +157,7 @@ BEGIN
   END LOOP;
 
   -- SPECIAL LOGIC FOR DINE-IN (Consumir no Local)
-  -- If table_id is provided or address is 'Consumir no Local', sync with table_orders
   IF _table_id IS NOT NULL OR _address_street = 'Consumir no Local' THEN
-    -- Try to find an open table session or create one
     SELECT id INTO v_table_order_id
     FROM public.table_orders
     WHERE table_id = _table_id AND status = 'open'
@@ -160,7 +165,6 @@ BEGIN
     LIMIT 1;
 
     IF v_table_order_id IS NULL AND _table_id IS NOT NULL THEN
-      -- Create a new session
       INSERT INTO public.table_orders (
         table_id,
         customer_name,
@@ -177,13 +181,11 @@ BEGIN
       )
       RETURNING id INTO v_table_order_id;
 
-      -- Update table status to occupied
       UPDATE public.tables 
       SET status = 'occupied', current_order_id = v_table_order_id 
       WHERE id = _table_id;
     END IF;
 
-    -- If we have a session (existing or new), insert items to table_order_items too
     IF v_table_order_id IS NOT NULL THEN
       FOR v_item IN SELECT * FROM jsonb_array_elements(_items)
       LOOP
@@ -207,17 +209,10 @@ BEGIN
         );
       END LOOP;
 
-      -- Update table order total (using a helper if exists, otherwise manual)
-      -- Assuming update_table_order_total exists from previous migrations
-      BEGIN
-        PERFORM public.update_table_order_total(v_table_order_id, _total_amount);
-      EXCEPTION WHEN OTHERS THEN
-        -- Fallback: manual subtotal update if function not present
-        UPDATE public.table_orders 
-        SET total_amount = total_amount + _total_amount,
-            subtotal = subtotal + _total_amount
-        WHERE id = v_table_order_id;
-      END;
+      UPDATE public.table_orders 
+      SET total_amount = total_amount + _total_amount,
+          subtotal = subtotal + _total_amount
+      WHERE id = v_table_order_id;
     END IF;
   END IF;
 
