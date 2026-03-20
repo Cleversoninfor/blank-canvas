@@ -24,9 +24,18 @@ export function useOrdersRealtime(enabled: boolean = true) {
       )
       .on(
         "postgres_changes",
+        { event: "*", schema: "public", table: "tables" },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["dine-in-tables"] });
+        }
+      )
+      .on(
+        "postgres_changes",
         { event: "*", schema: "public", table: "table_orders" },
         () => {
           queryClient.invalidateQueries({ queryKey: ["all-orders"] });
+          queryClient.invalidateQueries({ queryKey: ["table-orders"] });
+          queryClient.invalidateQueries({ queryKey: ["dine-in-tables"] });
         }
       )
       .on(
@@ -35,6 +44,8 @@ export function useOrdersRealtime(enabled: boolean = true) {
         () => {
           queryClient.invalidateQueries({ queryKey: ["all-orders"] });
           queryClient.invalidateQueries({ queryKey: ["kitchen-items"] });
+          queryClient.invalidateQueries({ queryKey: ["table-order-details"] });
+          queryClient.invalidateQueries({ queryKey: ["table-orders"] });
         }
       )
       .subscribe();

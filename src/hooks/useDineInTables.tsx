@@ -8,6 +8,7 @@ export interface DineInTable {
   location: string | null;
   status: string | null;
   capacity: number | null;
+  current_order_id: number | null;
 }
 
 export function useDineInTables() {
@@ -16,7 +17,7 @@ export function useDineInTables() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('tables')
-        .select('id, number, name, location, status, capacity')
+        .select('id, number, name, location, status, capacity, current_order_id')
         .order('number', { ascending: true });
       if (error) throw error;
       return (data || []) as DineInTable[];

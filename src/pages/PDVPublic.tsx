@@ -26,6 +26,7 @@ import { TransferComandaModal } from '@/components/pdv/TransferComandaModal';
 import { CloseComandaCard } from '@/components/pdv/CloseComandaCard';
 import { useStoreConfig } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
+import { useOrdersRealtime } from '@/hooks/useOrdersRealtime';
 
 type PDVView = 'main' | 'select-comanda' | 'venda' | 'select-close' | 'consumo';
 
@@ -66,6 +67,7 @@ const PDVPublic = () => {
   const [passwordError, setPasswordError] = useState('');
 
   useTheme();
+  useOrdersRealtime();
 
   // PDV state
   const { data: comandasData, isLoading: loadingComandas } = useComandas();
@@ -177,10 +179,8 @@ const PDVPublic = () => {
         toast({ title: 'Pedido enviado!', description: `Pedido da Comanda #${selectedComanda.numero_comanda} enviado para a cozinha.` });
       } else if (selectedTable) {
         let orderId: number;
-        const activeOrder = tableOrders?.find((o: any) => o.table_id === selectedTable.id);
-        
-        if (activeOrder) {
-          orderId = activeOrder.id;
+        if (selectedTable.current_order_id) {
+          orderId = selectedTable.current_order_id;
         } else {
           const newOrder = await createTableOrder.mutateAsync({ tableId: selectedTable.id });
           orderId = newOrder.id;
@@ -268,7 +268,16 @@ const PDVPublic = () => {
             <PDVHeader title={title} onLogout={() => setAuthenticated(false)} />
             <div className="flex items-center justify-between">
               <Button variant="ghost" onClick={() => { setView('main'); setSelectedComanda(null); setSelectedTable(null); setCart([]); }}><ArrowLeft className="h-4 w-4 mr-2" /> Voltar</Button>
-              <Button variant="destructive" onClick={() => setCloseSaleComanda(selectedTable ? { id: selectedTable.id, numero_comanda: selectedTable.number, status: 'occupied', isTable: true } as any : selectedComanda)}>Fechar Venda</Button>
+              <Button 
+                variant="destructive" 
+                onClick={() => setCloseSaleComanda(
+                  selectedTable 
+                    ? { id: selectedTable.id, numero_comanda: selectedTable.number, status: 'occupied', isTable: true, tableOrderId: selectedTable.current_order_id } as any 
+                    : selectedComanda
+                )}
+              >
+                Fechar Venda
+              </Button>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-4">
@@ -376,7 +385,7 @@ const PDVPublic = () => {
                   {mesasOcupadas.map(t => (
                     <ComandaConsumoCard 
                       key={t.id} 
-                      comanda={{ id: t.id, numero_comanda: t.number, status: 'occupied', isTable: true } as any} 
+                      comanda={{ id: t.id, numero_comanda: t.number, status: 'occupied', isTable: true, tableOrderId: t.current_order_id } as any} 
                       onAddMore={(c) => handleSelectTable(t)} 
                     />
                   ))}
@@ -419,7 +428,6 @@ const PDVPublic = () => {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {mesasOcupadas.map(t => {
-                    const tableOrder = tableOrders?.find((o: any) => o.table_id === t.id);
                     return (
                       <CloseComandaCard 
                         key={t.id} 
@@ -428,14 +436,14 @@ const PDVPublic = () => {
                           numero_comanda: t.number, 
                           status: 'occupied',
                           isTable: true,
-                          tableOrderId: tableOrder?.id
+                          tableOrderId: t.current_order_id || undefined
                         } as any} 
                         onClose={() => setCloseSaleComanda({ 
                           id: t.id, 
                           numero_comanda: t.number, 
                           status: 'occupied',
                           isTable: true,
-                          tableOrderId: tableOrder?.id
+                          tableOrderId: t.current_order_id || undefined
                         } as any)}
                         onTransfer={() => setView('main')}
                       />
