@@ -20,7 +20,8 @@ import {
   Package,
   ClipboardList,
   UserCog,
-  DollarSign
+  DollarSign,
+  Trash2
 } from 'lucide-react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -63,6 +64,46 @@ const AdminBackup = () => {
   const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+
+  const handleResetData = async () => {
+    if (!window.confirm('TEM CERTEZA ABSOLUTA?\n\nIsso irá APAGAR GERAL todos os pedidos, comandas, itens vendidos e sessões de caixa do sistema.\n\nEsta ação NÃO PODE SER DESFEITA.')) {
+      return;
+    }
+
+    setIsResetting(true);
+    try {
+      // Define correct order to delete transactions to avoid foreign key errors
+      const recordsToWipe = [
+        'comanda_pedidos', 'comanda_vendas', 'caixa_movimentacoes', 'order_items', 
+        'orders', 'comandas', 'caixa_sessions'
+      ];
+
+      for (const table of recordsToWipe) {
+        if (['orders', 'order_items'].includes(table)) {
+          // These tables might have numeric IDs
+          await supabase.from(table as any).delete().gte('id', 0);
+        } else {
+          // UUID tables
+          await supabase.from(table as any).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        }
+      }
+
+      toast({
+        title: 'Sistema zerado com sucesso!',
+        description: 'Todos os registros de vendas e pedidos foram apagados.',
+      });
+    } catch (error) {
+      console.error('Reset error:', error);
+      toast({
+        title: 'Erro ao apagar registros',
+        description: 'Verifique o console para mais detalhes.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsResetting(false);
+    }
+  };
   const [progress, setProgress] = useState(0);
   const [importFile, setImportFile] = useState<File | null>(null);
   const [previewData, setPreviewData] = useState<BackupData | null>(null);
@@ -470,6 +511,46 @@ const AdminBackup = () => {
                 </div>
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Reset Section */}
+        <Card className="border-destructive/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="h-5 w-5" />
+              Apagar Registros
+            </CardTitle>
+            <CardDescription>
+              Apaga apenas as transações (pedidos, itens, comandas, caixa), mantendo os produtos, estoque e configurações intactos.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Alert variant="destructive" className="mb-4">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Cuidado MÁXIMO!</AlertTitle>
+              <AlertDescription>
+                Esta ação apagará permanentemente todo o histórico de vendas. É recomendado gerar um Backup Completo antes de prosseguir.
+              </AlertDescription>
+            </Alert>
+            <Button
+              onClick={handleResetData}
+              disabled={isResetting || isExporting || isImporting}
+              variant="destructive"
+              className="w-full sm:w-auto"
+            >
+              {isResetting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Apagando...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Apagar geral
+                </>
+              )}
+            </Button>
           </CardContent>
         </Card>
 
