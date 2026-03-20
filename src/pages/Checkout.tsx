@@ -16,7 +16,6 @@ import { useStoreStatus } from '@/hooks/useStoreStatus';
 import { AddressSelector } from '@/components/checkout/AddressSelector';
 import { GeolocationButton } from '@/components/checkout/GeolocationButton';
 import { useDeliveryZones } from '@/hooks/useDeliveryZones';
-import { useDineInTables } from '@/hooks/useDineInTables';
 import { PaymentMethod } from '@/types';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
@@ -83,12 +82,9 @@ const Checkout = () => {
   
   const validateCoupon = useValidateCoupon();
   const { zones: deliveryZones } = useDeliveryZones();
-  const { data: dineInTables } = useDineInTables();
 
   const savedData = loadCheckoutFromStorage();
 
-  // Check if coming from dine-in QR code
-  const preselectedTable = searchParams.get('table');
 
   // Determine available delivery types based on store config
   const availableTypes = {
