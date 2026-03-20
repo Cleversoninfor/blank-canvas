@@ -248,7 +248,7 @@ export function OrderDetailModal({ order, open, onOpenChange }: OrderDetailModal
                 <span>
                   {payment.icon} {payment.label}
                 </span>
-                {order.payment_method === 'money' && order.change_for && (
+                {order.payment_method === 'money' && order.change_for && order.address_street !== 'Consumir no Local' && !isPDVOrder && (
                   <span className="text-muted-foreground">
                     (Troco p/ {formatCurrency(order.change_for)})
                   </span>

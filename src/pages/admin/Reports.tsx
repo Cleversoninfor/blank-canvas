@@ -68,14 +68,14 @@ const AdminReports = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('table_orders')
-        .select('*, tables(number)')
+        .select('*, table:tables!table_orders_table_id_fkey(number)')
         .gte('created_at', startDate.toISOString())
         .lte('created_at', endDate.toISOString())
         .order('created_at', { ascending: false });
       if (error) throw error;
       return (data || []).map((order: any) => ({
         ...order,
-        table_number: order.tables?.number,
+        table_number: order.table?.number,
       })) as TableOrderReport[];
     },
   });

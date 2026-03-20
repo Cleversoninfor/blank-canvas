@@ -76,7 +76,7 @@ export function useTableOrders() {
         .from('table_orders')
         .select(`
           *,
-          table:tables(number, name)
+          table:table_id(number, name)
         `)
         .eq('status', 'open')
         .order('opened_at', { ascending: false });

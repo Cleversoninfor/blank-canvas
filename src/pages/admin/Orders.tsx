@@ -191,7 +191,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
       case 'pix':
         return '💠 PIX';
       case 'money':
-        return `💵 Troco p/ R$ ${order.change_for || ''}`;
+        return isDineIn ? '💵 Dinheiro' : `💵 Troco p/ R$ ${order.change_for || ''}`;
       case 'card':
         return '💳 Levar Máquina';
       case 'credit':
