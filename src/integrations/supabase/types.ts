@@ -526,31 +526,31 @@ export type Database = {
       }
       ingredients: {
         Row: {
-          created_at: string
+          created_at: string | null
           id: string
           min_stock: number
           name: string
           stock_quantity: number
           unit: string
-          updated_at: string
+          updated_at: string | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           id?: string
           min_stock?: number
           name: string
           stock_quantity?: number
-          unit: string
-          updated_at?: string
+          unit?: string
+          updated_at?: string | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           id?: string
           min_stock?: number
           name?: string
           stock_quantity?: number
           unit?: string
-          updated_at?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -591,6 +591,13 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]
@@ -704,7 +711,7 @@ export type Database = {
       }
       product_ingredients: {
         Row: {
-          created_at: string
+          created_at: string | null
           id: string
           ingredient_id: string
           product_id: string
@@ -712,7 +719,7 @@ export type Database = {
           unit: string | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           id?: string
           ingredient_id: string
           product_id: string
@@ -720,7 +727,7 @@ export type Database = {
           unit?: string | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           id?: string
           ingredient_id?: string
           product_id?: string
@@ -752,11 +759,11 @@ export type Database = {
           id: string
           image_url: string | null
           is_available: boolean
-          min_stock: number
+          min_stock: number | null
           name: string
           price: number
-          stock_quantity: number
-          stock_type: string
+          stock_quantity: number | null
+          stock_type: string | null
           unit: string | null
           updated_at: string
         }
@@ -767,11 +774,11 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_available?: boolean
-          min_stock?: number
+          min_stock?: number | null
           name: string
           price?: number
-          stock_type?: string
-          stock_quantity?: number
+          stock_quantity?: number | null
+          stock_type?: string | null
           unit?: string | null
           updated_at?: string
         }
@@ -782,11 +789,11 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_available?: boolean
-          min_stock?: number
+          min_stock?: number | null
           name?: string
           price?: number
-          stock_type?: string
-          stock_quantity?: number
+          stock_quantity?: number | null
+          stock_type?: string | null
           unit?: string | null
           updated_at?: string
         }
@@ -799,30 +806,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      system_settings: {
-        Row: {
-          id: number
-          stock_enabled: boolean
-          product_stock_enabled: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: number
-          stock_enabled?: boolean
-          product_stock_enabled?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: number
-          stock_enabled?: boolean
-          product_stock_enabled?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       push_subscriptions: {
         Row: {
@@ -998,6 +981,30 @@ export type Database = {
           secondary_color?: string | null
           subdomain_slug?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      system_settings: {
+        Row: {
+          created_at: string | null
+          id: number
+          product_stock_enabled: boolean | null
+          stock_enabled: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          product_stock_enabled?: boolean | null
+          stock_enabled?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          product_stock_enabled?: boolean | null
+          stock_enabled?: boolean | null
+          updated_at?: string | null
         }
         Relationships: []
       }
