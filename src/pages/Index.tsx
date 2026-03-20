@@ -30,6 +30,7 @@ interface EditingProduct {
 
 const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const isDineInMode = searchParams.get('mode') === 'dine_in';
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [editingProduct, setEditingProduct] = useState<EditingProduct | null>(null);

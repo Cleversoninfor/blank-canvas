@@ -16,7 +16,7 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-type OrderTypeFilter = 'all' | 'delivery' | 'retirada' | 'comanda';
+type OrderTypeFilter = 'all' | 'delivery' | 'retirada' | 'comanda' | 'consumir_local';
 
 interface OrderReport {
   id: number;
@@ -26,7 +26,7 @@ interface OrderReport {
   total_amount: number;
   payment_method: string;
   status: string;
-  type: 'delivery' | 'retirada' | 'comanda';
+  type: 'delivery' | 'retirada' | 'comanda' | 'consumir_local';
 }
 
 interface TableOrderReport {
@@ -92,7 +92,9 @@ const AdminReports = () => {
       total_amount: order.total_amount,
       payment_method: order.payment_method,
       status: order.status,
-      type: order.address_street === 'Retirada no local' ? 'retirada' as const : 'delivery' as const,
+      type: order.address_street === 'Retirada no local' ? 'retirada' as const 
+            : order.address_street === 'Consumir no Local' ? 'consumir_local' as const 
+            : 'delivery' as const,
     }));
 
     const tableReports: OrderReport[] = (tableOrders || []).map((order) => ({
@@ -153,14 +155,14 @@ const AdminReports = () => {
 
   const formatType = (type: string) => {
     const types: Record<string, string> = {
-      delivery: 'Delivery', retirada: 'Retirada', comanda: 'Comanda',
+      delivery: 'Delivery', retirada: 'Retirada', comanda: 'Comanda', consumir_local: 'No Local',
     };
     return types[type] || type;
   };
 
   const getFilterLabel = () => {
     const labels: Record<OrderTypeFilter, string> = {
-      all: 'Todos', delivery: 'Delivery', retirada: 'Retirada', comanda: 'Comandas',
+      all: 'Todos', delivery: 'Delivery', retirada: 'Retirada', comanda: 'Comandas', consumir_local: 'No Local',
     };
     return labels[typeFilter];
   };
@@ -264,6 +266,7 @@ const AdminReports = () => {
     { value: 'delivery', label: 'Delivery', icon: <Truck className="h-4 w-4" /> },
     { value: 'retirada', label: 'Retirada', icon: <Store className="h-4 w-4" /> },
     { value: 'comanda', label: 'Comandas', icon: <UtensilsCrossed className="h-4 w-4" /> },
+    { value: 'consumir_local', label: 'No Local', icon: <UtensilsCrossed className="h-4 w-4" /> },
   ];
 
   return (

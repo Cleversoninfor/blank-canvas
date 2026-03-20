@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { jsPDF } from "jspdf";
-import { Download, ChefHat, Menu, QrCode, RefreshCw, Truck } from "lucide-react";
+import { Download, ChefHat, Menu, QrCode, RefreshCw, Truck, UtensilsCrossed } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -86,6 +86,13 @@ const QRCodes = () => {
       description: "Cardápio digital para clientes visualizarem os produtos no restaurante via QR Code",
       path: "/cardapio-local",
       icon: Menu,
+    },
+    {
+      id: "dine-in",
+      title: "Consumir no Local",
+      description: "Cardápio com pedido direto para consumo no local - o cliente escolhe a mesa e faz o pedido",
+      path: "/?mode=dine_in",
+      icon: UtensilsCrossed,
     },
     {
       id: "drivers",

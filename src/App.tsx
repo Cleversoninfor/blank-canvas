@@ -38,6 +38,7 @@ import AdminUsers from "./pages/admin/Users";
 import AdminComandas from "./pages/admin/Comandas";
 import PDVPublic from "./pages/PDVPublic";
 import CardapioLocal from "./pages/CardapioLocal";
+import AdminDineIn from "./pages/admin/DineIn";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -80,6 +81,7 @@ const App = () => (
                 <Route path="/admin/pdv" element={<AdminPDV />} />
                 <Route path="/admin/users" element={<AdminUsers />} />
                 <Route path="/admin/comandas" element={<AdminComandas />} />
+                <Route path="/admin/consumir-no-local" element={<AdminDineIn />} />
                 <Route path="/pdv" element={<PDVPublic />} />
                 <Route path="/driver" element={<DriverAccess />} />
                 <Route path="/driver/dashboard" element={<DriverDashboard />} />

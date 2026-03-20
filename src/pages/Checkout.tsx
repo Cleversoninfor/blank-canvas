@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Loader2, Clock, Banknote, CreditCard, QrCode, ChevronRight, Pencil, Trash2, Plus, Minus, Tag, X, AlertCircle, Store, MapPin } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, Loader2, Clock, Banknote, CreditCard, QrCode, ChevronRight, Pencil, Trash2, Plus, Minus, Tag, X, AlertCircle, Store, MapPin, UtensilsCrossed } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,12 +15,14 @@ import { useStoreStatus } from '@/hooks/useStoreStatus';
 import { AddressSelector } from '@/components/checkout/AddressSelector';
 import { GeolocationButton } from '@/components/checkout/GeolocationButton';
 import { useDeliveryZones } from '@/hooks/useDeliveryZones';
+import { useDineInTables } from '@/hooks/useDineInTables';
 import { PaymentMethod } from '@/types';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type DisplayPaymentMethod = 'money' | 'debit' | 'credit' | 'pix';
-type DeliveryType = 'delivery' | 'pickup';
+type DeliveryType = 'delivery' | 'pickup' | 'dine_in';
 
 const CHECKOUT_STORAGE_KEY = 'delivery-checkout';
 
@@ -70,6 +72,7 @@ function clearCheckoutStorage() {
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { items, totalPrice, clearCart, updateQuantity, removeItem } = useCart();
   const { toast } = useToast();
   const { data: store } = useStoreConfig();
@@ -78,26 +81,35 @@ const Checkout = () => {
   
   const validateCoupon = useValidateCoupon();
   const { zones: deliveryZones } = useDeliveryZones();
+  const { data: dineInTables } = useDineInTables();
 
   const savedData = loadCheckoutFromStorage();
+
+  // Check if coming from dine-in QR code
+  const isDineInMode = searchParams.get('mode') === 'dine_in';
+  const preselectedTable = searchParams.get('table');
 
   // Determine available delivery types based on store config
   const availableTypes = {
     delivery: store?.mode_delivery_enabled ?? true,
     pickup: store?.mode_pickup_enabled ?? true,
+    dine_in: store?.mode_dine_in_enabled ?? false,
   };
 
   // Get initial delivery type - use first available
   const getInitialDeliveryType = (): DeliveryType => {
+    if (isDineInMode) return 'dine_in';
     if (savedData?.deliveryType && availableTypes[savedData.deliveryType]) {
       return savedData.deliveryType;
     }
     if (availableTypes.delivery) return 'delivery';
     if (availableTypes.pickup) return 'pickup';
+    if (availableTypes.dine_in) return 'dine_in';
     return 'delivery';
   };
 
   const [deliveryType, setDeliveryType] = useState<DeliveryType>(getInitialDeliveryType());
+  const [selectedTableId, setSelectedTableId] = useState<string | null>(preselectedTable || null);
   const [deliveryData, setDeliveryData] = useState({
     name: savedData?.name || '',
     phone: savedData?.phone || '',
@@ -231,8 +243,9 @@ const Checkout = () => {
       toast({ title: 'Telefone inválido', variant: 'destructive' });
       return;
     }
-    if (false) {
-      // Placeholder to maintain structure
+    // Validate dine_in table selection
+    if (deliveryType === 'dine_in' && !selectedTableId) {
+      toast({ title: 'Selecione uma mesa', variant: 'destructive' });
       return;
     }
     const zoneAsNeighborhood = isZoneMode && activeZones.length > 0;
@@ -276,14 +289,31 @@ const Checkout = () => {
     const paymentMethod = paymentOption?.dbValue || 'money';
 
     try {
+      const selectedDineTable = dineInTables?.find(t => t.id === selectedTableId);
+      const getAddressStreet = () => {
+        if (deliveryType === 'delivery') return deliveryData.street;
+        if (deliveryType === 'dine_in') return 'Consumir no Local';
+        return 'Retirada no local';
+      };
+      const getAddressNumber = () => {
+        if (deliveryType === 'delivery') return deliveryData.number;
+        if (deliveryType === 'dine_in') return selectedDineTable ? String(selectedDineTable.number) : '-';
+        return '-';
+      };
+      const getAddressNeighborhood = () => {
+        if (deliveryType === 'delivery') return zoneAsNeighborhood && selectedZone ? selectedZone.name : deliveryData.neighborhood;
+        if (deliveryType === 'dine_in') return selectedDineTable?.location || 'Mesa';
+        return '-';
+      };
+
       const order = await createOrder.mutateAsync({
         order: {
           customer_name: deliveryData.name,
           customer_phone: deliveryData.phone,
-          address_street: deliveryType === 'delivery' ? deliveryData.street : 'Retirada no local',
-          address_number: deliveryType === 'delivery' ? deliveryData.number : '-',
-          address_neighborhood: deliveryType === 'delivery' ? (zoneAsNeighborhood && selectedZone ? selectedZone.name : deliveryData.neighborhood) : '-',
-          address_complement: deliveryType === 'delivery' ? deliveryData.complement || null : null,
+          address_street: getAddressStreet(),
+          address_number: getAddressNumber(),
+          address_neighborhood: getAddressNeighborhood(),
+          address_complement: deliveryType === 'delivery' ? deliveryData.complement || null : (deliveryType === 'dine_in' ? `Mesa ${selectedDineTable?.number}` : null),
           total_amount: finalTotal,
           payment_method: paymentMethod,
           change_for: changeForValue,
@@ -423,6 +453,7 @@ const Checkout = () => {
         )}
 
         {/* Delivery Type Tabs */}
+        {!isDineInMode && (
         <div className="flex border-b border-border">
           {availableTypes.delivery && (
             <button
@@ -450,7 +481,27 @@ const Checkout = () => {
               Retirada
             </button>
           )}
+          {availableTypes.dine_in && (
+            <button
+              onClick={() => setDeliveryType('dine_in')}
+              className={cn(
+                "flex-1 py-3 text-center text-sm font-medium transition-colors",
+                deliveryType === 'dine_in' 
+                  ? "text-primary border-b-2 border-primary" 
+                  : "text-muted-foreground"
+              )}
+            >
+              No Local
+            </button>
+          )}
         </div>
+        )}
+        {isDineInMode && (
+          <div className="flex items-center gap-2 px-4 py-3 bg-primary/10 border-b border-primary/20">
+            <UtensilsCrossed className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium text-primary">Consumir no Local</span>
+          </div>
+        )}
 
         <div className="p-4 space-y-6">
           {/* Address Section */}
@@ -598,6 +649,48 @@ const Checkout = () => {
                   </p>
                 </div>
               </div>
+            </section>
+          )}
+
+          {/* Dine-in Table Selector */}
+          {deliveryType === 'dine_in' && (
+            <section className="bg-card rounded-2xl p-4 shadow-card">
+              <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                <UtensilsCrossed className="h-4 w-4 text-primary" />
+                Selecione sua mesa
+              </h3>
+              {dineInTables && dineInTables.length > 0 ? (
+                <div className="grid grid-cols-3 gap-2">
+                  {dineInTables.map((table) => (
+                    <button
+                      key={table.id}
+                      type="button"
+                      onClick={() => setSelectedTableId(table.id)}
+                      className={cn(
+                        "flex flex-col items-center p-3 rounded-xl border-2 transition-colors",
+                        selectedTableId === table.id
+                          ? "border-primary bg-primary/10"
+                          : "border-border bg-muted/30 hover:border-primary/50"
+                      )}
+                    >
+                      <span className={cn(
+                        "text-lg font-bold",
+                        selectedTableId === table.id ? "text-primary" : "text-foreground"
+                      )}>
+                        {table.number}
+                      </span>
+                      {table.location && (
+                        <span className="text-[10px] text-muted-foreground">{table.location}</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">Nenhuma mesa disponível</p>
+              )}
+              {!selectedTableId && (
+                <p className="text-xs text-destructive mt-2">Selecione uma mesa para continuar</p>
+              )}
             </section>
           )}
 

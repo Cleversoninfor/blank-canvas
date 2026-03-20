@@ -209,6 +209,12 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
     if (isComanda) {
       return `\uD83E\uDDFE ${order.customer_name}`;
     }
+    if (order.address_street === 'Consumir no Local') {
+      return `\uD83C\uDF7D\uFE0F Mesa ${order.address_number}`;
+    }
+    if (order.address_street === 'Retirada no local') {
+      return '\uD83C\uDFEA Retirada';
+    }
     return '\uD83D\uDEF5 Delivery';
   };
 
@@ -262,8 +268,9 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
   };
 
   const getNextStatus = (status: UnifiedOrder['status']): UnifiedOrder['status'] | null => {
-    // For table orders or comanda orders, skip 'delivery' step
-    if (order.type === 'table' || isComanda) {
+    const isDineIn = order.address_street === 'Consumir no Local';
+    // For table orders, comanda orders, or dine-in orders, skip 'delivery' step
+    if (order.type === 'table' || isComanda || isDineIn) {
       const flow: Record<string, UnifiedOrder['status']> = {
         pending: 'preparing',
         preparing: 'ready',
@@ -283,7 +290,8 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
   };
 
   const getNextStatusLabel = (status: UnifiedOrder['status']) => {
-    if (order.type === 'table' || isComanda) {
+    const isDineIn = order.address_street === 'Consumir no Local';
+    if (order.type === 'table' || isComanda || isDineIn) {
       const labels: Record<string, string> = {
         pending: 'Aceitar',
         preparing: 'Pronto',
