@@ -71,6 +71,7 @@ const navGroups = [
       { id: 'addons', label: 'Acréscimos', icon: PlusCircle, path: '/admin/addons', permKey: 'perm_acrescimos' as PermKey },
       { id: 'coupons', label: 'Cupons', icon: Ticket, path: '/admin/coupons', permKey: 'perm_cupons' as PermKey },
       { id: 'comandas', label: 'Comandas', icon: Receipt, path: '/admin/comandas', permKey: 'perm_pedidos' as PermKey },
+      { id: 'dine-in', label: 'Consumir no Local', icon: UtensilsCrossed, path: '/admin/consumir-no-local', permKey: 'perm_consumir_local' as PermKey },
       { id: 'envios', label: 'Envios', icon: Send, path: '/admin/envios', permKey: 'perm_pedidos' as PermKey },
       { id: 'reports', label: 'Relatórios', icon: BarChart3, path: '/admin/reports', permKey: 'perm_relatorios' as PermKey },
     ]
