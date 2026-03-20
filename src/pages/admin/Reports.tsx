@@ -92,7 +92,9 @@ const AdminReports = () => {
       total_amount: order.total_amount,
       payment_method: order.payment_method,
       status: order.status,
-      type: order.address_street === 'Retirada no local' ? 'retirada' as const : 'delivery' as const,
+      type: order.address_street === 'Retirada no local' ? 'retirada' as const 
+            : order.address_street === 'Consumir no Local' ? 'consumir_local' as const 
+            : 'delivery' as const,
     }));
 
     const tableReports: OrderReport[] = (tableOrders || []).map((order) => ({
