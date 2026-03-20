@@ -72,6 +72,7 @@ function clearCheckoutStorage() {
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { items, totalPrice, clearCart, updateQuantity, removeItem } = useCart();
   const { toast } = useToast();
   const { data: store } = useStoreConfig();
@@ -80,26 +81,35 @@ const Checkout = () => {
   
   const validateCoupon = useValidateCoupon();
   const { zones: deliveryZones } = useDeliveryZones();
+  const { data: dineInTables } = useDineInTables();
 
   const savedData = loadCheckoutFromStorage();
+
+  // Check if coming from dine-in QR code
+  const isDineInMode = searchParams.get('mode') === 'dine_in';
+  const preselectedTable = searchParams.get('table');
 
   // Determine available delivery types based on store config
   const availableTypes = {
     delivery: store?.mode_delivery_enabled ?? true,
     pickup: store?.mode_pickup_enabled ?? true,
+    dine_in: store?.mode_dine_in_enabled ?? false,
   };
 
   // Get initial delivery type - use first available
   const getInitialDeliveryType = (): DeliveryType => {
+    if (isDineInMode) return 'dine_in';
     if (savedData?.deliveryType && availableTypes[savedData.deliveryType]) {
       return savedData.deliveryType;
     }
     if (availableTypes.delivery) return 'delivery';
     if (availableTypes.pickup) return 'pickup';
+    if (availableTypes.dine_in) return 'dine_in';
     return 'delivery';
   };
 
   const [deliveryType, setDeliveryType] = useState<DeliveryType>(getInitialDeliveryType());
+  const [selectedTableId, setSelectedTableId] = useState<string | null>(preselectedTable || null);
   const [deliveryData, setDeliveryData] = useState({
     name: savedData?.name || '',
     phone: savedData?.phone || '',
