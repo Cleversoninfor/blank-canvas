@@ -238,13 +238,16 @@ const Checkout = () => {
       return;
     }
 
-    if (!deliveryData.name.trim()) {
-      toast({ title: 'Preencha seu nome', variant: 'destructive' });
-      return;
-    }
-    if (deliveryData.phone.replace(/\D/g, '').length < 10) {
-      toast({ title: 'Telefone inválido', variant: 'destructive' });
-      return;
+    // Validate customer info - optional for dine_in
+    if (deliveryType !== 'dine_in') {
+      if (!deliveryData.name.trim()) {
+        toast({ title: 'Preencha seu nome', variant: 'destructive' });
+        return;
+      }
+      if (deliveryData.phone.replace(/\D/g, '').length < 10) {
+        toast({ title: 'Telefone inválido', variant: 'destructive' });
+        return;
+      }
     }
     // Validate dine_in table selection
     if (deliveryType === 'dine_in' && !selectedTableId) {
@@ -311,8 +314,8 @@ const Checkout = () => {
 
       const order = await createOrder.mutateAsync({
         order: {
-          customer_name: deliveryData.name,
-          customer_phone: deliveryData.phone,
+          customer_name: deliveryData.name || (deliveryType === 'dine_in' ? `Mesa ${selectedDineTable?.number}` : 'Cliente'),
+          customer_phone: deliveryData.phone || '(00) 00000-0000',
           address_street: getAddressStreet(),
           address_number: getAddressNumber(),
           address_neighborhood: getAddressNeighborhood(),
@@ -699,7 +702,8 @@ const Checkout = () => {
           )}
 
 
-          {/* Customer Data Section */}
+          {/* Customer Data Section - hide for dine_in since we use table info */}
+          {deliveryType !== 'dine_in' && (
           <section className="space-y-2">
             <h3 className="font-semibold text-foreground">Dados do cliente</h3>
             <div className="bg-card rounded-2xl p-4 shadow-card space-y-4">
@@ -725,6 +729,7 @@ const Checkout = () => {
               </div>
             </div>
           </section>
+          )}
 
           {/* Payment Method Section - hidden for dine_in */}
           {deliveryType !== 'dine_in' && (
