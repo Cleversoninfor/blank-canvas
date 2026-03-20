@@ -26,7 +26,7 @@ interface OrderReport {
   total_amount: number;
   payment_method: string;
   status: string;
-  type: 'delivery' | 'retirada' | 'comanda';
+  type: 'delivery' | 'retirada' | 'comanda' | 'consumir_local';
 }
 
 interface TableOrderReport {
