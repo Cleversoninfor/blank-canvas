@@ -38,6 +38,7 @@ import AdminUsers from "./pages/admin/Users";
 import AdminComandas from "./pages/admin/Comandas";
 import PDVPublic from "./pages/PDVPublic";
 import CardapioLocal from "./pages/CardapioLocal";
+import AdminDineIn from "./pages/admin/DineIn";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
