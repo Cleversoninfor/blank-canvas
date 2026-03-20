@@ -88,6 +88,13 @@ const QRCodes = () => {
       icon: Menu,
     },
     {
+      id: "dine-in",
+      title: "Consumir no Local",
+      description: "Cardápio com pedido direto para consumo no local - o cliente escolhe a mesa e faz o pedido",
+      path: "/?mode=dine_in",
+      icon: UtensilsCrossed,
+    },
+    {
       id: "drivers",
       title: "Painel de Entregadores",
       description: "Acesso rápido para entregadores visualizarem e gerenciarem suas entregas",
