@@ -41,7 +41,6 @@ export interface CreateOrderData {
   change_for?: number | null;
   latitude?: number | null;
   longitude?: number | null;
-  table_id?: string | null;
 }
 
 export interface CreateOrderItemData {
@@ -194,7 +193,6 @@ export function useCreateOrder() {
         _change_for: order.change_for ?? null,
         _latitude: order.latitude ?? null,
         _longitude: order.longitude ?? null,
-        _table_id: order.table_id ?? null,
       });
 
       if (error) {

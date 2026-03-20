@@ -4,7 +4,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useComandaOrderDetails, Comanda } from '@/hooks/useComandas';
-import { useTableOrderDetails } from '@/hooks/useDineInTables';
 import { useMemo } from 'react';
 
 const formatCurrency = (v: number) => {
@@ -12,13 +11,9 @@ const formatCurrency = (v: number) => {
   return safe.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 };
 
-interface ExtendedComanda extends Comanda {
-  isTable?: boolean;
-  tableOrderId?: number | null;
-}
 
 interface ComandaConsumoCardProps {
-  comanda: ExtendedComanda;
+  comanda: Comanda;
   onAddMore: (comanda: Comanda) => void;
 }
 
@@ -26,23 +21,15 @@ export function ComandaConsumoCard({ comanda, onAddMore }: ComandaConsumoCardPro
   const [expanded, setExpanded] = useState(false);
   
   // Fetch for comandas
-  const { data: comandaOrdersData, isLoading: loadingComanda } = useComandaOrderDetails(
-    !comanda.isTable ? comanda.id : undefined
-  );
-  
-  // Fetch for tables
-  const { data: tableItemsData, isLoading: loadingTable } = useTableOrderDetails(
-    comanda.isTable ? comanda.tableOrderId || undefined : undefined
-  );
-
-  const isLoading = comanda.isTable ? loadingTable : loadingComanda;
+  const { data: comandaOrdersData, isLoading } = useComandaOrderDetails(comanda.id);
 
   const allItems = useMemo(() => {
     const itemMap = new Map<string, { product_name: string; quantity: number; unit_price: number; observation?: string }>();
     
-    if (comanda.isTable) {
-      // Table items are flat
-      (tableItemsData || []).forEach((item: any) => {
+    // Comanda orders are grouped
+    const orders = Array.isArray(comandaOrdersData) ? comandaOrdersData : [];
+    orders.forEach(order => {
+      (order.items || []).forEach((item: any) => {
         const name = (item.product_name || '').trim();
         const price = Number(item.unit_price) || 0;
         const observation = (item.observation || '').trim();
@@ -59,31 +46,9 @@ export function ComandaConsumoCard({ comanda, onAddMore }: ComandaConsumoCardPro
           });
         }
       });
-    } else {
-      // Comanda orders are grouped
-      const orders = Array.isArray(comandaOrdersData) ? comandaOrdersData : [];
-      orders.forEach(order => {
-        (order.items || []).forEach((item: any) => {
-          const name = (item.product_name || '').trim();
-          const price = Number(item.unit_price) || 0;
-          const observation = (item.observation || '').trim();
-          const key = `${name}-${price}-${observation}`;
-          const existing = itemMap.get(key);
-          if (existing) {
-            existing.quantity += item.quantity;
-          } else {
-            itemMap.set(key, {
-              product_name: name,
-              quantity: item.quantity,
-              unit_price: price,
-              observation: observation,
-            });
-          }
-        });
-      });
-    }
+    });
     return Array.from(itemMap.values());
-  }, [comanda.isTable, comandaOrdersData, tableItemsData]);
+  }, [comandaOrdersData]);
 
   const total = allItems.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
 
@@ -97,7 +62,7 @@ export function ComandaConsumoCard({ comanda, onAddMore }: ComandaConsumoCardPro
           <div className="flex items-center gap-3">
             <ShoppingBag className="h-5 w-5 text-primary" />
           <span className="font-bold text-foreground">
-            {comanda.isTable ? `Mesa ${comanda.numero_comanda}` : `Comanda #${comanda.numero_comanda}`}
+            Comanda #{comanda.numero_comanda}
           </span>
           <Badge variant="destructive" className="text-xs">Ocupada</Badge>
           </div>

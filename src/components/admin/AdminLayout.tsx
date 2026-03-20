@@ -72,7 +72,6 @@ const navGroups = [
       { id: 'addons', label: 'Acréscimos', icon: PlusCircle, path: '/admin/addons', permKey: 'perm_acrescimos' as PermKey },
       { id: 'coupons', label: 'Cupons', icon: Ticket, path: '/admin/coupons', permKey: 'perm_cupons' as PermKey },
       { id: 'comandas', label: 'Comandas', icon: Receipt, path: '/admin/comandas', permKey: 'perm_pedidos' as PermKey },
-      { id: 'dine-in', label: 'Consumir no Local', icon: UtensilsCrossed, path: '/admin/consumir-no-local', permKey: 'perm_consumir_local' as PermKey },
       { id: 'envios', label: 'Envios', icon: Send, path: '/admin/envios', permKey: 'perm_pedidos' as PermKey },
       { id: 'reports', label: 'Relatórios', icon: BarChart3, path: '/admin/reports', permKey: 'perm_relatorios' as PermKey },
     ]
@@ -83,7 +82,6 @@ const navGroups = [
       { id: 'delivery-zones', label: 'Taxas de Entrega', icon: MapPin, path: '/admin/delivery-zones', permKey: 'perm_taxas_entrega' as PermKey },
       { id: 'hours', label: 'Horários', icon: Clock, path: '/admin/hours', permKey: 'perm_horarios' as PermKey },
       { id: 'settings', label: 'Configurações', icon: Settings, path: '/admin/settings', permKey: 'perm_configuracoes' as PermKey },
-      { id: 'qrcodes', label: 'QR Codes', icon: QrCode, path: '/admin/qrcodes', permKey: 'perm_qrcode' as PermKey },
       { id: 'users', label: 'Usuários', icon: UsersIcon, path: '/admin/users', permKey: 'perm_usuarios' as PermKey },
       { id: 'backup', label: 'Backup', icon: DatabaseBackup, path: '/admin/backup', permKey: 'perm_backup' as PermKey },
     ]
@@ -115,7 +113,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
       if (!user?.id) return null;
       const { data } = await supabase
         .from('admin_users')
-        .select('perm_dashboard, perm_cozinha, perm_entregadores, perm_pdv, perm_pedidos, perm_produtos, perm_categorias, perm_acrescimos, perm_cupons, perm_relatorios, perm_taxas_entrega, perm_horarios, perm_configuracoes, perm_qrcode, perm_usuarios, perm_backup, perm_consumir_local')
+        .select('perm_dashboard, perm_cozinha, perm_entregadores, perm_pdv, perm_pedidos, perm_produtos, perm_categorias, perm_acrescimos, perm_cupons, perm_relatorios, perm_taxas_entrega, perm_horarios, perm_configuracoes, perm_usuarios, perm_backup')
         .or(`auth_user_id.eq.${user.id},usuario.eq.${user.email},usuario.eq.${user.email?.split('@')[0]}`)
         .maybeSingle();
       return data;

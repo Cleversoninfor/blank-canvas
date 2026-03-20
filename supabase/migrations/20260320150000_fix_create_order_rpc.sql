@@ -1,7 +1,7 @@
--- Migration: Fix create_order_with_items RPC (MASTER WIPE)
--- Description: Completely clears all previous versions of the function to avoid signature mismatches.
+-- Migration: Revert create_order_with_items RPC (Removal of Dine-in)
+-- Description: Removes _table_id and table synchronization logic while KEEPING stock management.
 
--- 1. MASTER WIPE: Drop all overloads of the function regardless of signature
+-- 1. MASTER WIPE: Drop all versions of the function to clean up signature clutter
 DO $$
 DECLARE
     _r record;
@@ -12,7 +12,7 @@ BEGIN
     END LOOP;
 END $$;
 
--- 2. CREATE DEFINITIVE CONSOLIDATED FUNCTION
+-- 2. CREATE SIMPLIFIED CONSOLIDATED FUNCTION (Delivery/Pickup Only)
 CREATE OR REPLACE FUNCTION public.create_order_with_items(
   _customer_name text,
   _customer_phone text,
@@ -26,8 +26,7 @@ CREATE OR REPLACE FUNCTION public.create_order_with_items(
   _address_reference text DEFAULT NULL,
   _change_for numeric DEFAULT NULL,
   _latitude numeric DEFAULT NULL,
-  _longitude numeric DEFAULT NULL,
-  _table_id uuid DEFAULT NULL
+  _longitude numeric DEFAULT NULL
 )
 RETURNS bigint
 LANGUAGE plpgsql
@@ -35,7 +34,6 @@ SECURITY DEFINER
 AS $$
 DECLARE
   v_order_id bigint;
-  v_table_order_id bigint;
   v_item jsonb;
   v_product_id uuid;
   v_quantity integer;
@@ -91,7 +89,6 @@ BEGIN
     change_for,
     latitude,
     longitude,
-    table_id,
     status
   )
   VALUES (
@@ -107,7 +104,6 @@ BEGIN
     _change_for,
     _latitude,
     _longitude,
-    _table_id,
     'pending'
   )
   RETURNING id INTO v_order_id;
@@ -155,66 +151,6 @@ BEGIN
       END IF;
     END IF;
   END LOOP;
-
-  -- SPECIAL LOGIC FOR DINE-IN (Consumir no Local)
-  IF _table_id IS NOT NULL OR _address_street = 'Consumir no Local' THEN
-    SELECT id INTO v_table_order_id
-    FROM public.table_orders
-    WHERE table_id = _table_id AND status = 'open'
-    ORDER BY opened_at DESC
-    LIMIT 1;
-
-    IF v_table_order_id IS NULL AND _table_id IS NOT NULL THEN
-      INSERT INTO public.table_orders (
-        table_id,
-        customer_name,
-        customer_phone,
-        status,
-        opened_at
-      )
-      VALUES (
-        _table_id,
-        _customer_name,
-        _customer_phone,
-        'open',
-        now()
-      )
-      RETURNING id INTO v_table_order_id;
-
-      UPDATE public.tables 
-      SET status = 'occupied', current_order_id = v_table_order_id 
-      WHERE id = _table_id;
-    END IF;
-
-    IF v_table_order_id IS NOT NULL THEN
-      FOR v_item IN SELECT * FROM jsonb_array_elements(_items)
-      LOOP
-        INSERT INTO public.table_order_items (
-          table_order_id,
-          product_id,
-          product_name,
-          quantity,
-          unit_price,
-          observation,
-          status
-        )
-        VALUES (
-          v_table_order_id,
-          (v_item->>'product_id')::uuid,
-          v_item->>'product_name',
-          (v_item->>'quantity')::integer,
-          (v_item->>'unit_price')::numeric,
-          v_item->>'observation',
-          'pending'
-        );
-      END LOOP;
-
-      UPDATE public.table_orders 
-      SET total_amount = total_amount + _total_amount,
-          subtotal = subtotal + _total_amount
-      WHERE id = v_table_order_id;
-    END IF;
-  END IF;
 
   RETURN v_order_id;
 END;
